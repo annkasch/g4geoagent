@@ -18,7 +18,7 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from g4geoagent.agent.compare import _squash, locate, numbers_in, sentences
-from g4geoagent.agent.graph_schemas import Extraction
+from g4geoagent.agent.graph_schemas import RELATIONS, Extraction, Property, Relation
 from g4geoagent.agent.llm import call_llm_json
 from g4geoagent.agent.readers import READERS
 
@@ -96,6 +96,54 @@ Rules
 Answer with one JSON object that fits this schema and nothing else:
 {schema}"""
 
+PROMPT_3 = """You read a document about a particle detector and write down how the detector is built, so that a
+geometry model can be made from it. Extract three kinds of records.
+
+parts: every physical part of the detector that the document names: vessels, shields, liquids and gases that fill
+them, sensitive detectors, sensors, supports, electronics. One record per part, in the singular. Give the shape
+if the document says or clearly implies it (a tank with a diameter and a height is a cylinder).
+- The detector as a whole is a part too, when the document says what it is made up of ("the detector suite
+  consists of A, B and C"): then the whole consists_of each of them.
+- A vessel and what fills it are two parts: "a tank with 590 m3 of water" gives the tank, the water, and the
+  relation: tank contains water.
+
+properties: every value that describes a part.
+- Sizes, masses, volumes. A value belongs to the thing it measures: "a cryostat with 64 m3 of liquid argon" gives
+  the volume of the liquid argon, not of the cryostat. A value in brackets belongs to the thing named just
+  before the brackets.
+- Values in tables and in figure captions count like values in the text.
+- Materials. What a part is made of is a property with quantity 'material' and the material as text value:
+  "a stainless steel cryostat" gives cryostat, material, "stainless steel". What fills a vessel is a part of its own.
+- Counts. How many there are of a part is a property with quantity 'count': "66 PMTs", "arranged in 12 strings",
+  "a 7 x 5 array of modules" (value "7 x 5"), "three fibres per cube" (count 3, which 'each'). A count written
+  as a word ("seven strings") is given as a number.
+- Keep the wording: "about 6 t" is 'about', "up to 90%" is 'up_to', "more than 60%" is 'at_least'.
+- 'each' is only for one item of a part that exists many times (one PMT of 66), 'total' for all of them
+  together (the mass of the whole array). For a part that exists once, leave it 'not_stated'.
+- Values that are not geometry (voltages, temperatures, energies, rates, dates, resolutions) get built = false.
+
+relations: every statement about how two parts are arranged. Use:
+- contains: "A is inside B", "B is filled with A", "B houses A" are all written as B contains A.
+- surrounds, encloses: A is around B.
+- consists_of: A is made up of several B ("an array of modules", "6 planes"); give the count if stated.
+- mounted_on, attached_to: A is fixed to B. A sensor that reads out a part is attached_to that part.
+- next_to: A is beside, upstream or downstream of B. "A sandwiched between two B" is A next_to B.
+- at_bottom_of, at_top_of, centred_in, concentric_with, outside.
+One record per statement. Give every part a relation that says where it is, if the document says so anywhere.
+
+Rules
+- Use only what the document says. Do not add knowledge of your own.
+- Every record needs a quote: a short run of exact words of the document, at most about 20 words, from one
+  sentence, copied character by character, without reference marks such as [8]. A quote for a number must
+  contain the number as it is written.
+- Use the same name for a part in all records.
+- 'about' names the detector or experiment the statement describes. Statements about other experiments, earlier
+  versions or prototypes are still recorded, with their own name under 'about'.
+{procedure}
+
+Answer with one JSON object that fits this schema and nothing else:
+{schema}"""
+
 FIGURE_PROMPT = """This figure is from a paper about the detector {detector}. Its caption: "{caption}".
 
 Write down what the figure shows about how the detector is built, as the same three kinds of records as for text:
@@ -116,7 +164,7 @@ def norm(name):
     return re.sub(r"(?<=[a-z]{3})s$", "", text)
 
 
-def read_text(documents, reader, log=None, prompt=None):
+def read_text(documents, reader, log=None, prompt=None, seed=None):
     """One reader's Extraction of the text documents ({file name: text})."""
     model, procedure = READERS[reader]
     prompt = prompt or PROMPT
@@ -124,8 +172,23 @@ def read_text(documents, reader, log=None, prompt=None):
     schema = json.dumps(Extraction.model_json_schema(), separators=(",", ":"))
     messages = [{"role": "system", "content": prompt.format(procedure="- " + procedure, schema=schema)},
                 {"role": "user", "content": text}]
-    answer, _ = call_llm_json(model, messages, Extraction, log=log, stage=f"graph_reader_{reader}", temperature=0)
+    options = {} if seed is None else {"seed": seed}
+    answer, _ = call_llm_json(model, messages, Extraction, log=log, stage=f"graph_reader_{reader}", temperature=0, **options)
     return answer
+
+
+def union(*extractions):
+    """The records of several readings by the same reader, each one once."""
+    seen, out = set(), {"parts": [], "properties": [], "relations": []}
+    for extraction in extractions:
+        for kind in out:
+            for record in getattr(extraction, kind):
+                key = (kind, _squash(record.quote), str(getattr(record, "value", getattr(record, "relation", ""))),
+                       norm(getattr(record, "name", getattr(record, "of", getattr(record, "subject", "")))))
+                if key not in seen:
+                    seen.add(key)
+                    out[kind].append(record)
+    return Extraction(**out)
 
 
 def read_figure(figure, folder, detector, log=None, model="lbl/gemma-4", prompt=None):
@@ -203,7 +266,7 @@ FAMILY = {"contains": "within", "encloses": "within", "surrounds": "within", "co
 SPECIFIC = ["surrounds", "encloses", "consists_of", "contains", "mounted_on", "attached_to"]     # the more telling word wins
 
 
-def merge(readings, documents, detector, by_family=False, same=()):
+def merge(readings, documents, detector, by_family=False, same=(), figures_extend_only=False, tidy_values=False):
     """One graph from several checked readings ({reader name: Extraction}; a name starting with 'figure' marks
     a reading of a figure). Returns a dict with nodes, properties, relations."""
     # names that mean the same part: joined when two parts share a name or another name
@@ -235,13 +298,31 @@ def merge(readings, documents, detector, by_family=False, same=()):
             return {"file": reader.split(":", 1)[1], "page": None, "sentence": "", "status": "from a figure"}
         return {**_sentence(quote, documents), "status": "stated"}
 
+    seen_only = []
+    if figures_extend_only:
+        # a figure may add to parts that the text names. A part that only a figure shows is kept apart,
+        # as something to look for, and so are relations and properties that involve such a part.
+        in_text = {find(norm(x)) for r, e in readings.items() if not r.startswith("figure")
+                   for p in e.parts for x in (p.name, *p.also_called) if norm(x)}
+        trimmed = {}
+        for reader, extraction in readings.items():
+            if not reader.startswith("figure"):
+                trimmed[reader] = extraction
+                continue
+            known = lambda name: find(norm(name)) in in_text
+            seen_only += [{"name": norm(p.name), "what": p.what, "features": p.features, "figure": reader.split(":", 1)[1]}
+                          for p in extraction.parts if not known(p.name)]
+            trimmed[reader] = Extraction(parts=[p for p in extraction.parts if known(p.name)],
+                                         properties=[p for p in extraction.properties if known(p.of)],
+                                         relations=[r for r in extraction.relations if known(r.subject) and known(r.object)])
+        readings = trimmed
     for reader, extraction in readings.items():
         for part in extraction.parts:
             n = node(part.name)
             n["also_called"] |= {part.name, *part.also_called} - {n["name"]}
             n["what"] = n["what"] or part.what
             n["shape"] = part.shape if n["shape"] == "not_stated" else n["shape"]
-            n["features"] |= {f.lower() for f in part.features}
+            n["features"] |= {re.sub(r"[\u2010-\u2015\u2212]", "-", f.lower()).strip() for f in part.features}
             n["detail"] = n["detail"] or part.detail
             n["about"].add(part.about)
             n["readers"].add(reader)
@@ -249,10 +330,16 @@ def merge(readings, documents, detector, by_family=False, same=()):
     properties, relations = {}, {}
     for reader, extraction in readings.items():
         for p in extraction.properties:
+            if tidy_values and isinstance(p.value, str):
+                # "about 6 t" written as text is the number 6 with the unit t and the wording "about"
+                found = re.fullmatch(r"\s*(about|approximately|around|~|∼|up to|more than|at least)?\s*([-+]?\d+(?:\.\d+)?)\s*([A-Za-zμµ%³0-9/]*)\s*", p.value)
+                if found and p.quantity != "material":
+                    word = {"up to": "up_to", "more than": "at_least", "at least": "at_least"}.get(found.group(1) or "", "about" if found.group(1) else p.wording)
+                    p = p.model_copy(update={"value": float(found.group(2)), "unit": p.unit or found.group(3), "wording": word})
             value = round(float(p.value), 6) if isinstance(p.value, (int, float)) else re.sub(r"\W+", " ", str(p.value).lower()).strip()
             key = (node(p.of)["name"], p.quantity if p.quantity != "other" else p.quantity_other.lower(), value)
             if by_family and isinstance(p.value, (int, float)):
-                key = (key[0], value, _squash(p.unit))      # the same number on the same part is the same statement
+                key = (key[0], value, "" if tidy_values else _squash(p.unit))      # the same number on the same part is the same statement
             entry = properties.setdefault(key, {"of": node(p.of)["name"], "quantity": p.quantity if p.quantity != "other" else p.quantity_other.lower(), "which": p.which, "value": p.value, "unit": p.unit,
                                                 "wording": p.wording, "built": p.built, "about": p.about, "readers": set(),
                                                 "quote": p.quote, **where(reader, p.quote)})
@@ -281,7 +368,7 @@ def merge(readings, documents, detector, by_family=False, same=()):
         both = text_readers and text_readers <= readers
         return "both readers" if both else ", ".join(sorted("figure" if r.startswith("figure") else "reader " + r for r in readers))
 
-    graph = {"detector": detector, "nodes": [], "properties": [], "relations": []}
+    graph = {"detector": detector, "nodes": [], "properties": [], "relations": [], "seen_only_in_figures": seen_only}
     for n in nodes.values():
         graph["nodes"].append({**n, "also_called": sorted(n["also_called"]), "features": sorted(n["features"]),
                                "about": sorted(n["about"]), "found_by": agreement(n["readers"]), "readers": sorted(n["readers"])})
@@ -294,15 +381,207 @@ def merge(readings, documents, detector, by_family=False, same=()):
     return graph
 
 
+class Verdict(BaseModel):
+    item: int
+    verdict: str = Field(description="'confirmed', 'corrected', 'wrong' or 'not_construction'")
+    relation: str = Field(default="", description="For 'corrected': the relation that the sentence does state")
+    swap: bool = Field(default=False, description="For 'corrected': true if subject and object have to change places")
+
+
+class Verdicts(BaseModel):
+    verdicts: list[Verdict]
+
+
+def cross_check(readings, documents, detector, log=None, known=None, correct=False, votes=1):
+    """Every property and relation that only one reader has goes to the other reader, with the sentence it was
+    taken from. Confirmed records count for both readers. Records judged wrong are taken out and returned as
+    disputed. A property judged not to be construction is kept as not built; such a relation is taken out.
+    With `correct`, the checker may put right the kind of a relation ("the huts are on top of the tank", not in it)
+    instead of rejecting it.
+    With `votes` above 1 the checker is asked that many times; an entry is taken out only if every answer
+    rejects it, and it counts as confirmed if any answer confirms it.
+    `known` is a dict of earlier verdicts ({signature: verdict}) and is filled in, so that it can be kept on disk.
+    Returns (readings, disputed)."""
+    known = {} if known is None else known
+    graph = merge({r: e for r, e in readings.items() if not r.startswith("figure")}, documents, detector, by_family=True)
+    disputed = []
+    for reader, other in (("A", "B"), ("B", "A")):
+        single = [("property", p) for p in graph["properties"] if p["readers"] == [reader]] + \
+                 [("relation", r) for r in graph["relations"] if r["readers"] == [reader]]
+
+        def signature(kind, entry):
+            return f"{other}|{kind}|{entry.get('of', entry.get('subject'))}|{entry.get('quantity', entry.get('relation'))}|" \
+                   f"{entry.get('value', entry.get('object'))}|{_squash(entry['quote'])[:80]}"
+
+        for vote in range(votes):
+            tag = "" if vote == 0 else f"#{vote}"
+            ask = [(kind, entry) for kind, entry in single if signature(kind, entry) + tag not in known]
+            for start in range(0, len(ask), 20):
+                batch = ask[start:start + 20]
+                items = []
+                for i, (kind, e) in enumerate(batch):
+                    stated = (f"{e['of']}: {e['quantity']} = {e['value']} {e['unit']}" if kind == "property"
+                              else f"{e['subject']} {e['relation'].replace('_', ' ')} {e['object']}")
+                    items.append(f"{i}. {stated}\n   sentence: \"{(e.get('sentence') or e['quote'])[:500]}\"")
+                request = (f"Another reader extracted these statements about how the detector {detector} is built. Check "
+                           "each one against the sentence it was taken from.\n- 'confirmed': the sentence says this.\n"
+                           "- 'wrong': the sentence does not say this, or says it about another part or another quantity.\n"
+                           "- 'not_construction': the sentence says it, but it is not about how the detector is built "
+                           "(a physics result, a performance figure, an operating value).\n"
+                           + ("- 'corrected': for a relation between two parts that the sentence does relate, but in another "
+                              "way. Give the right relation, one of: " + ", ".join(RELATIONS) + "; and swap = true if subject "
+                              "and object have to change places. Prefer this over 'wrong' when the two parts do belong "
+                              "together.\n" if correct else "")
+                           + "\nItems:\n" + "\n".join(items)
+                           + '\n\nAnswer with one JSON object: {"verdicts": [{"item": 0, "verdict": "confirmed"}, ...]}')
+                try:
+                    answer, _ = call_llm_json(READERS[other][0], [{"role": "user", "content": request}], Verdicts, log=log,
+                                              stage=f"graph_cross_check_{other}", temperature=0, **({"seed": vote} if vote else {}))
+                    given = {v.item: (v.verdict if v.verdict != "corrected" else f"corrected:{v.relation}:{int(v.swap)}")
+                             for v in answer.verdicts}
+                except ValueError:
+                    given = {}
+                for i, (kind, e) in enumerate(batch):
+                    known[signature(kind, e) + tag] = given.get(i, "confirmed")
+        for kind, e in single:
+            answers = [known.get(signature(kind, e) + ("" if v == 0 else f"#{v}"), "confirmed") for v in range(votes)]
+            kinds = [a.split(":")[0] for a in answers]
+            verdict = (next((a for a in answers if a == "confirmed"), None) or next((a for a in answers if a.startswith("corrected:")), None)
+                       or ("not_construction" if "not_construction" in kinds else "wrong"))
+            records = readings[reader].properties if kind == "property" else readings[reader].relations
+            match = [r for r in records if _squash(r.quote) == _squash(e["quote"]) and
+                     (norm(r.of) if kind == "property" else norm(r.subject)) in
+                     {norm(e.get("of", e.get("subject"))), *[norm(a) for n in graph["nodes"] if n["name"] == e.get("of", e.get("subject")) for a in n["also_called"]]}]
+            if verdict.startswith("corrected:") and kind == "relation" and verdict.split(":")[1] in RELATIONS:
+                _, relation, swap = verdict.split(":")
+                for r in match:
+                    r.relation = relation
+                    if swap == "1":
+                        r.subject, r.object = r.object, r.subject
+                verdict = "confirmed"
+            if verdict == "confirmed":
+                target = readings[other].properties if kind == "property" else readings[other].relations
+                target += match[:1]
+            elif verdict == "not_construction" and kind == "property":
+                for r in match:
+                    r.built = False
+            else:
+                disputed.append({"kind": kind, "reader": reader, "verdict": verdict, **{k: v for k, v in e.items() if k != "readers"}})
+                for r in match:
+                    records.remove(r)
+    return readings, disputed
+
+
+class Missed(BaseModel):
+    item: int
+    construction: bool = Field(description="true if the number states how the detector is built: a size, a count, a mass, a volume, a composition")
+    property: Property | None = Field(default=None, description="The property record, only if construction is true")
+
+
+class MissedList(BaseModel):
+    answers: list[Missed]
+
+
+def coverage_pass(readings, documents, detector, log=None, window=1, reader="A"):
+    """Numbers that no property covers, in the sentences the readers took records from and their neighbours,
+    go back to one reader: is it a construction value that was missed? Returns the new Property records
+    (already checked against the document). They still count as found by one reader only."""
+    from g4geoagent.agent.compare import POINTERS
+    covered = {float(n) for e in readings.values() for p in e.properties
+               for n in ([p.value] if isinstance(p.value, (int, float)) else numbers_in(str(p.value)))}
+    names = sorted({norm(p.name) for e in readings.values() for p in e.parts})
+    items = []
+    for text in documents.values():
+        parts = sentences(text)
+        active = set()
+        for e in readings.values():
+            for record in [*e.parts, *e.properties, *e.relations]:
+                for i in locate(record.quote, text):
+                    active.update(range(max(0, i - window), min(len(parts), i + window + 1)))
+        for i in sorted(active):
+            for number in dict.fromkeys(numbers_in(POINTERS.sub(" ", REFERENCE.sub(" ", parts[i])))):
+                if number not in covered:
+                    items.append((number, parts[i]))
+    added = []
+    schema = json.dumps(MissedList.model_json_schema(), separators=(",", ":"))
+    for start in range(0, len(items), 20):
+        batch = items[start:start + 20]
+        listing = "\n".join(f"{i}. the number {number:g} in: \"{sentence[:400]}\"" for i, (number, sentence) in enumerate(batch))
+        request = (f"A document about the detector {detector} was read, and these numbers were not written down. For "
+                   "each one decide: does it state how the detector is built (a size, a count, a mass, a volume, a "
+                   "composition of a part)? If yes, give the property record: the part it belongs to, the quantity, "
+                   "the value, the unit, and a quote of at most 20 exact words from the sentence that contains the "
+                   "number. Parts named so far: " + ", ".join(names) + ". Numbers that are energies, rates, years, "
+                   "resolutions, voltages, figure or section numbers are not construction.\n\nItems:\n" + listing
+                   + "\n\nAnswer with one JSON object that fits this schema and nothing else:\n" + schema)
+        try:
+            answer, _ = call_llm_json(READERS[reader][0], [{"role": "user", "content": request}], MissedList, log=log,
+                                      stage="graph_coverage", temperature=0)
+        except ValueError:
+            continue
+        added += [a.property for a in answer.answers if a.construction and a.property]
+    kept, _ = check(Extraction(parts=[], properties=added, relations=[]), documents, tolerant=True)
+    return kept.properties
+
+
+class Placement(BaseModel):
+    item: int
+    stated: bool = Field(description="true if the sentences say where the part is or what it belongs to")
+    relation: Relation | None = Field(default=None, description="The relation record, only if stated is true")
+
+
+class Placements(BaseModel):
+    answers: list[Placement]
+
+
+def placement_pass(graph, documents, detector, log=None, reader="B"):
+    """For every part of which the graph does not say where it is: the sentences that mention the part go to
+    one reader, who gives the relation to another part if the document states one. Returns the new Relation
+    records (already checked against the document)."""
+    names = [n["name"] for n in graph["nodes"]]
+    lost = [n for n in graph["nodes"] if "where it is" in n["unknown"]]
+    items = []
+    for n in lost:
+        words = {w.lower() for w in [n["name"].replace("_", " "), *n["also_called"]] if len(w) > 2}
+        found = [s for text in documents.values() for s in sentences(text)
+                 if any(re.sub(r"[_\-]", " ", w) in re.sub(r"[_\-]", " ", s.lower()) for w in words)]
+        if found:
+            items.append((n, " ".join(found[:4])[:900]))
+    added = []
+    schema = json.dumps(Placements.model_json_schema(), separators=(",", ":"))
+    for start in range(0, len(items), 10):
+        batch = items[start:start + 10]
+        listing = "\n".join(f"{i}. part: {n['name']} ({n['what']})\n   sentences: \"{text}\"" for i, (n, text) in enumerate(batch))
+        request = (f"These parts of the detector {detector} were found in a document, but not where they are. For each "
+                   "part, read its sentences: do they say where the part is, what it is inside of, on, attached to, "
+                   "next to, or what it is a component of? If yes, give one relation record between this part and "
+                   "another part, with a quote of at most 20 exact words from the sentences. Use these names for the "
+                   "other part where they fit: " + ", ".join(names) + ". Relations: " + ", ".join(RELATIONS) + ". "
+                   "'B contains A' for A inside B; 'B consists_of A' for A a component of B. If the sentences do not "
+                   "say it, answer stated = false. Do not guess.\n\nItems:\n" + listing
+                   + "\n\nAnswer with one JSON object that fits this schema and nothing else:\n" + schema)
+        try:
+            answer, _ = call_llm_json(READERS[reader][0], [{"role": "user", "content": request}], Placements, log=log,
+                                      stage="graph_placement", temperature=0)
+        except ValueError:
+            continue
+        added += [a.relation for a in answer.answers if a.stated and a.relation]
+    kept, _ = check(Extraction(parts=[], properties=[], relations=added), documents, tolerant=True)
+    return kept.relations
+
+
 class SameParts(BaseModel):
     same: list[list[str]] = Field(description="Groups of names from the list that are one and the same physical part")
 
 
-def same_parts(graph, log=None, model="lbl/gpt-oss-120b"):
+def same_parts(graph, log=None, model="lbl/gpt-oss-120b", with_figures=False):
     """Names in the graph that mean the same part: [[name, name, ...], ...]. Asked of a model that sees every
     part with what it is and the words it was introduced with."""
     listing = "\n".join(f"- {n['name']}: {n['what']} (also called: {', '.join(n['also_called']) or '-'}; "
                         f"introduced as: \"{n['quotes'][0]['quote'][:120] if n['quotes'] else ''}\")" for n in graph["nodes"])
+    seen = graph.get("seen_only_in_figures", []) if with_figures else []
+    if seen:
+        listing += "\nLabels read from figures of the same detector:\n" + "\n".join(f"- {s['name']}: {s['what']}" for s in seen)
     request = (f"These parts were extracted from documents about the detector {graph['detector']}, by two readers who "
                f"did not always use the same names:\n\n{listing}\n\n"
                "Which of these names are one and the same physical part under two names? For example an abbreviation "
@@ -316,7 +595,7 @@ def same_parts(graph, log=None, model="lbl/gpt-oss-120b"):
                                   stage="graph_same_parts", temperature=0)
     except ValueError:
         return []
-    known = {n["name"] for n in graph["nodes"]}
+    known = {n["name"] for n in graph["nodes"]} | {s["name"] for s in seen}
     return [[n for n in group if n in known] for group in answer.same if len([n for n in group if n in known]) > 1]
 
 
@@ -324,6 +603,10 @@ def unknown(node, graph):
     """What the graph does not say about a part and a build would need."""
     have = {p["quantity"] for p in graph["properties"] if p["of"] == node["name"] and p["built"]}
     missing = []
+    filling = any(r["object"] == node["name"] and r["relation"] == "contains" for r in graph["relations"]) and \
+        bool(re.search(r"water|argon|xenon|nitrogen|gas|liquid|oil|scintillator_liquid|air|vacuum|gel|ice", node["name"]))
+    if filling:
+        return [] if have & {"volume", "mass"} or True else []          # it fills its vessel; nothing more is needed to build it
     if node["shape"] in ("not_stated", "other"):
         missing.append("shape")
     for options in NEEDED.get(node["shape"], []):
@@ -384,27 +667,41 @@ def as_text(graph):
 
 
 def build_graph(folder, text_files, pdf=None, detector="detector", log=None):
-    """Read, check and merge. Writes graph.json, graph.txt and dropped.json into `folder`."""
+    """The graph of a detector from its documents, with the set-up chosen in experiments/notes/graph.md (design 14).
+    Writes graph.json, graph.txt, dropped.json and disputed.json into `folder`."""
     from g4geoagent.reviewer import look
     folder = Path(folder)
     folder.mkdir(parents=True, exist_ok=True)
     documents = {Path(f).name: Path(f).read_text() for f in text_files}
-    with ThreadPoolExecutor(2) as pool:
-        raw = dict(zip("AB", pool.map(lambda r: read_text(documents, r, log), "AB")))
+    # 1. each reader reads the text twice; the records of both passes are pooled
+    jobs = [(reader, seed) for reader in "AB" for seed in (None, 2)]
+    with ThreadPoolExecutor(4) as pool:
+        raw = list(pool.map(lambda job: read_text(documents, job[0], log, PROMPT_3, job[1]), jobs))
     readings, dropped = {}, []
-    for reader, extraction in raw.items():
-        readings[reader], out = check(extraction, documents)
+    for reader in "AB":
+        pooled = union(*(e for (r, _), e in zip(jobs, raw) if r == reader))
+        # 2. every quote is checked against the document
+        readings[reader], out = check(pooled, documents, tolerant=True)
         dropped += [{"reader": reader, **d} for d in out]
+    # 3. numbers the readers left out go back to one reader
+    readings["A"].properties += coverage_pass(readings, documents, detector, log)
+    # 4. what only one reader has is checked by the other, twice
+    readings, disputed = cross_check(readings, documents, detector, log, correct=True, votes=2)
+    # 5. figures that show the construction are read by a vision model; they add to parts the text names
     if pdf:
         figures = look.extract_figures(pdf, folder / "figures")
-        for figure in look.construction_figures(figures, folder / "figures", detector, log, most=len(figures)):
+        for figure in look.construction_figures(figures[:12], folder / "figures", detector, log, most=3):
             seen = read_figure(figure, folder / "figures", detector, log)
             if seen:
                 readings[f"figure:{figure['file']}"] = seen
-    graph = merge(readings, documents, detector)
+    # 6. one graph; then names that mean the same part are joined
+    options = dict(by_family=True, figures_extend_only=True, tidy_values=True)
+    graph = merge(readings, documents, detector, **options)
+    graph = merge(readings, documents, detector, same=same_parts(graph, log, with_figures=True), **options)
     (folder / "graph.json").write_text(json.dumps(graph, indent=1, default=sorted))
     (folder / "graph.txt").write_text(as_text(graph) + "\n")
     (folder / "dropped.json").write_text(json.dumps(dropped, indent=1))
+    (folder / "disputed.json").write_text(json.dumps(disputed, indent=1, default=sorted))
     return graph, dropped
 
 

@@ -53,14 +53,19 @@ def readings_for(design, paper, fresh, log):
     """The checked readings of one paper under `design`: {reader: Extraction}, and the dropped records."""
     documents, readings, dropped, raw_count = text_of(paper), {}, [], 0
 
-    def raw(reader):
-        file = OUT / "readings" / design["reading"] / f"{paper}_{reader}.json"
+    def once(reader, name, **more):
+        file = OUT / "readings" / name / f"{paper}_{reader}.json"
         if file.exists() and not fresh:
             return Extraction.model_validate_json(file.read_text())
         file.parent.mkdir(parents=True, exist_ok=True)
-        answer = G.read_text(documents, reader, log, **design.get("read_options", {}))
+        answer = G.read_text(documents, reader, log, **design.get("read_options", {}), **more)
         file.write_text(answer.model_dump_json(indent=1))
         return answer
+
+    def raw(reader):                             # with `passes`, each reader reads several times and the records are pooled
+        first = once(reader, design["reading"])
+        more = [once(reader, f"{design['reading']}_pass{i}", seed=i) for i in range(2, design.get("passes", 1) + 1)]
+        return G.union(first, *more)
 
     with ThreadPoolExecutor(2) as pool:
         for reader, extraction in zip("AB", pool.map(raw, "AB")):
@@ -153,21 +158,41 @@ def one(job):
     design = DESIGNS[name]
     log = RunLog(OUT / name / f"{paper}.jsonl")
     documents, readings, dropped, raw_count = readings_for(design, paper, fresh, log)
-    for step in design.get("after_check", []):               # steps that change the readings, e.g. a cross-check
-        readings = step(readings, documents, NAMES[paper], log)
+    if design.get("coverage"):                               # numbers the readers left out go back to one reader; kept on disk
+        file = OUT / "coverage" / design["coverage"] / f"{paper}.json"
+        if not file.exists() or fresh:
+            file.parent.mkdir(parents=True, exist_ok=True)
+            found = G.coverage_pass(readings, documents, NAMES[paper], log)
+            file.write_text(json.dumps([p.model_dump() for p in found], indent=1))
+        readings["A"].properties += [G.Property.model_validate(p) for p in json.loads(file.read_text())]
+    if design.get("placement"):                              # parts without a place: their sentences go back to one reader
+        file = OUT / "placement" / design["placement"] / f"{paper}.json"
+        if not file.exists() or fresh:
+            file.parent.mkdir(parents=True, exist_ok=True)
+            first = G.merge(readings, documents, NAMES[paper], by_family=True)
+            file.write_text(json.dumps([r.model_dump() for r in G.placement_pass(first, documents, NAMES[paper], log)], indent=1))
+        readings["B"].relations += [G.Relation.model_validate(r) for r in json.loads(file.read_text())]
+    disputed = []
+    if design.get("cross_check"):                            # single-reader records go to the other reader; verdicts kept on disk
+        file = OUT / "cross_check" / design["cross_check"] / f"{paper}.json"
+        known = json.loads(file.read_text()) if file.exists() and not fresh else {}
+        readings, disputed = G.cross_check(readings, documents, NAMES[paper], log, known, **design.get("cross_options", {}))
+        file.parent.mkdir(parents=True, exist_ok=True)
+        file.write_text(json.dumps(known, indent=1))
     graph = G.merge(readings, documents, NAMES[paper], **design.get("merge_options", {}))
     if design.get("same_parts"):                             # a model names the parts that appear twice; kept on disk
         file = OUT / "same_parts" / design["same_parts"] / f"{paper}.json"
         if not file.exists() or fresh:
             file.parent.mkdir(parents=True, exist_ok=True)
-            file.write_text(json.dumps(G.same_parts(graph, log)))
+            file.write_text(json.dumps(G.same_parts(graph, log, **design.get("same_options", {}))))
         graph = G.merge(readings, documents, NAMES[paper], same=json.loads(file.read_text()), **design.get("merge_options", {}))
     for step in design.get("after_merge", []):
         graph = step(graph, documents, NAMES[paper], log)
     (OUT / name).mkdir(parents=True, exist_ok=True)
     (OUT / name / f"{paper}.json").write_text(json.dumps(graph, indent=1, default=sorted))
     (OUT / name / f"{paper}.txt").write_text(G.as_text(graph) + "\n")
-    return name, score(graph, paper, dropped, raw_count)
+    (OUT / name / f"{paper}_disputed.json").write_text(json.dumps(disputed, indent=1, default=sorted))
+    return name, {**score(graph, paper, dropped, raw_count), "disputed": len(disputed)}
 
 
 if __name__ == "__main__":
@@ -177,12 +202,13 @@ if __name__ == "__main__":
     with ThreadPoolExecutor(5) as pool:
         results = list(pool.map(one, [(d, p, "--fresh" in args) for d in designs for p in papers]))
     share = lambda rows, key: sum(r[key][0] for r in rows) / max(sum(r[key][1] for r in rows), 1)
-    print(f"{'design':26s} values  relations  placed  joined  agreed  dropped  doubles  parts")
+    print(f"{'design':26s} values  relations  placed  joined  agreed  dropped  doubles  parts  entries  disputed")
     for design in designs:
         rows = [r for d, r in results if d == design]
         print(f"{design:26s} {share(rows, 'values'):5.0%}  {share(rows, 'relations'):8.0%}  {share(rows, 'placed'):6.0%}  "
               f"{share(rows, 'joined'):5.0%}  {share(rows, 'agreed'):6.0%}  {share(rows, 'dropped'):6.0%}  "
-              f"{sum(len(r['doubles']) for r in rows):7d}  {sum(r['nodes'] for r in rows):5d}")
+              f"{sum(len(r['doubles']) for r in rows):7d}  {sum(r['nodes'] for r in rows):5d}  "
+              f"{sum(r['properties'] + r['edges'] for r in rows):7d}  {sum(r['disputed'] for r in rows):8d}")
         if "--detail" in args:
             for r in rows:
                 print(f"    {r['paper']:9s} values {r['values'][0]}/{r['values'][1]} relations {r['relations'][0]}/{r['relations'][1]} "

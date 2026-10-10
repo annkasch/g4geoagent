@@ -71,7 +71,13 @@ def extract_figures(pdf_path, folder):
             large = [i for i in page.get_image_info() if i["width"] >= MIN_SIZE[0] and i["height"] >= MIN_SIZE[1]]
             for k, info in enumerate(large):
                 name = f"{Path(pdf_path).stem}_p{number}_{k}.png"
-                page.get_pixmap(clip=pymupdf.Rect(info["bbox"]), dpi=150).save(folder / name)
+                try:                                    # a picture that cannot be cut out is left out
+                    box = pymupdf.Rect(info["bbox"]) & page.rect
+                    if box.is_empty or box.width < 20 or box.height < 20:
+                        continue
+                    page.get_pixmap(clip=box, dpi=150, colorspace=pymupdf.csRGB, alpha=False).save(folder / name)
+                except Exception:
+                    continue
                 caption = " ".join(captions[min(k, len(captions) - 1)].split()) if captions else ""
                 figures.append({"file": name, "page": number, "caption": caption[:500], "source": Path(pdf_path).name})
     return figures
