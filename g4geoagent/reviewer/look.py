@@ -57,7 +57,6 @@ def extract_figures(pdf_path, folder):
                 page.get_pixmap(clip=pymupdf.Rect(info["bbox"]), dpi=150).save(folder / name)
                 caption = " ".join(captions[min(k, len(captions) - 1)].split()) if captions else ""
                 figures.append({"file": name, "page": number, "caption": caption[:500], "source": Path(pdf_path).name})
-    (folder / "figures.json").write_text(json.dumps(figures, indent=1))
     return figures
 
 

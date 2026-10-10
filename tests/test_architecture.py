@@ -36,11 +36,12 @@ def test_arrows_join_known_boxes():
 def test_pipeline_calls_only_steps():
     """Every function that the run calls with the state is a box, or a helper that chains boxes."""
     source = (ROOT / "g4geoagent" / "pipeline.py").read_text()
-    body = source[source.index("def run("):source.index('@step("teams")\ndef team_continues')]
-    called = {line.strip().split("(state")[0] for line in body.splitlines() if "(state)" in line and "=" not in line.split("(state")[0]}
-    called = {name.removeprefix("if not ") for name in called}
+    body = source[source.index("def build_round("):source.index("def construction_figures_step(")]
+    import re
+    called = set(re.findall(r"(?<![.\w])([a-z_]+)\(state[,)]", body)) - {"build_round", "run"}
     steps = {f.__name__ for functions in FUNCTIONS.values() for f in functions}
-    assert called <= steps | {"read_documents"}, f"not a box: {sorted(called - steps - {'read_documents'})}"
+    helpers = {"read_documents", "build_round", "construction_figures_step", "pieces"}     # they only chain boxes
+    assert called <= steps | helpers, f"not a box: {sorted(called - steps - helpers)}"
 
 
 def test_drawing_matches():

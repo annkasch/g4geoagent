@@ -18,13 +18,22 @@ def evidence_report(state, architecture_problems):
     add("")
     add("## Result")
     if best:
-        s, report = best["summary"], best["report"]
+        s, r, report = best["summary"], best["relations"], best["report"]
         add(f"- Geometry: `detector.gdml`, from round {best['round']}, {len(report.get('parts', [])) - 1} placed volumes.")
         add(f"- Geant4: {'loads without overlaps or warnings' if report['ok'] else 'PROBLEMS: ' + _cell(report['overlaps'] or report['problems'] or report['error'], 200)}.")
         add(f"- Claims that describe the construction: {s['claims']}. Met in the geometry: {s['met']}. Not met: {s['not met']}. "
             f"Shown but not measurable: {s['not measurable']}. Not shown by the builder: {s['not shown']}.")
+        add(f"- Statements of the layout plan: {sum(r.values())}. Met: {r['met']}. Not met: {r['not met']}. Not shown: {r['not shown']}.")
+        if best.get("left_out"):
+            add(f"- **Parts left out** because their piece did not become valid: {', '.join(best['left_out'])}.")
+        if best.get("pictures"):
+            add("- Pictures: " + ", ".join(f"`{p.relative_to(state.folder)}`" for p in best["pictures"]) + ".")
     else:
         add("- No geometry that loads in Geant4 was produced.")
+    add("")
+    add("## What still differs from the figures")
+    add((best or {}).get("final_findings") or ("The final look found no differences, or there was no figure to compare with."
+                                                if best else "Nothing was built."))
     add("")
     add("## Important and unconfirmed")
     estimates = [e for e in (best["notes"].get("estimates", []) if best else []) if isinstance(e, dict)]
@@ -39,6 +48,20 @@ def evidence_report(state, architecture_problems):
     else:
         add("The builder listed no estimates." if best else "Nothing was built.")
     add("")
+    if state.plan:
+        add("## Layout plan and how the geometry follows it")
+        add("")
+        add("| Part | Inside | Form | Detail | Team |")
+        add("|---|---|---|---|---|")
+        for p in state.plan.parts:
+            add(f"| {_cell(p.name, 40)} | {_cell(p.inside, 40)} | {p.form} | {p.detail} | {_cell(p.team, 30)} |")
+        add("")
+        if best:
+            add("| Statement | Check |")
+            add("|---|---|")
+            for row in best["relation_rows"]:
+                add(f"| {_cell(row['what'])} | {row['status']}{': ' + _cell(row['why'], 80) if row['why'] else ''} |")
+            add("")
     add("## Claims and how the geometry meets them")
     add("")
     add("| Id | Part | Quantity | Value | Source | Check | Expected | Measured |")
@@ -57,22 +80,26 @@ def evidence_report(state, architecture_problems):
     for r in state.research:
         add(f"- Round {r['round']}, searched for **{_cell(r['quantity'])}** of {_cell(r['part'])} (query: \"{_cell(r['query'])}\"). "
             f"{r['candidates']} new papers offered. Outcome: {_cell(r['outcome'], 200)}"
-            + (f" Saved: {', '.join('`' + f + '`' for f in r['files'])}. Of the first one, {r['pages_read']} of {r['pages']} pages were kept." if r["file"] else ""))
+            + (f" Saved: {', '.join('`' + f + '`' for f in r['files'])}, with {r.get('figures', 0)} figures." if r["file"] else ""))
     add("")
     add("Sources in the evidence folder:")
     for s in state.evidence.sources():
         add(f"- `{s['file']}`: {s['origin']}, {s['date']}" + (f", {s['url']}" if s.get("url") else ""))
     add("")
-    add(f"## Disputed and dropped claims")
+    add(f"Figures: {len(state.figures_judged)} saved, {len(state.figures)} show how the detector is built:")
+    for f in state.figures:
+        add(f"- `figures/{f['file']}` ({f['source']}, page {f['page']}): {_cell(f['shows'], 200)}")
+    add("")
+    add("## Disputed and dropped claims")
     add(f"{len(state.disputed)} claims were made by one reader and rejected by the other. "
         f"{len(state.dropped)} were dropped because their quote could not be verified.")
     for claim in state.disputed[:30]:
         add(f"- disputed: {_cell(claim.part, 30)} / {_cell(claim.quantity, 30)} = {_cell(claim.value, 30)} {claim.unit} ({claim.source})")
     add("")
-    add("## Not done in this version")
+    add("## What each part of the system does in this version")
     for name, box in BOXES.items():
-        if box.get("state") == "stub":
-            add(f"- **{box['title']}**: {box['first']}")
+        if box["kind"] != "data":
+            add(f"- **{box['title']}**{' (not built)' if box.get('state') == 'stub' else ''}: {box['first']}")
     add("")
     add("## Did the run follow the architecture?")
     add("Yes." if not architecture_problems else "No:")

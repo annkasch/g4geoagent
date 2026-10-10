@@ -28,11 +28,33 @@ class Evidence:
         self.log = log
 
     def add_starting(self, path):
-        """Copy a starting document into the folder."""
+        """Copy a starting document into the folder. The figures of a PDF are saved as pictures."""
         target = self.folder / Path(path).name
         shutil.copy(path, target)
         self._record(target.name, origin="starting document", url="")
+        if target.suffix == ".pdf":
+            self.add_figures(target.name)
         return target.name
+
+    def add_figures(self, pdf_name):
+        """Save the figures of a PDF of the folder under figures/, with page and caption."""
+        from g4geoagent.reviewer.look import extract_figures
+        try:
+            figures = extract_figures(self.folder / pdf_name, self.folder / "figures")
+        except Exception as error:
+            figures = []
+            if self.log:
+                self.log.event("figures_failed", "evidence", file=pdf_name, error=f"{type(error).__name__}: {str(error)[:200]}")
+        listing = self.folder / "figures" / "all_figures.jsonl"
+        if figures:
+            with listing.open("a") as f:
+                f.writelines(json.dumps(figure) + "\n" for figure in figures)
+        return figures
+
+    def figures(self):
+        """Every figure saved so far: [{file, page, caption, source}]."""
+        listing = self.folder / "figures" / "all_figures.jsonl"
+        return [json.loads(line) for line in listing.read_text().splitlines()] if listing.exists() else []
 
     def documents(self, names=None):
         """{file name: text} of the text documents, all or only `names`."""

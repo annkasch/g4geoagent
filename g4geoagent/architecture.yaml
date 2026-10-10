@@ -18,7 +18,7 @@ boxes:
     title: Reader A
     kind: ai
     state: built
-    first: Reads text documents into claims with quotes. Figures are not read.
+    first: Reads text documents into claims with quotes. Says which figures show how the detector is built; does not read values from figures.
     done: Claims of the LEGEND paper are extracted with no failing quote.
   reader_B:
     title: Reader B
@@ -41,56 +41,56 @@ boxes:
     title: Coordinator
     subtitle: Splits detector, detail levels, interfaces
     kind: ai
-    state: stub
-    first: Hands all claims to one team. No split, no detail levels, no interfaces.
-    done: A run completes with one team.
+    state: built
+    first: "Writes the layout plan for the whole detector: what is inside what, which parts are hollow, detail level per part, how parts are arranged, which team builds what. No interface documents or change requests yet."
+    done: A plan that names a container for every part and at least the arrangement the documents state.
   teams:
     title: Team 1 … N
     kind: ai
     state: built
-    first: One team. It picks the gaps worth a search and builds the detector as a single piece.
-    done: The team returns a GDML file or says why it could not.
+    first: Name the missing values worth a search, then build their parts one after the other from the outside in, extending one common script. Not in parallel.
+    done: Every team's parts are built or listed as left out.
   build:
     title: Build
     subtitle: Code
     kind: ai
     state: built
-    first: Writes one pyg4ometry script from the claims, corrected until Geant4 loads the result.
+    first: Extends the script by a few parts at a time from the plan and the claims, corrected until Geant4 loads the result, the numbers and the plan are met. Revises once more when Look finds differences.
     done: A GDML file that loads in Geant4 without overlaps.
   measure_vs_claims:
     title: Measure
     subtitle: vs claims
     kind: program
     state: built
-    first: Measures sizes, counts, masses and volumes of the volumes the builder names for each claim.
-    done: Each built claim is reported as met, not met or not measurable.
+    first: Measures sizes, counts, masses, volumes and materials against the claims, and the arrangement (inside, surrounds, centred, top, bottom, outside) against the plan. Rotations are ignored.
+    done: Each claim and each statement of the plan is reported as met, not met or not shown.
   look:
     title: Look
     subtitle: vs pictures
     kind: ai
-    state: stub
-    first: Not built. The free models misread figures.
-    done: The run log shows the step.
+    state: built
+    first: "After each piece: renders the geometry in 3D and has a vision model compare it with one figure of the detector. Gross differences only. Figures come from the PDFs in the evidence folder."
+    done: Differences from the figure are listed and sent back to the builder.
   research:
     title: Research
     subtitle: 'Online: text and figures'
     kind: ai
     state: built
-    first: Searches INSPIRE for one gap (by subject and in the full text), picks two papers, saves their arXiv text to the evidence folder, cut to the 50 pages that mention the gap most. Figures are saved with the PDF but not read.
+    first: Searches INSPIRE for one gap (by subject and in the full text), picks two papers, saves their arXiv text cut to the 50 pages that mention the gap most, and their figures. Only INSPIRE and arXiv; no image search on the open web.
     done: A gap of the LEGEND paper leads to a saved paper and to new agreed claims.
   integrate:
     title: Integrate
     subtitle: Place subsystems at interfaces
     kind: program
-    state: stub
-    first: Passes the single team's geometry on.
-    done: The run log shows the step.
+    state: built
+    first: Checks on the joined geometry that the parts of different teams sit in each other as the plan says. The teams share one script, so nothing has to be placed.
+    done: The statements of the plan between teams are reported as met or not met.
   check_whole_detector:
     title: Check whole detector
     subtitle: Overlaps, mass, counts
     kind: program
     state: built
-    first: The final table of all built claims against the geometry, with the share that is met.
+    first: The final table of all claims and all statements of the plan against the geometry.
     done: The table is in the evidence report.
   run_geant4:
     title: Run in Geant4
@@ -103,15 +103,15 @@ boxes:
     title: Final look
     subtitle: Against the original pictures, by region
     kind: ai
-    state: stub
-    first: Not built. The free models misread figures.
-    done: The run log shows the step.
+    state: built
+    first: Renders the whole geometry and compares it with up to three figures. What differs goes into the report and to the teams of the next round.
+    done: The report lists what still differs from the figures.
   round_rule:
     title: Did this round change anything?
     subtitle: Checks, Reviewer findings, new evidence
     kind: program
     state: built
-    first: Another round if this one brought new claims, up to a fixed number of rounds. Keeps the best version.
+    first: Another round if this one brought new claims or the final look found differences, up to a fixed number of rounds. Keeps the best version.
     done: The run log names the rule that ended the run.
   output:
     title: GDML + evidence report + run log
@@ -125,16 +125,16 @@ boxes:
     title: Evaluator
     subtitle: Reasons about what to compare, measures with tools
     kind: ai
-    state: stub
-    first: Not built. Which public geometry to grade against is open.
-    done: The run log shows the step.
+    state: built
+    first: "With a public repository given: picks the geometry files, reads the main parts out of them with a verified line of code each, and compares them with the build, reasoning about what matters at the detail level of documents. Reads source text only; does not run the code."
+    done: An evaluation report with the differences by kind.
   system_audit:
     title: System audit
     subtitle: Patterns across runs and detector types
     kind: program
-    state: stub
-    first: Not built. It needs runs on several detectors first.
-    done: Nothing yet.
+    state: built
+    first: "Per run and across runs: per box how often it ran, what it cost in model time and what it found."
+    done: python -m g4geoagent.audit prints the table for the given runs.
   design_changes:
     title: Design changes
     subtitle: Architecture, tools, lessons. Never back into a run
