@@ -14,7 +14,23 @@ def evidence_report(state, architecture_problems):
     add = lines.append
     add("Mode: documents only. Models: readers " + ", ".join(m for m, _ in readers.READERS.values())
         + "; all models are free LBL-hosted ones.")
-    add(f"Rounds: {state.round}. The run stopped because {state.stopped}.")
+    look = (best or {}).get("look") or {}
+    if state.stopped.startswith("SAFETY STOP"):
+        add("")
+        add(f"**The run did not finish by its own rule. {state.stopped}.**")
+    add("")
+    add(f"Rounds: {state.round}. The run stopped because: {state.stopped}.")
+    add("")
+    add("## Does it look like the detector?")
+    if look:
+        add(f"- Verdict of the final look against the figures: **{look['verdict'].replace('_', ' ')}**. {look.get('reason', '')}")
+        add(f"- Important differences still open: {len(look.get('high', []))}.")
+        for _, finding in look.get("high", []):
+            add(f"  - **{finding.part}**: {finding.issue}")
+    else:
+        add("- No figure was available to compare with, or nothing was built. Nothing can be said." )
+    if best and best.get("not_passed"):
+        add(f"- Pieces that Look did not pass after all allowed revisions: {len(best['not_passed'])}.")
     add("")
     add("## Result")
     if best:
@@ -31,9 +47,11 @@ def evidence_report(state, architecture_problems):
     else:
         add("- No geometry that loads in Geant4 was produced.")
     add("")
-    add("## What still differs from the figures")
-    add((best or {}).get("final_findings") or ("The final look found no differences, or there was no figure to compare with."
-                                                if best else "Nothing was built."))
+    add("## All differences from the figures")
+    for figure, finding in look.get("findings", []):
+        add(f"- ({finding.importance}) **{finding.part}**: {finding.issue} Asked for: {finding.fix} [{figure['file']}]")
+    if not look.get("findings"):
+        add("None listed.")
     add("")
     add("## Important and unconfirmed")
     estimates = [e for e in (best["notes"].get("estimates", []) if best else []) if isinstance(e, dict)]

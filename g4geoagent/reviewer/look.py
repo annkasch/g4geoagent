@@ -11,6 +11,7 @@ import base64
 import json
 import re
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -31,10 +32,26 @@ class Finding(BaseModel):
     part: str = Field(description="The part concerned, by the name used in the list of built parts where there is one")
     issue: str = Field(description="What is arranged or shaped differently in the build, in one sentence")
     fix: str = Field(description="What the build should do instead, in one sentence")
+    importance: Literal["high", "medium", "low"] = Field(
+        description="'high': a main part is missing, sits in the wrong place or in the wrong part, is solid where the "
+                    "figure shows it hollow or open, or the sensitive detectors are missing or of the wrong kind. "
+                    "'medium': the shape of a large part differs (flat or domed), repeated parts are distributed "
+                    "differently, a part is several times too large or too small next to its neighbours. "
+                    "'low': small details")
 
 
 class Findings(BaseModel):
-    findings: list[Finding]
+    verdict: Literal["matches", "partly", "does_not_match"] = Field(
+        description="Taken as a whole, and only for the parts that are built so far: does the build look like the "
+                    "detector in the figure? 'matches': same parts in the same arrangement. 'partly': the main "
+                    "structure is right, with clear differences. 'does_not_match': one would not recognise it")
+    reason: str = Field(description="One sentence for the verdict")
+    findings: list[Finding] = Field(description="The differences, the most important first. Each difference once")
+
+
+class Resolved(BaseModel):
+    resolved: bool = Field(description="true if the difference is gone in the new pictures")
+    now: str = Field(description="One sentence: what the pictures show now for this part")
 
 
 def _image(path):
@@ -81,16 +98,19 @@ def construction_figures(figures, folder, detector, log=None, model=MODEL, most=
 
 
 def compare(renders, figure, folder, detector, built_parts, log=None, model=MODEL):
-    """What is arranged or shaped differently in the build than in one figure. Returns a list of Finding."""
+    """How the build differs from one figure. Returns Findings (verdict, reason, ranked differences), or None
+    if the model gave no usable answer."""
     request = (f"The first {len(renders)} pictures show a geometry model of the detector {detector} that a program "
                "built: 3D views with the front half cut away, from the whole detector inwards. The last picture is a "
                f"figure of the real detector from a paper. Its caption: \"{figure['caption']}\".\n\n"
                "Parts of the built model, with what each one sits in:\n" + built_parts + "\n\n"
-               "Compare the build with the figure, part by part, from the outside in. List what is arranged or shaped "
-               "differently in the build: a part that sits in the wrong place or in the wrong part, a part that is "
-               "solid where the figure shows it hollow or open, a shape that is clearly different (flat or domed, one "
-               "piece or many), a part of the figure that the build lacks. Leave out colours, materials, viewing "
-               "angle, and anything about exact sizes. Leave out what you cannot see in the figure. "
+               "Compare the build with the figure, part by part, from the outside in. First give your verdict on the "
+               "whole. Then list what is arranged or shaped differently in the build, the most important first, each "
+               "difference once: a part that is missing, sits in the wrong place or in the wrong part; a part that is "
+               "solid where the figure shows it hollow or open; a shape that is clearly different (flat or domed, one "
+               "piece or many); repeated parts that are distributed differently; a part that is several times too "
+               "large or too small next to its neighbours. Leave out colours, materials, the viewing angle and exact "
+               "sizes. Leave out what you cannot see in the figure. "
                "Answer with one JSON object that fits this schema and nothing else:\n"
                + json.dumps(Findings.model_json_schema(), separators=(",", ":")))
     content = [{"type": "text", "text": request}, *(_image(r) for r in renders), _image(Path(folder) / figure["file"])]
@@ -98,15 +118,26 @@ def compare(renders, figure, folder, detector, built_parts, log=None, model=MODE
         answer, _ = call_llm_json(model, [{"role": "user", "content": content}], Findings, log=log,
                                   stage="look_compare", temperature=0)
     except ValueError:
-        return []
-    return answer.findings
+        return None
+    return answer
 
 
-def as_feedback(findings_by_figure):
-    """The findings as text for the builder."""
-    lines = []
-    for figure, findings in findings_by_figure:
-        if findings:
-            lines.append(f"Against the figure \"{figure['caption'][:150]}\":")
-            lines += [f"- {f.part}: {f.issue} {f.fix}" for f in findings]
-    return "\n".join(lines)
+def resolved(renders, figure, folder, detector, finding, log=None, model=MODEL):
+    """After a revision: is one earlier difference gone? Returns Resolved, or None without a usable answer."""
+    request = (f"The first {len(renders)} pictures show a geometry model of the detector {detector} that a program "
+               "built and has just revised. The last picture is a figure of the real detector.\n\n"
+               f"Before the revision, this difference was reported for the part \"{finding.part}\": {finding.issue} "
+               f"What was asked for: {finding.fix}\n\nLook at this part in the new pictures. Is the difference gone? "
+               'Answer with one JSON object: {"resolved": true or false, "now": "one sentence on what the pictures show now"}')
+    content = [{"type": "text", "text": request}, *(_image(r) for r in renders), _image(Path(folder) / figure["file"])]
+    try:
+        answer, _ = call_llm_json(model, [{"role": "user", "content": content}], Resolved, log=log,
+                                  stage="look_resolved", temperature=0)
+    except ValueError:
+        return None
+    return answer
+
+
+def as_feedback(findings):
+    """Differences as text for the builder: a list of (figure, Finding)."""
+    return "\n".join(f"- {finding.part} ({finding.importance}): {finding.issue} {finding.fix}" for _, finding in findings)

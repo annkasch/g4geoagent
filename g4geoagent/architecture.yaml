@@ -55,7 +55,7 @@ boxes:
     subtitle: Code
     kind: ai
     state: built
-    first: Extends the script by a few parts at a time from the plan and the claims, corrected until Geant4 loads the result, the numbers and the plan are met. Revises once more when Look finds differences.
+    first: "Extends the script by a few parts at a time from the plan and the claims, corrected until Geant4 loads the result, the numbers and the plan are met. Revises the piece each time Look reports an important difference."
     done: A GDML file that loads in Geant4 without overlaps.
   measure_vs_claims:
     title: Measure
@@ -69,7 +69,7 @@ boxes:
     subtitle: vs pictures
     kind: ai
     state: built
-    first: "After each piece: renders the geometry in 3D and has a vision model compare it with one figure of the detector. Gross differences only. Figures come from the PDFs in the evidence folder."
+    first: "After each piece: renders the geometry in 3D and has a vision model compare it with one figure of the detector. It gives a verdict on the whole and ranks the differences. While an important difference is open the piece goes back to the builder, up to 10 times; after a revision it checks whether the difference is gone. Figures come from the PDFs in the evidence folder."
     done: Differences from the figure are listed and sent back to the builder.
   research:
     title: Research
@@ -104,14 +104,14 @@ boxes:
     subtitle: Against the original pictures, by region
     kind: ai
     state: built
-    first: Renders the whole geometry and compares it with up to three figures. What differs goes into the report and to the teams of the next round.
+    first: "Renders the whole geometry and compares it with up to three figures. Its verdict and open differences decide whether another round follows, and go to the teams of that round."
     done: The report lists what still differs from the figures.
   round_rule:
     title: Did this round change anything?
     subtitle: Checks, Reviewer findings, new evidence
     kind: program
     state: built
-    first: Another round if this one brought new claims or the final look found differences, up to a fixed number of rounds. Keeps the best version.
+    first: "The run ends when a full round changed nothing (no new claims, no important difference from the figures left, nothing left out). Safety stops, named as such in the report - no improvement for two rounds, or 5 rounds. The best version is chosen by Geant4 validity, then the verdict of Look, then open differences, then claims and plan met."
     done: The run log names the rule that ended the run.
   output:
     title: GDML + evidence report + run log

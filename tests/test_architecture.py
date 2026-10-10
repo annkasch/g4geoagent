@@ -40,7 +40,7 @@ def test_pipeline_calls_only_steps():
     import re
     called = set(re.findall(r"(?<![.\w])([a-z_]+)\(state[,)]", body)) - {"build_round", "run"}
     steps = {f.__name__ for functions in FUNCTIONS.values() for f in functions}
-    helpers = {"read_documents", "build_round", "construction_figures_step", "pieces"}     # they only chain boxes
+    helpers = {"read_documents", "build_round", "construction_figures_step", "pieces", "look_loop"}     # they only chain boxes
     assert called <= steps | helpers, f"not a box: {sorted(called - steps - helpers)}"
 
 

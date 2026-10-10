@@ -55,6 +55,7 @@ def audit_run(folder):
             boxes["research"]["found"] += len(event.get("files", []))
         elif kind == "revision":
             outcome["revisions"] += 1
+        elif kind == "revision_checked":
             outcome["revisions_accepted"] += bool(event.get("accepted"))
         elif kind == "output":
             outcome["stopped"] = event.get("stopped", "")

@@ -1,7 +1,7 @@
 """The run: one function per box of the architecture (architecture.yaml), in the order of its arrows.
 
     python -m g4geoagent.pipeline <run folder> <starting documents: .txt and .pdf> [--name "LEGEND-200"]
-                                  [--rounds N] [--searches N] [--seed N] [--public-code owner/repository]
+                                  [--rounds N] [--searches N] [--revisions N] [--seed N] [--public-code owner/repository]
 
 Writes into the run folder: evidence/ (documents, figures, saved finds), build/ (attempts),
 pictures/, detector.gdml, evidence_report.md, log.jsonl and, with --public-code, evaluation_report.md.
@@ -47,7 +47,7 @@ class State:
     name: str                                   # what the detector is called, for searches
     log: RunLog
     evidence: Evidence
-    max_rounds: int = 2
+    max_rounds: int = 5                         # safety stop only; the run ends when a round changes nothing
     searches_per_round: int = 1
     seed: int | None = None
     public_code: str | None = None             # "owner/repository" on GitHub, for the Evaluator only
@@ -55,7 +55,8 @@ class State:
     build_prompt: str = "builder_plan.md"
     build_pieces: int = 2                       # parts added per piece
     build_piece_attempts: int = 4
-    revisions_per_round: int = 2                # how often Look may send the build back
+    max_revisions: int = 10                     # per piece: how often Look may send the piece back
+    same_finding_tries: int = 3                 # a difference that survives this many revisions is reported as unresolved
     # reading
     unread: list = field(default_factory=list)  # documents in the folder that were not read yet
     readings: dict = field(default_factory=dict)
@@ -85,8 +86,10 @@ class State:
     attempts: list = field(default_factory=list)     # every measured geometry of this round
     candidate: dict | None = None                    # the build of the current round
     hints: str = ""                                  # what the final look of the round before found
-    final_findings: str = ""
-    revisions_left: int = 0
+    final: dict = field(default_factory=dict)        # verdict and differences of the final look of this round
+    open_findings: list = field(default_factory=list)  # important differences that revisions did not remove
+    pieces_not_passed: list = field(default_factory=list)
+    unchanged_rounds: int = 0
     interfaces: list = field(default_factory=list)
     best: dict | None = None                         # the best build of all rounds
     grade: dict | None = None
@@ -287,7 +290,20 @@ def _builder(state, text, folder, attempts):
 
 
 def _score(attempt):
+    """How well a measured geometry meets the claims and the plan: the number of both that are met."""
     return attempt["summary"]["met"] + attempt["relations"]["met"] if attempt else -1
+
+
+VERDICTS = {"matches": 2, "partly": 1, "does_not_match": 0}
+
+
+def _rank(build):
+    """What decides which build is the best: valid in Geant4, then what Look says about the whole,
+    then few important differences left, then claims and plan met."""
+    if not build:
+        return (False, -1, 0, -1)
+    look = build.get("look") or {}
+    return (bool(build["report"]["ok"]), VERDICTS.get(look.get("verdict"), 0), -len(look.get("high", [])), _score(build))
 
 
 @step("build")
@@ -328,25 +344,25 @@ def build(state, team_name, parts, number):
 
 
 @step("build")
-def revise(state, findings_text, number):
-    """Look found differences from the figures: the builder revises the geometry once."""
-    folder = state.folder / "build" / f"round{state.round}" / f"piece{number:02d}_revision"
+def revise(state, blocking, number, revision):
+    """Look found important differences from the figures: the builder revises the geometry.
+    Returns the new attempt if it is valid and no worse on claims and plan, else None. Whether the
+    differences are gone is for Look to say (look_again)."""
+    folder = state.folder / "build" / f"round{state.round}" / f"piece{number:02d}_revision{revision:02d}"
     text = ("Detector: " + state.name + "\n\n" + plan_text(state.plan, state.done) + "\n\n" + claims_text(state, state.done)
             + "\n\nThe script below builds these parts and is valid. A reviewer compared pictures of it with figures "
-            "of the real detector and found these differences:\n" + findings_text + "\n\nRevise the script so that "
-            "the arrangement and the shapes agree with the figures, as far as the differences are about parts that "
-            "are built. Keep everything that the claims and the plan fix. Send the complete new script.\n\n"
-            "```python\n" + state.script + "\n```")
+            "of the real detector and found these differences:\n" + look_at.as_feedback(blocking) + "\n\nRevise the "
+            "script so that these differences are gone. Keep everything that the claims and the plan fix. Send the "
+            "complete new script.\n\n```python\n" + state.script + "\n```")
     before, old, state.building = len(state.attempts), state.candidate, state.done
     _builder(state, text, folder, 3)
     best = max(reversed(state.attempts[before:]), key=_score, default=None)
-    accepted = bool(best) and _score(best) >= _score(old)
-    state.log.event("revision", "build", accepted=accepted, score=_score(best), before=_score(old))
-    if accepted:
-        state.script, state.candidate = best["gdml"].with_suffix(".py").read_text(), best
+    usable = bool(best) and _score(best) >= _score(old)
+    state.log.event("revision", "build", piece=number, revision=revision, usable=usable, score=_score(best), before=_score(old),
+                    asked=[f.part for _, f in blocking])
     if state.log.box == ["build"]:
         measure_vs_claims(state, None, None)
-    return accepted
+    return best if usable else None
 
 
 @step("measure_vs_claims")
@@ -390,39 +406,105 @@ def measure_vs_claims(state, gdml, report):
             "plan.\n" + "\n".join(problems))
 
 
-def _built_parts_text(state):
-    volume_of = state.candidate["volume_of"]
+def _built_parts_text(state, attempt):
+    volume_of = attempt["volume_of"]
     inside = {p.name: p.inside for p in state.plan.parts}
     lines = [f"  {name} (in {inside.get(name, 'world')})" for name in state.done if name in volume_of]
     rest = [p.name for p in state.plan.parts if p.name not in state.done]
     return "\n".join(lines) + ("\nNot built yet, so do not report them as missing: " + ", ".join(rest) if rest else "")
 
 
-def _compare_with_figures(state, folder, most):
-    """Render the current geometry and compare it with the construction figures. Returns the findings as text."""
+def _pictures(state, attempt, folder):
+    """3D pictures of a measured geometry with the front half cut away, made once."""
+    if "pictures" not in attempt:
+        try:
+            attempt["pictures"] = sorted(render(attempt["gdml"], folder, state.name))
+        except Exception as error:
+            state.log.event("render_failed", state.log.box[0], error=f"{type(error).__name__}: {str(error)[:200]}")
+            attempt["pictures"] = []
+    return [p for p in attempt["pictures"] if p.name.endswith("_cut.png")][:3]
+
+
+def _compare_with_figures(state, attempt, folder, most):
+    """Compare a geometry with the construction figures. Returns {"verdict", "reason", "findings": [(figure, Finding)],
+    "high": [...]} or {} if there is no figure or no picture. The worst verdict over the figures counts."""
     figures = construction_figures(state)[:most]
-    if not figures or not state.candidate:
-        return "", 0
-    try:
-        pictures = [p for p in render(state.candidate["gdml"], folder, state.name) if p.name.endswith("_cut.png")][:3]
-    except Exception as error:
-        state.log.event("render_failed", "look", error=f"{type(error).__name__}: {str(error)[:200]}")
-        return "", 0
-    found = [(figure, look_at.compare(pictures, figure, state.evidence.folder / "figures", state.name,
-                                      _built_parts_text(state), state.log)) for figure in figures]
-    for figure, findings in found:
-        for finding in findings:
+    pictures = _pictures(state, attempt, folder) if attempt else []
+    if not figures or not pictures:
+        return {}
+    result = {"verdict": None, "reason": "", "findings": []}
+    for figure in figures:
+        answer = look_at.compare(pictures, figure, state.evidence.folder / "figures", state.name,
+                                 _built_parts_text(state, attempt), state.log)
+        if answer is None:
+            continue
+        if result["verdict"] is None or VERDICTS[answer.verdict] < VERDICTS[result["verdict"]]:
+            result["verdict"], result["reason"] = answer.verdict, answer.reason
+        result["findings"] += [(figure, finding) for finding in answer.findings]
+        for finding in answer.findings:
             state.log.event("finding", state.log.box[0], figure=figure["file"], **finding.model_dump())
-    return look_at.as_feedback(found), sum(len(findings) for _, findings in found)
+    result["high"] = [(figure, f) for figure, f in result["findings"] if f.importance == "high"]
+    return result if result["verdict"] else {}
 
 
 @step("look")
-def look(state, number):
-    """Compare pictures of what is built so far with the figures. Returns the differences as text."""
-    folder = state.folder / "build" / f"round{state.round}" / f"look{number:02d}"
-    text, count = _compare_with_figures(state, folder, most=1)
-    state.log.event("check", "look", findings=count, figures=len(state.figures))
-    return text
+def look(state, number, revision=0, most=1):
+    """Compare pictures of what is built so far with the figures. The result is kept with the geometry."""
+    folder = state.folder / "build" / f"round{state.round}" / f"look{number:02d}_{revision:02d}"
+    result = _compare_with_figures(state, state.candidate, folder, most)
+    if state.candidate is not None:
+        state.candidate["look"] = result
+    state.log.event("check", "look", piece=number, revision=revision, verdict=result.get("verdict"),
+                    reason=result.get("reason", ""), findings=len(result.get("findings", [])),
+                    high=len(result.get("high", [])), figures=len(state.figures))
+    return result
+
+
+@step("look")
+def look_again(state, attempt, blocking, number, revision):
+    """After a revision: are the differences that were sent back gone? Returns the ones that are."""
+    folder = state.folder / "build" / f"round{state.round}" / f"look{number:02d}_{revision:02d}"
+    pictures, gone = _pictures(state, attempt, folder), []
+    for figure, finding in blocking:
+        answer = look_at.resolved(pictures, figure, state.evidence.folder / "figures", state.name, finding, state.log) \
+            if pictures else None
+        state.log.event("resolved", "look", piece=number, revision=revision, part=finding.part, issue=finding.issue,
+                        resolved=bool(answer and answer.resolved), now=answer.now if answer else "no answer")
+        if answer and answer.resolved:
+            gone.append((figure, finding))
+    return gone
+
+
+def look_loop(state, number, most=1):
+    """Look is part of the piece's loop: while it reports an important difference on what is built,
+    the piece goes back to the builder, up to max_revisions times. A revision replaces the geometry
+    only if Look confirms that at least one of the differences is gone. A difference that survives
+    same_finding_tries revisions is recorded as unresolved and no longer sent back.
+    Returns True if Look ends without an important difference."""
+    tried, revision = {}, 0
+    result = look(state, number, 0, most)
+    while True:
+        blocking = [(figure, f) for figure, f in result.get("high", []) if tried.get(f.part, 0) < state.same_finding_tries]
+        if not blocking or revision >= state.max_revisions:
+            break
+        revision += 1
+        for _, finding in blocking:
+            tried[finding.part] = tried.get(finding.part, 0) + 1
+        attempt = revise(state, blocking, number, revision)
+        if attempt is None:
+            result = look(state, number, revision, most)          # nothing usable came back: look at what stands
+            continue
+        gone = look_again(state, attempt, blocking, number, revision)
+        state.log.event("revision_checked", "look", piece=number, revision=revision, accepted=bool(gone),
+                        gone=[f.part for _, f in gone], asked=[f.part for _, f in blocking])
+        if gone:
+            state.script, state.candidate = attempt["gdml"].with_suffix(".py").read_text(), attempt
+        result = look(state, number, revision, most)
+    still = result.get("high", [])
+    passed = not still
+    state.log.event("piece_look", "look", piece=number, passed=passed, revisions=revision, verdict=result.get("verdict"),
+                    open=[f"{f.part}: {f.issue}" for _, f in still])
+    return passed, still
 
 
 # ---------------------------------------------------------------- whole detector
@@ -465,30 +547,37 @@ def run_geant4(state):
 
 @step("final_look")
 def final_look(state):
-    """Compare pictures of the whole geometry with every construction figure. What differs is kept for
-    the report and handed to the teams if there is another round."""
+    """Compare pictures of the whole geometry with every construction figure. The verdict and the
+    differences decide whether the run goes on, and go to the teams of the next round."""
     folder = state.folder / "pictures" / f"round{state.round}"
-    state.final_findings, count = _compare_with_figures(state, folder, most=3)
+    state.final = _compare_with_figures(state, state.candidate, folder, most=3)
     if state.candidate:
-        state.candidate["pictures"] = sorted(folder.glob("*.png"))
-        state.candidate["final_findings"] = state.final_findings
-    state.log.event("check", "final_look", findings=count, figures=len(state.figures))
+        state.candidate["pictures"] = sorted(folder.glob("*.png")) or state.candidate.get("pictures", [])
+        state.candidate["look"] = state.final
+    state.log.event("check", "final_look", verdict=state.final.get("verdict"), reason=state.final.get("reason", ""),
+                    findings=len(state.final.get("findings", [])), high=len(state.final.get("high", [])),
+                    figures=len(state.figures))
 
 
 @step("round_rule")
 def round_rule(state):
-    """Keep the best version. Another round if this one brought new claims or the final look found
-    differences, as long as rounds are left."""
-    def score(build):
-        return (build["report"]["ok"], _score(build)) if build else (False, -1)
-    if score(state.candidate) > score(state.best):
-        state.best = {**state.candidate, "round": state.round, "left_out": list(state.left_out)}
-    if state.round >= state.max_rounds:
-        state.stopped = f"the limit of {state.max_rounds} rounds was reached"
-    elif state.new_claims == 0 and not state.final_findings:
-        state.stopped = "a full round brought no new claims and the final look found no differences"
-    state.log.event("round", "round_rule", round=state.round, new_claims=state.new_claims,
-                    score=_score(state.candidate), another=not state.stopped, stopped=state.stopped)
+    """Keep the best version. The run ends when a full round changed nothing: no new claims, no
+    important difference from the figures left, no piece that Look did not pass, nothing left out.
+    Two safety stops: the result did not get better for two rounds, or max_rounds is reached."""
+    improved = _rank(state.candidate) > _rank(state.best)
+    if improved:
+        state.best = {**state.candidate, "round": state.round, "left_out": list(state.left_out),
+                      "not_passed": list(state.pieces_not_passed)}
+    state.unchanged_rounds = 0 if improved else state.unchanged_rounds + 1
+    open_now = bool(state.final.get("high")) or bool(state.pieces_not_passed) or bool(state.left_out)
+    if state.new_claims == 0 and not open_now:
+        state.stopped = "a full round changed nothing: no new claims and no important difference from the figures left"
+    elif state.unchanged_rounds >= 2:
+        state.stopped = "SAFETY STOP: the result did not get better for two rounds, with differences still open"
+    elif state.round >= state.max_rounds:
+        state.stopped = f"SAFETY STOP: the limit of {state.max_rounds} rounds was reached, with differences still open"
+    state.log.event("round", "round_rule", round=state.round, new_claims=state.new_claims, improved=improved,
+                    rank=list(_rank(state.candidate)), open=open_now, another=not state.stopped, stopped=state.stopped)
     return not state.stopped
 
 
@@ -516,30 +605,48 @@ def system_audit(state):
 # ---------------------------------------------------------------- the run
 
 def build_round(state):
-    """Teams → Build → Measure → Look, piece by piece, then the checks of the whole detector."""
-    state.script, state.done, state.left_out, state.attempts, state.candidate = None, [], [], [], None
-    state.hints = state.final_findings
-    for number, (team_name, parts) in enumerate(pieces(state), 1):
+    """Teams → Build → Measure → Look, piece by piece, then the checks of the whole detector.
+
+    The first round builds everything. A later round goes on from the best geometry: it builds what
+    was left out and takes up the differences that the final look found."""
+    if state.round == 1 or state.script is None:
+        state.script, state.done, state.left_out, state.candidate = None, [], [], None
+    state.attempts, state.pieces_not_passed, state.open_findings = [], [], []
+    state.hints = look_at.as_feedback(state.final.get("findings", []))        # what the final look of the round before found
+    todo = [(team_name, [p for p in parts if p not in state.done]) for team_name, parts in pieces(state)]
+    todo = [(team_name, parts) for team_name, parts in todo if parts]
+    state.left_out = []
+    for number, (team_name, parts) in enumerate(todo, 1):
         build(state, team_name, parts, number)
-        differences = look(state, number)
-        if differences and state.candidate and state.revisions_left > 0:
-            state.revisions_left -= 1
-            revise(state, differences, number)
-            look(state, 100 + number)
+        if not state.candidate:
+            look(state, number)                         # nothing to look at yet: the step says so
+            continue
+        passed, still = look_loop(state, number)
+        if not passed:
+            state.pieces_not_passed.append(number)
+            state.open_findings += [f"{f.part}: {f.issue}" for _, f in still]
+    if state.round > 1 and state.candidate:
+        # the differences of the last final look, against every figure
+        state.log.enter(("build",))
+        measure_vs_claims(state, None, None)
+        passed, still = look_loop(state, 90, most=3)
+        if not passed:
+            state.open_findings = [f"{f.part}: {f.issue}" for _, f in still]
     integrate(state)
     check_whole_detector(state)
     run_geant4(state)
     final_look(state)
 
 
-def run(folder, documents, name, max_rounds=2, searches_per_round=1, seed=None, public_code=None):
+def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, public_code=None, max_revisions=10):
     """Run the whole system on the starting `documents` (text files and PDFs). Returns the final state."""
     folder = Path(folder)
     if (folder / "log.jsonl").exists():         # an earlier run in this folder is replaced
         shutil.rmtree(folder)
     log = RunLog(folder / "log.jsonl")
     state = State(folder=folder, name=name, log=log, evidence=Evidence(folder / "evidence", log),
-                  max_rounds=max_rounds, searches_per_round=searches_per_round, seed=seed, public_code=public_code)
+                  max_rounds=max_rounds, searches_per_round=searches_per_round, seed=seed, public_code=public_code,
+                  max_revisions=max_revisions)
     if seed is not None:
         llm.DEFAULT_OPTIONS["seed"] = seed
     names = [state.evidence.add_starting(path) for path in documents]
@@ -550,7 +657,6 @@ def run(folder, documents, name, max_rounds=2, searches_per_round=1, seed=None, 
     coordinator(state)
     while True:
         state.round += 1
-        state.revisions_left = state.revisions_per_round
         team(state)
         if state.searches:
             research(state)
@@ -604,8 +710,10 @@ if __name__ == "__main__":
         return default
 
     name = option("--name", None)
-    rounds, searches = int(option("--rounds", 2)), int(option("--searches", 1))
+    rounds, searches = int(option("--rounds", 5)), int(option("--searches", 1))
+    revisions = int(option("--revisions", 10))
     seed, code = option("--seed", None), option("--public-code", None)
     folder, documents = Path(args[0]), [Path(a) for a in args[1:]]
-    final = run(folder, documents, name or documents[0].stem, rounds, searches, None if seed is None else int(seed), code)
+    final = run(folder, documents, name or documents[0].stem, rounds, searches, None if seed is None else int(seed), code,
+                revisions)
     print((folder / "evidence_report.md").read_text()[:3000])
