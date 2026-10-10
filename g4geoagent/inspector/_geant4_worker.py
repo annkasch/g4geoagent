@@ -93,6 +93,7 @@ def walk(pv, mother, parts, overlaps, checked=None):
     lv.GetSolid().BoundingLimits(lo, hi)
     parts.append({
         "volume": pv.GetName(),
+        "logical": lv.GetName(),
         "mother": mother,
         "material": lv.GetMaterial().GetName(),
         "density_g_cm3": lv.GetMaterial().GetDensity() / (g / cm3),

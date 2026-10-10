@@ -295,6 +295,11 @@ def build(state, team_name, parts, number):
     """Add one piece to the geometry: the script so far is extended by `parts`. A piece that does
     not become valid is left out, and the next piece goes on from the last valid script."""
     folder = state.folder / "build" / f"round{state.round}" / f"piece{number:02d}_{team_name}"
+    # a part that holds others and was left out is tried again with this piece: what belongs in it cannot be built without it
+    holders = {p.name for p in state.plan.parts if p.form != "solid"}
+    again = [name for name in state.left_out if name in holders]
+    state.left_out = [name for name in state.left_out if name not in again]
+    parts = again + parts
     wanted = state.done + parts
     text = ("Detector: " + state.name + "\n\n" + plan_text(state.plan, wanted) + "\n\n" + claims_text(state, wanted))
     if state.hints:
@@ -307,7 +312,9 @@ def build(state, team_name, parts, number):
                  "parts: " + ", ".join(parts) + ". Keep what is there, change it only where the new parts need room, "
                  "and send the complete new script.\n\n```python\n" + state.script + "\n```")
     state.building, before = wanted, len(state.attempts)
-    result = _builder(state, text, folder, state.build_piece_attempts)
+    # what other parts will sit in must not be left out: such a piece gets twice the attempts
+    holds_others = any(p.form != "solid" for p in state.plan.parts if p.name in parts)
+    result = _builder(state, text, folder, state.build_piece_attempts * (2 if holds_others else 1))
     made = state.attempts[before:]
     best = max(reversed(made), key=_score, default=None)
     state.log.event("piece", "build", piece=number, team=team_name, parts=parts, valid=bool(best),

@@ -6,10 +6,22 @@ Rules
 
 - You get a layout plan and claims. The plan settles the layout: build every
   part of the plan inside the part the plan names, with the form the plan gives
-  it. A "hollow" part is a shell or vessel: build it so that the parts and the
-  filling the plan puts inside it fit inside, as its daughters. Never build a
-  hollow part as a solid block next to its contents. A "lumped" part is one
-  simple volume. Follow every line under "Arrangement".
+  it, and follow every line under "Arrangement". A "lumped" part is one simple
+  volume.
+- How to build a "hollow" part in Geant4. There are two cases:
+  a) A vessel with a "filling" (a tank of water, a cryostat of argon). Build
+     the vessel as a FULL solid of the wall material, with no hole (r_min = 0).
+     Place the filling inside it as its daughter, smaller by the wall thickness
+     on every side. What the plan puts inside the vessel is a daughter of the
+     filling. Never give the vessel's solid a hole: a daughter must lie in the
+     material of its mother, and a hole holds nothing.
+  b) An open shell without a filling of its own (a foil cylinder, a shroud, a
+     tube around other parts) that stands in a liquid or gas. Build it as a
+     tube with r_min > 0 and place it in that liquid. Place the parts it
+     surrounds in the same liquid, within its inner radius. They are not its
+     daughters.
+  Never build a hollow part as a solid block that takes the room of its
+  contents.
 - Each claim has an id (C1, C2, ...). Claims marked "from the starting
   document" win over claims found by research when the two contradict.
 - The claims never state everything. Where a value needed for the build is
@@ -18,12 +30,8 @@ Rules
 - Parts that repeat (detectors on a string, sensors on a wall) are placed in a
   loop, one physical volume each, named with a common start and a number:
   pmt_0, pmt_1, ...
-- Nothing may overlap. Work from the outside in:
-  1. Decide the nesting first: which part is inside which. A container with a
-     filling (a tank of water, a cryostat of argon) is a solid volume of the
-     wall material, with the filling placed inside it as a daughter that is
-     smaller by the wall thickness. What sits in the filling is a daughter of
-     the filling.
+- Nothing may overlap:
+  1. Follow the nesting of the plan, from the outside in.
   2. Every daughter must lie completely inside its mother: its size plus its
      offset from the mother's centre must stay below the mother's size, in
      every direction. Compute positions from the sizes in variables, do not

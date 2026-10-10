@@ -21,16 +21,22 @@ _ENCLOSING = re.compile(r"Overlap is detected for volume (\S+?)(?::\d+)? \((\w+)
                         r"volume (\S+?)(?::\d+)? \((\w+)\)")
 
 
-def overlap_details(log):
-    """Geant4's overlap messages, each pair of volumes once: "a (G4Box) sticks out of its mother b (G4Tubs) by 1 cm"."""
-    found = {}
+def overlap_details(log, sizes=None, places=None):
+    """Geant4's overlap messages, each pair of volumes once: "a (G4Box) sticks out of its mother b (G4Tubs) by 1 cm".
+    With `sizes` ({volume: "x x y x z"} in mm) the full sizes of both are added, so that one sees which is too large."""
+    found, sizes, places = {}, sizes or {}, places or {}
+
+    def size(volume):
+        known = sizes.get(volume) or next((s for name, s in sizes.items() if name.startswith(volume)), "")
+        return f", full size {known} mm" if known else ""
     for volume, solid, other, other_solid in _ENCLOSING.findall(log):
         found.setdefault((volume.rstrip("0123456789"), other.rstrip("0123456789"), "in"),
                          f"{volume} ({solid}) completely encloses {other} ({other_solid}), which is placed in the same "
                          f"mother: place {other} inside {volume}, or move it out")
-    for volume, solid, mother, other, other_solid, size in _OVERLAP.findall(log):
-        text = (f"{volume} ({solid}) sticks out of its mother {other} ({other_solid}) by up to {size}" if mother
-                else f"{volume} ({solid}) overlaps {other} ({other_solid}) by up to {size}")
+    for volume, solid, mother, other, other_solid, amount in _OVERLAP.findall(log):
+        text = (f"{volume} ({solid}{size(volume)}) sticks out of its mother {other} ({other_solid}{size(other)}) by up to {amount}"
+                + (f"; its centre is placed at ({places[volume]}) mm from the mother's centre" if volume in places else "")
+                if mother else f"{volume} ({solid}{size(volume)}) overlaps {other} ({other_solid}{size(other)}) by up to {amount}")
         found.setdefault((volume.rstrip("0123456789"), other.rstrip("0123456789"), bool(mother)), text)
     return list(found.values())
 
@@ -73,7 +79,12 @@ def geant4_run(gdml_path, scans=None, real_run=None, timeout=600, log_path=None)
     report.setdefault("overlaps", [])
     report["problems"] = [line.strip() for line in log.splitlines()
                           if _PROBLEM.search(line)]
-    report["overlap_details"] = overlap_details(log)
+    sizes, places = {}, {}
+    for part in report.get("parts", []):
+        places.setdefault(part["volume"], ", ".join(f"{x:.0f}" for x in part["position_mm"]))
+        for name in (part["volume"], part.get("logical", "")):       # a mother is reported by its logical name
+            sizes.setdefault(name, " x ".join(f"{s:.0f}" for s in part.get("size_mm", [])))
+    report["overlap_details"] = overlap_details(log, sizes, places)
     report["error"] = error
     if error:
         report["log_tail"] = log.splitlines()[-30:]
