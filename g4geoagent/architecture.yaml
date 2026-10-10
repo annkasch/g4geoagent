@@ -76,7 +76,7 @@ boxes:
     subtitle: 'Online: text and figures'
     kind: ai
     state: built
-    first: Searches INSPIRE for one gap, picks a paper, saves its arXiv text to the evidence folder. Figures are saved with the PDF but not read.
+    first: Searches INSPIRE for one gap (by subject and in the full text), picks two papers, saves their arXiv text to the evidence folder, cut to the 50 pages that mention the gap most. Figures are saved with the PDF but not read.
     done: A gap of the LEGEND paper leads to a saved paper and to new agreed claims.
   integrate:
     title: Integrate

@@ -48,6 +48,8 @@ class State:
     build_overlap_details: bool = False
     build_account_for_all: bool = False     # every claim must be shown or listed as not built
     build_pieces: int = 0                   # build this many parts at a time, from the outside in (0: all at once)
+    build_piece_attempts: int = 3           # attempts for each piece
+    build_fallback_pieces: int = 0          # if building all at once gives nothing valid: this many parts at a time
     # reading
     unread: list = field(default_factory=list)  # documents in the folder that were not read yet
     readings: dict = field(default_factory=dict)
@@ -214,11 +216,12 @@ def team(state):
 def research(state):
     """Search for what the team asked for. Finds go to the evidence folder and wait to be read."""
     for search in state.searches:
-        result = run_research(state.evidence, state.name, search.part, search.quantity, search.query, state.log)
+        # the variant chosen in experiments/notes/research.md (round 10)
+        result = run_research(state.evidence, state.name, search.part, search.quantity, search.query, state.log,
+                              broaden=True, fulltext=True, select_pages=True, papers=2, max_pages=50)
         state.log.event("research", "research", **result)
         state.research.append({**result, "round": state.round})
-        if result["file"]:
-            state.unread.append(result["file"])
+        state.unread += result["files"]
     state.searches = []
 
 
@@ -244,6 +247,11 @@ def build(state):
     else:
         result = run_builder("Detector: " + state.name + "\n\n" + claims_text(state), state.build_model, workdir,
                              attempts=state.build_attempts, **options)
+        if not state.attempts and state.build_fallback_pieces:
+            state.log.event("build", "build", fallback="in pieces", attempts=result["attempts"])
+            state.build_pieces = state.build_fallback_pieces
+            more = build_in_pieces(state, workdir, options)
+            result = {**more, "attempts": result["attempts"] + more["attempts"]}
     state.log.event("build", "build", attempts=result["attempts"], finished=result["finished"],
                     valid=result["valid"], measured=len(state.attempts))
     # the best of the valid attempts: most claims met
@@ -278,7 +286,7 @@ def build_in_pieces(state, workdir, options):
         if state.log.box != ["build"]:
             state.log.enter(("build",))          # the next piece
         result = run_builder(text, state.build_model, workdir / f"piece{number}",
-                             attempts=max(3, state.build_attempts // 2), **options)
+                             attempts=state.build_piece_attempts, **options)
         attempts += result["attempts"]
         state.log.event("piece", "build", piece=number, parts=piece, valid=result["valid"], attempts=result["attempts"])
         if result["gdml"]:

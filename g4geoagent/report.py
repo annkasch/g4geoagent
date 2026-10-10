@@ -57,7 +57,7 @@ def evidence_report(state, architecture_problems):
     for r in state.research:
         add(f"- Round {r['round']}, searched for **{_cell(r['quantity'])}** of {_cell(r['part'])} (query: \"{_cell(r['query'])}\"). "
             f"{r['candidates']} new papers offered. Outcome: {_cell(r['outcome'], 200)}"
-            + (f" Saved as `{r['file']}` from {r['url']}, {r['pages_read']} of {r['pages']} pages read." if r["file"] else ""))
+            + (f" Saved: {', '.join('`' + f + '`' for f in r['files'])}. Of the first one, {r['pages_read']} of {r['pages']} pages were kept." if r["file"] else ""))
     add("")
     add("Sources in the evidence folder:")
     for s in state.evidence.sources():

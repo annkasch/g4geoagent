@@ -20,3 +20,23 @@ word. This scores search and choice of paper, not reading.
 | 11 | r11_queries_offer20 | Round 10, written queries, up to 20 offers | 29/36 | 36/36 | Same count as round 10 with twice the model calls | No |
 | 12 | r12_offer20 | Round 10 with up to 20 offers | 28/36 | 36/36 | One fact fewer: more offers do not help the choice | No |
 | 13 | r13_gemma_chooses | Round 10 with gemma-4 choosing the paper | 28/36 | 35/36 | One fact fewer than gpt-oss-120b | No |
+
+## Choice
+
+**Round 10 (`r10_pages50`)**: search by subject and in the full text, add general searches for the detector,
+let the model pick two papers, cut long documents to the 50 pages that mention the missing item most.
+
+| | Development papers (LEGEND, T2K) | Held-out papers (DUNE, IceCube, Super-K) |
+|---|---|---|
+| Baseline (round 1) | 12 of 36 | 5 of 28 |
+| Chosen (round 10) | 29 of 36 | 19 of 28 |
+
+The held-out papers were only run for these two variants, after the choice was made.
+
+What this score does not cover:
+- It checks that the saved text states the value, not that the Readers extract it.
+- A value written differently from the hand list (192 cm for 1.9 m) counts as not found.
+- Whether the saved paper describes the same version of the detector is not checked. In the first full
+  run a review paper brought claims about other experiments into the build.
+- Figures are not searched or read.
+- Only INSPIRE and arXiv are searched. Theses, talk slides and manufacturer sites are not.

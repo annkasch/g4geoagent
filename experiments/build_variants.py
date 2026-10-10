@@ -27,4 +27,8 @@ VARIANTS = {
     # from round 6 (nesting rules): a few parts at a time, from the outside in
     "v09_pieces4": prompt("builder_claims_nesting.md", build_overlap_details=True, build_pieces=4),
     "v10_account": prompt("builder_claims_nesting.md", build_overlap_details=True, build_account_for_all=True),
+    "v11_pieces4_attempts6": prompt("builder_claims_nesting.md", build_overlap_details=True, build_pieces=4, build_piece_attempts=6),
+    "v12_pieces2": prompt("builder_claims_nesting.md", build_overlap_details=True, build_pieces=2, build_piece_attempts=4),
+    # all at once first; a few parts at a time only if that gives nothing valid
+    "v13_fallback": prompt("builder_claims_nesting.md", build_overlap_details=True, build_fallback_pieces=4, build_piece_attempts=4),
 }
