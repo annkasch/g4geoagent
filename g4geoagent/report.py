@@ -117,7 +117,8 @@ def evidence_report(state, architecture_problems):
     add("## What each part of the system does in this version")
     for name, box in BOXES.items():
         if box["kind"] != "data":
-            add(f"- **{box['title']}**{' (not built)' if box.get('state') == 'stub' else ''}: {box['first']}")
+            add(f"- **{box['title']}**{' (not built)' if box.get('state') == 'stub' else ''}: {box['first']}"
+                + (f" *Differs from the diagram:* {box['differs']}" if box.get("differs") else ""))
     add("")
     add("## Did the run follow the architecture?")
     add("Yes." if not architecture_problems else "No:")

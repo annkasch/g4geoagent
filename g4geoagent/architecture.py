@@ -27,7 +27,7 @@ def step(*boxes):
         @functools.wraps(function)
         def run(state, *args, **kwargs):
             states = {BOXES[name]["state"] for name in boxes}
-            state.log.enter(boxes, state="stub" if states == {"stub"} else "built")
+            state.log.enter(boxes, state=sorted(states)[-1] if len(states) == 1 else "partial")
             return function(state, *args, **kwargs)
         for name in boxes:
             FUNCTIONS.setdefault(name, []).append(run)

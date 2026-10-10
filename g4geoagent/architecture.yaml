@@ -5,9 +5,12 @@
 # A new component or connection is added here first, then to the code.
 #
 # kind:   ai (a model is called), program (no model call allowed), data (written and read by steps)
-# state:  built (does its job in a first form), stub (runs and logs, but does nothing yet)
-# first:  what the first version of the box does
-# done:   how to tell that the first version works
+# state:   built (does what the diagram and the proposal say), partial (works, but differs from the diagram:
+#          see "differs"), stub (runs and logs, but does nothing yet)
+# first:   what the current version of the box does
+# differs: for a partial box, how it falls short of the diagram and the proposal. A box is only "built"
+#          when this list is empty.
+# done:    how to tell that the current version works
 
 boxes:
   evidence_folder:
@@ -17,22 +20,25 @@ boxes:
   reader_A:
     title: Reader A
     kind: ai
-    state: built
+    state: partial
     first: Reads text documents into claims with quotes. Says which figures show how the detector is built; does not read values from figures.
     done: Claims of the LEGEND paper are extracted with no failing quote.
+    differs: "Reads no values from figures (dimension labels, counts); it only says which figures show the construction. The proposal has figures read into claims."
   reader_B:
     title: Reader B
     kind: ai
-    state: built
+    state: partial
     first: As Reader A, with another model and another way through the text.
     done: As Reader A.
+    differs: "As Reader A. For figures only one model is asked, so there is no second independent reading."
   compare:
     title: Compare
     subtitle: Match claims, coverage check
     kind: program
-    state: built
+    state: partial
     first: Checks every quote, pairs the claims of the two readers, sends unpaired claims to the other reader.
     done: The agreed list holds only claims with a verified quote.
+    differs: "Figures are not compared between two readers. For text, a disagreement gets one cross-check, not the two re-read rounds of the proposal."
   agreed_claims:
     title: Agreed claims
     subtitle: Each with source and uncertainty
@@ -41,78 +47,89 @@ boxes:
     title: Coordinator
     subtitle: Splits detector, detail levels, interfaces
     kind: ai
-    state: built
+    state: partial
     first: "Writes the layout plan for the whole detector: what is inside what, which parts are hollow, detail level per part, how parts are arranged, which team builds what. No interface documents or change requests yet."
     done: A plan that names a container for every part and at least the arrangement the documents state.
+    differs: "Writes no interface document with sizes and positions for each subsystem, answers no questions from teams and decides no change requests. Does not fill gaps or re-check claims."
   teams:
     title: Team 1 … N
     kind: ai
-    state: built
+    state: partial
     first: Name the missing values worth a search, then build their parts one after the other from the outside in, extending one common script. Not in parallel.
     done: Every team's parts are built or listed as left out.
+    differs: "Not in parallel - the teams build one after the other on one shared script. A team cannot ask the Coordinator or another team. Research is decided once per round for all teams, not by the team that has the gap at the moment it has it."
   build:
     title: Build
     subtitle: Code
     kind: ai
-    state: built
+    state: partial
     first: "Extends the script by a few parts at a time from the plan and the claims, corrected until Geant4 loads the result, the numbers and the plan are met. Revises the piece each time Look reports an important difference."
     done: A GDML file that loads in Geant4 without overlaps.
+    differs: "No Blueprint kernel with relational placement; the model writes raw pyg4ometry code. The builder sees the claims, not a clean desk per piece with an 'already tried' note."
   measure_vs_claims:
     title: Measure
     subtitle: vs claims
     kind: program
-    state: built
+    state: partial
     first: Measures sizes, counts, masses, volumes and materials against the claims, and the arrangement (inside, surrounds, centred, top, bottom, outside) against the plan. Rotations are ignored.
     done: Each claim and each statement of the plan is reported as met, not met or not shown.
+    differs: "Positions and rotations are not measured. A claim is only measured if the builder names a volume for it. A check that fails three times is not reported to the Coordinator."
   look:
     title: Look
     subtitle: vs pictures
     kind: ai
-    state: built
+    state: partial
     first: "After each piece: renders the geometry in 3D and has a vision model compare it with one figure of the detector. It gives a verdict on the whole and ranks the differences. While an important difference is open the piece goes back to the builder, up to 10 times; after a revision it checks whether the difference is gone. Figures come from the PDFs in the evidence folder."
     done: Differences from the figure are listed and sent back to the builder.
+    differs: "Compares with one figure of the starting paper per piece, as a whole; no enlarged crops region by region. It cannot trigger Research for a part it sees and no claim describes."
   research:
     title: Research
     subtitle: 'Online: text and figures'
     kind: ai
-    state: built
+    state: partial
     first: Searches INSPIRE for one gap (by subject and in the full text), picks two papers, saves their arXiv text cut to the 50 pages that mention the gap most, and their figures. Only INSPIRE and arXiv; no image search on the open web.
     done: A gap of the LEGEND paper leads to a saved paper and to new agreed claims.
+    differs: "Only INSPIRE and arXiv. No theses, talk slides, posters, manufacturer sites, no picture search. Called once per round before building, not from inside the piece loop. Figures it saves are not read for values."
   integrate:
     title: Integrate
     subtitle: Place subsystems at interfaces
     kind: program
-    state: built
+    state: partial
     first: Checks on the joined geometry that the parts of different teams sit in each other as the plan says. The teams share one script, so nothing has to be placed.
     done: The statements of the plan between teams are reported as met or not met.
+    differs: "Places nothing - the teams share one script. It only checks the plan's statements between teams on the joined geometry."
   check_whole_detector:
     title: Check whole detector
     subtitle: Overlaps, mass, counts
     kind: program
-    state: built
+    state: partial
     first: The final table of all claims and all statements of the plan against the geometry.
     done: The table is in the evidence report.
+    differs: "No check of quantities that were held back from the build (total mass, active volume). It repeats the claims and plan checks on the final geometry."
   run_geant4:
     title: Run in Geant4
     subtitle: Load, overlaps, geantinos, cross-sections
     kind: program
-    state: built
+    state: partial
     first: Load, overlap check and geantino scan along the three axes. No cross-section pictures.
     done: A report with loaded, overlaps and scans for the final GDML.
+    differs: "No short run with real particles in the loop, no cross-section pictures from line scans."
   final_look:
     title: Final look
     subtitle: Against the original pictures, by region
     kind: ai
-    state: built
+    state: partial
     first: "Renders the whole geometry and compares it with up to three figures. Its verdict and open differences decide whether another round follows, and go to the teams of that round."
     done: The report lists what still differs from the figures.
+    differs: "No parts report and no line scans as text for the reviewer, no enlarged crops. Does not return findings to the owning team or the Coordinator separately."
   round_rule:
     title: Did this round change anything?
     subtitle: Checks, Reviewer findings, new evidence
     kind: program
-    state: built
+    state: partial
     first: "The run ends when a full round changed nothing (no new claims, no important difference from the figures left, nothing left out). Safety stops, named as such in the report - no improvement for two rounds, or 5 rounds. The best version is chosen by Geant4 validity, then the verdict of Look, then open differences, then claims and plan met."
     done: The run log names the rule that ended the run.
+    differs: "Does not use 'the Reviewer finds nothing new' across rounds in the proposal's sense of a full round with a search for every open gap."
   output:
     title: GDML + evidence report + run log
     subtitle: The run ends here, by its own rule
@@ -125,16 +142,18 @@ boxes:
     title: Evaluator
     subtitle: Reasons about what to compare, measures with tools
     kind: ai
-    state: built
+    state: partial
     first: "With a public repository given: picks the geometry files, reads the main parts out of them with a verified line of code each, and compares them with the build, reasoning about what matters at the detail level of documents. Reads source text only; does not run the code."
     done: An evaluation report with the differences by kind.
+    differs: "Reads the source text of up to 8 files once; it cannot search the repository further or measure the public geometry. Its verdicts are not repeated to test stability, and it was tested on no known-answer cases. It does not judge what the agent could have known from its documents."
   system_audit:
     title: System audit
     subtitle: Patterns across runs and detector types
     kind: program
-    state: built
+    state: partial
     first: "Per run and across runs: per box how often it ran, what it cost in model time and what it found."
     done: python -m g4geoagent.audit prints the table for the given runs.
+    differs: "Only counts per box. No tables of where errors start, which tools are unused, or where decisive evidence came from. No comparison across detector types yet."
   design_changes:
     title: Design changes
     subtitle: Architecture, tools, lessons. Never back into a run

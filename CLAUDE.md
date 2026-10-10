@@ -11,6 +11,11 @@ Only free LBL-hosted models on CBorg (ids starting with `lbl/`). No paid model, 
   about every change to boxes or arrows.
 - A box marked `program` makes no model call.
 - Each box has `first` (what its first version does) and `done` (how to tell it works). Keep them true.
+- A box is `built` only when it does what the diagram and `PROPOSAL.md` say. If it works but falls short, it is
+  `partial` and `differs` lists every way in which it falls short. Never mark a box `built` because a function
+  with its name exists. Before building a box, read its section in `PROPOSAL.md` and build to that.
+- A shortcut that changes the structure (one team instead of several, one shared script, a limit on a loop,
+  a source left out) is not a detail. Say it before building it, and write it into `differs`.
 
 ## How a box is built
 1. Give it a score that a program computes.

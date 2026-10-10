@@ -24,7 +24,8 @@ def test_boxes_are_complete():
     for name, box in BOXES.items():
         assert box["kind"] in ("ai", "program", "data"), name
         if box["kind"] != "data":
-            assert box.get("state") in ("built", "stub"), f"{name} has no state"
+            assert box.get("state") in ("built", "partial", "stub"), f"{name} has no state"
+            assert (box["state"] == "partial") == bool(box.get("differs")), f"{name}: 'partial' needs 'differs', 'built' must have none"
             assert box.get("first") and box.get("done"), f"{name} lacks its first-version scope"
 
 

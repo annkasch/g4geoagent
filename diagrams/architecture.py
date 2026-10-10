@@ -34,10 +34,10 @@ def box(cx, cy, w, h, name, title=None):
     DRAWN_BOXES.add(name)
     title, sub = title or entry["title"], entry.get("subtitle")
     fill, edge, text = STYLE[entry["kind"]]
-    stub = entry.get("state") == "stub"
+    stub, partial = entry.get("state") == "stub", entry.get("state") == "partial"
     ax.add_patch(FancyBboxPatch((cx - w / 2, cy - h / 2), w, h, boxstyle="round,pad=0,rounding_size=0.14",
                                 facecolor="#fbfbf9" if stub else fill, edgecolor=edge, linewidth=1.2,
-                                linestyle=(0, (4, 2)) if stub else "-", zorder=2))
+                                linestyle=(0, (4, 2)) if stub else ((0, (1, 1.5)) if partial else "-"), zorder=2))
     ax.text(cx, cy + (0.17 if sub else 0), title, ha="center", va="center", fontsize=12.5,
             color=text, zorder=3)
     if sub:
@@ -142,8 +142,9 @@ arrow([(C, -23.35), (C, -23.95)], links="system_audit>design_changes")
 
 ax.legend(handles=[Patch(facecolor=STYLE[k][0], edgecolor=STYLE[k][1], label=n)
                    for k, n in (("ai", "AI step"), ("program", "Program"), ("data", "Data"))]
-          + [Patch(facecolor="#fbfbf9", edgecolor="#777777", linestyle=(0, (4, 2)), label="Not built yet")],
-          loc="lower center", bbox_to_anchor=(0.5, -0.005), ncol=4, frameon=False, fontsize=11)
+          + [Patch(facecolor="#eeeeee", edgecolor="#777777", linestyle=(0, (1, 1.5)), label="Works, differs from this diagram"),
+             Patch(facecolor="#fbfbf9", edgecolor="#777777", linestyle=(0, (4, 2)), label="Not built yet")],
+          loc="lower center", bbox_to_anchor=(0.5, -0.005), ncol=5, frameon=False, fontsize=10)
 
 wanted = {(a, b) for a, b, *_ in SPEC["arrows"]}
 assert DRAWN_BOXES == set(SPEC["boxes"]), f"boxes differ from architecture.yaml: {DRAWN_BOXES ^ set(SPEC['boxes'])}"
