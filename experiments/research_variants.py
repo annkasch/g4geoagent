@@ -50,4 +50,8 @@ VARIANTS = {
     "r08_three_papers": variant(**{**BEST, "papers": 3}),
     "r09_written_queries": variant(write_queries=True, **BEST),      # a model writes three more queries
     "r10_pages50": variant(max_pages=50, **BEST),
+    # from round 10, one change each
+    "r11_queries_offer20": variant(write_queries=True, max_pages=50, offer=20, **BEST),
+    "r12_offer20": variant(max_pages=50, offer=20, **BEST),
+    "r13_gemma_chooses": variant(max_pages=50, model="lbl/gemma-4", **BEST),
 }

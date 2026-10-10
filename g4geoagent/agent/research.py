@@ -66,7 +66,7 @@ def pdf_text(content, max_pages=MAX_PAGES, words=()):
     return text, len(keep), len(pages)
 
 
-def candidates(evidence, detector, what, query, broaden=False, fulltext=False, more_queries=()):
+def candidates(evidence, detector, what, query, broaden=False, fulltext=False, more_queries=(), offer=None):
     """Papers to choose from. `broaden` adds general searches for the detector, `fulltext`
     a search in the text of the papers; both are for queries that find little."""
     searches = [(query, "mostrecent"), *((q, "mostrecent") for q in more_queries)]
@@ -83,11 +83,11 @@ def candidates(evidence, detector, what, query, broaden=False, fulltext=False, m
                 found.setdefault(paper["arxiv"], paper)
         except Exception as error:
             problems.append(f"{type(error).__name__}: {str(error)[:100]}")
-    return list(found.values())[:12 if broaden or fulltext or more_queries else CANDIDATES], problems
+    return list(found.values())[:offer or (12 if broaden or fulltext or more_queries else CANDIDATES)], problems
 
 
 def research(evidence, detector, part, quantity, query, log=None, broaden=False, fulltext=False,
-             select_pages=False, papers=1, more_queries=(), max_pages=MAX_PAGES):
+             select_pages=False, papers=1, more_queries=(), max_pages=MAX_PAGES, offer=None, model=MODEL):
     """Search for one missing item. Returns a dict describing what happened.
 
     `file` is the saved text of the best paper, `files` of all saved papers (up to `papers`).
@@ -96,7 +96,7 @@ def research(evidence, detector, part, quantity, query, log=None, broaden=False,
     result = {"part": part, "quantity": quantity, "query": query, "file": None, "files": [], "candidates": 0, "outcome": ""}
     known = _squash(" ".join(evidence.documents().values())[:20000])
     have = {s.get("arxiv") for s in evidence.sources()}
-    offered, problems = candidates(evidence, detector, quantity, query, broaden, fulltext, more_queries)
+    offered, problems = candidates(evidence, detector, quantity, query, broaden, fulltext, more_queries, offer)
     offered = [p for p in offered if p["arxiv"] not in have and _squash(p["title"]) not in known]
     result["candidates"] = len(offered)
     if not offered:
@@ -110,7 +110,7 @@ def research(evidence, detector, part, quantity, query, log=None, broaden=False,
                + ('{"paper": number or -1, "reason": "one sentence"}' if papers == 1 else
                   '{"papers": [numbers, best first], "reason": "one sentence"}'))
     try:
-        choice, _ = call_llm_json(MODEL, [{"role": "user", "content": request}], Choice if papers == 1 else Choices,
+        choice, _ = call_llm_json(model, [{"role": "user", "content": request}], Choice if papers == 1 else Choices,
                                   log=log, stage="research_choose", temperature=0)
     except ValueError:
         return {**result, "outcome": "the model gave no usable choice"}

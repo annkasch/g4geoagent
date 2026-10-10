@@ -47,6 +47,7 @@ class State:
     build_attempts: int = BUILD_ATTEMPTS
     build_overlap_details: bool = False
     build_account_for_all: bool = False     # every claim must be shown or listed as not built
+    build_pieces: int = 0                   # build this many parts at a time, from the outside in (0: all at once)
     # reading
     unread: list = field(default_factory=list)  # documents in the folder that were not read yet
     readings: dict = field(default_factory=dict)
@@ -170,12 +171,16 @@ class Searches(BaseModel):
     searches: list[Search]
 
 
-def claims_text(state):
+def claims_text(state, parts=None):
+    """The parts and the claims as text for a model, all of them or only those of `parts`."""
     lines = ["Parts (name: what it is; inside what):"]
-    lines += [f"  {p.name}: {p.description}; inside {p.inside}" for p in state.parts.values()]
+    lines += [f"  {p.name}: {p.description}; inside {p.inside}" for p in state.parts.values()
+              if parts is None or p.name in parts]
     start = {s["file"] for s in state.evidence.sources() if s["origin"] == "starting document"}
     lines.append("\nClaims (id | part | quantity | value | kind | measured from | where it comes from | quote):")
     for key, c in state.built_claims().items():
+        if parts is not None and c.part not in parts:
+            continue
         origin = "from the starting document" if state.origin[key] in start else "found by research"
         lines.append(f"  {key} | {c.part} | {c.quantity} | {c.value} {c.unit} | {c.category} | {c.relative_to} | "
                      f"{origin} | \"{' '.join(c.quote.split())[:160]}\"")
@@ -232,16 +237,53 @@ def build(state):
             state.log.enter(("build",))       # fail: fix
         return feedback or None
 
-    result = run_builder("Detector: " + state.name + "\n\n" + claims_text(state), state.build_model, workdir,
-                         attempts=state.build_attempts, log=state.log, seed=state.seed,
-                         prompt=state.build_prompt, check=check,
-                         overlap_details=state.build_overlap_details)
+    options = dict(log=state.log, seed=state.seed, prompt=state.build_prompt, check=check,
+                   overlap_details=state.build_overlap_details)
+    if state.build_pieces:
+        result = build_in_pieces(state, workdir, options)
+    else:
+        result = run_builder("Detector: " + state.name + "\n\n" + claims_text(state), state.build_model, workdir,
+                             attempts=state.build_attempts, **options)
     state.log.event("build", "build", attempts=result["attempts"], finished=result["finished"],
                     valid=result["valid"], measured=len(state.attempts))
     # the best of the valid attempts: most claims met
-    state.candidate = max(state.attempts, key=lambda a: a["summary"]["met"], default=None)
+    state.candidate = max(reversed(state.attempts), key=lambda a: a["summary"]["met"], default=None)
     if state.log.box == ["build"]:
         measure_vs_claims(state, None, None)        # the builder had the last word: record where the piece stands
+
+
+def outside_in(parts):
+    """Part names ordered from the outermost to the innermost."""
+    def depth(name, seen=()):
+        inside = parts[name].inside
+        return 0 if inside not in parts or inside in seen or inside == name else 1 + depth(inside, (*seen, name))
+    return sorted(parts, key=depth)
+
+
+def build_in_pieces(state, workdir, options):
+    """Build a few parts at a time, from the outside in. A piece that does not become valid is
+    left out, and the next piece goes on from the last valid script."""
+    order = outside_in(state.parts)
+    pieces = [order[i:i + state.build_pieces] for i in range(0, len(order), state.build_pieces)]
+    script, done, attempts, last = None, [], 0, {"gdml": None, "valid": False, "finished": "no piece became valid"}
+    for number, piece in enumerate(pieces, 1):
+        text = "Detector: " + state.name + "\n\n" + claims_text(state, done + piece)
+        if script is None:
+            text += ("\n\nBuild only these parts for now: " + ", ".join(piece) + ". The other parts follow later; "
+                     "the claims about them are not given yet.")
+        else:
+            text += ("\n\nThe script below builds the parts " + ", ".join(done) + " and is valid. Extend it by these "
+                     "parts: " + ", ".join(piece) + ". Keep what is there, change it only where the new parts need "
+                     "room, and send the complete new script.\n\n```python\n" + script + "\n```")
+        if state.log.box != ["build"]:
+            state.log.enter(("build",))          # the next piece
+        result = run_builder(text, state.build_model, workdir / f"piece{number}",
+                             attempts=max(3, state.build_attempts // 2), **options)
+        attempts += result["attempts"]
+        state.log.event("piece", "build", piece=number, parts=piece, valid=result["valid"], attempts=result["attempts"])
+        if result["gdml"]:
+            script, done, last = result["gdml"].with_suffix(".py").read_text(), done + piece, result
+    return {**last, "attempts": attempts}
 
 
 @step("measure_vs_claims")

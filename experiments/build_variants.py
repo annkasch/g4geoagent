@@ -24,4 +24,7 @@ VARIANTS = {
     "v06_nesting": prompt("builder_claims_nesting.md", build_overlap_details=True),   # how to nest; merge huge repetitions
     "v07_attempts10": prompt("builder_claims_names.md", build_overlap_details=True, build_attempts=10),
     "v08_gpt_oss": prompt("builder_claims_names.md", build_overlap_details=True, build_model="lbl/gpt-oss-120b"),
+    # from round 6 (nesting rules): a few parts at a time, from the outside in
+    "v09_pieces4": prompt("builder_claims_nesting.md", build_overlap_details=True, build_pieces=4),
+    "v10_account": prompt("builder_claims_nesting.md", build_overlap_details=True, build_account_for_all=True),
 }

@@ -14,3 +14,9 @@ word. This scores search and choice of paper, not reading.
 | 5 | r05_broaden_pages | Rounds 2 and 3 together | 19/36 | 31/36 | No gain over round 2: the page selection did not bring the missing T2K facts in | Keep both, look at why |
 | 6 | r06_all_three | Rounds 2, 3 and 4 together | 21/36 | 34/36 | Two more facts than either search alone | Keep |
 | 7 | r07_two_papers | Round 6, and the model picks two papers | 26/36 | 36/36 | Worked: the largest single gain; a paper is saved for every fact. Failed: 5 LEGEND facts (water tank, PMTs, reflector, strings, shrouds), where the saved papers are about LEGEND-200 but not about its infrastructure, which was taken over from GERDA; 5 T2K facts where the design report is saved but the value is not matched, possibly written in other units. Cost: two papers to read per search | Best so far |
+| 8 | r08_three_papers | Round 7 with three papers | 26/36 | 36/36 | No gain over two papers, and one more paper to read | Stay with two |
+| 9 | r09_written_queries | Round 7, and a model that has seen the start of the paper writes three more queries | 26/36 | 36/36 | No gain in the count. The hope was that it would look for the earlier experiment whose infrastructure LEGEND-200 uses; the extra papers were cut off by the limit of 12 offers | Test again with more offers |
+| 10 | r10_pages50 | Round 7, long documents cut to 50 pages | 29/36 | 36/36 | Worked: three more T2K facts from the design report. Still missing: 4 LEGEND infrastructure facts, 3 T2K facts | Best so far |
+| 11 | r11_queries_offer20 | Round 10, written queries, up to 20 offers | 29/36 | 36/36 | Same count as round 10 with twice the model calls | No |
+| 12 | r12_offer20 | Round 10 with up to 20 offers | 28/36 | 36/36 | One fact fewer: more offers do not help the choice | No |
+| 13 | r13_gemma_chooses | Round 10 with gemma-4 choosing the paper | 28/36 | 35/36 | One fact fewer than gpt-oss-120b | No |
