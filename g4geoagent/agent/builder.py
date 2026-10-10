@@ -36,7 +36,7 @@ def _code(text, language):
 def _run_script(script, gdml):
     """Run a generated script in its own process. Returns an error text, or None."""
     try:
-        done = subprocess.run([sys.executable, "-I", script.name, gdml.name], cwd=script.parent,
+        done = subprocess.run([sys.executable, "-I", script.name, gdml.name, gdml.stem + ".json"], cwd=script.parent,
                               capture_output=True, text=True, timeout=SCRIPT_TIMEOUT)
     except subprocess.TimeoutExpired:
         return f"The script did not finish within {SCRIPT_TIMEOUT} s."
@@ -64,19 +64,22 @@ def _describe(report):
 
 
 def build(specification, model, workdir, style="pyg4ometry", feedback="errors", attempts=5,
-          log=None, seed=None):
+          log=None, seed=None, prompt=None, check=None):
     """Build a geometry for `specification` (text). Returns a dict:
 
     gdml       path of the last valid GDML file, or None
     valid      whether that file loads in Geant4 without overlaps or warnings
     attempts   number of answers the model gave
     finished   why the loop ended: "valid", "model says done" or "out of attempts"
+
+    `prompt` names another instruction file in prompts/. `check(gdml, report)` is called on every
+    valid geometry; the text it returns goes back to the model, None ends the loop.
     """
     workdir = Path(workdir)
     workdir.mkdir(parents=True, exist_ok=True)
     stage = f"builder_{style}_{feedback}"
     options = {"temperature": 0} | ({"seed": seed} if seed is not None else {})
-    messages = [{"role": "system", "content": (PROMPTS / f"builder_{style}.md").read_text()},
+    messages = [{"role": "system", "content": (PROMPTS / (prompt or f"builder_{style}.md")).read_text()},
                 {"role": "user", "content": "Specification:\n\n" + specification}]
     best = None
 
@@ -119,6 +122,14 @@ def build(specification, model, workdir, style="pyg4ometry", feedback="errors", 
             continue
 
         best = gdml
+        if check:
+            problem = check(gdml, report)
+            if problem is None:
+                event(attempt=attempt, outcome="valid, check passed")
+                return {"gdml": best, "valid": True, "attempts": attempt, "finished": "valid"}
+            event(attempt=attempt, outcome="valid, check failed", problem=problem[:400])
+            messages.append({"role": "user", "content": problem + "\n\nSend the corrected complete answer."})
+            continue
         if feedback == "errors":
             event(attempt=attempt, outcome="valid")
             return {"gdml": best, "valid": True, "attempts": attempt, "finished": "valid"}

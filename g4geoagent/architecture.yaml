@@ -1,0 +1,179 @@
+# The architecture of G4GeoAgent: the boxes of the diagram and the arrows between them.
+#
+# This file is the specification. diagrams/architecture.py draws it, g4geoagent/pipeline.py
+# implements it, and tests/test_architecture.py checks that the three agree.
+# A new component or connection is added here first, then to the code.
+#
+# kind:   ai (a model is called), program (no model call allowed), data (written and read by steps)
+# state:  built (does its job in a first form), stub (runs and logs, but does nothing yet)
+# first:  what the first version of the box does
+# done:   how to tell that the first version works
+
+boxes:
+  evidence_folder:
+    title: Evidence folder
+    subtitle: Documents and figures + saved finds
+    kind: data
+  reader_A:
+    title: Reader A
+    kind: ai
+    state: built
+    first: Reads text documents into claims with quotes. Figures are not read.
+    done: Claims of the LEGEND paper are extracted with no failing quote.
+  reader_B:
+    title: Reader B
+    kind: ai
+    state: built
+    first: As Reader A, with another model and another way through the text.
+    done: As Reader A.
+  compare:
+    title: Compare
+    subtitle: Match claims, coverage check
+    kind: program
+    state: built
+    first: Checks every quote, pairs the claims of the two readers, sends unpaired claims to the other reader.
+    done: The agreed list holds only claims with a verified quote.
+  agreed_claims:
+    title: Agreed claims
+    subtitle: Each with source and uncertainty
+    kind: data
+  coordinator:
+    title: Coordinator
+    subtitle: Splits detector, detail levels, interfaces
+    kind: ai
+    state: stub
+    first: Hands all claims to one team. No split, no detail levels, no interfaces.
+    done: A run completes with one team.
+  teams:
+    title: Team 1 … N
+    kind: ai
+    state: built
+    first: One team. It picks the gaps worth a search and builds the detector as a single piece.
+    done: The team returns a GDML file or says why it could not.
+  build:
+    title: Build
+    subtitle: Code
+    kind: ai
+    state: built
+    first: Writes one pyg4ometry script from the claims, corrected until Geant4 loads the result.
+    done: A GDML file that loads in Geant4 without overlaps.
+  measure_vs_claims:
+    title: Measure
+    subtitle: vs claims
+    kind: program
+    state: built
+    first: Measures sizes, counts, masses and volumes of the volumes the builder names for each claim.
+    done: Each built claim is reported as met, not met or not measurable.
+  look:
+    title: Look
+    subtitle: vs pictures
+    kind: ai
+    state: stub
+    first: Not built. The free models misread figures.
+    done: The run log shows the step.
+  research:
+    title: Research
+    subtitle: 'Online: text and figures'
+    kind: ai
+    state: built
+    first: Searches INSPIRE for one gap, picks a paper, saves its arXiv text to the evidence folder. Figures are saved with the PDF but not read.
+    done: A gap of the LEGEND paper leads to a saved paper and to new agreed claims.
+  integrate:
+    title: Integrate
+    subtitle: Place subsystems at interfaces
+    kind: program
+    state: stub
+    first: Passes the single team's geometry on.
+    done: The run log shows the step.
+  check_whole_detector:
+    title: Check whole detector
+    subtitle: Overlaps, mass, counts
+    kind: program
+    state: built
+    first: The final table of all built claims against the geometry, with the share that is met.
+    done: The table is in the evidence report.
+  run_geant4:
+    title: Run in Geant4
+    subtitle: Load, overlaps, geantinos, cross-sections
+    kind: program
+    state: built
+    first: Load, overlap check and geantino scan along the three axes. No cross-section pictures.
+    done: A report with loaded, overlaps and scans for the final GDML.
+  final_look:
+    title: Final look
+    subtitle: Against the original pictures, by region
+    kind: ai
+    state: stub
+    first: Not built. The free models misread figures.
+    done: The run log shows the step.
+  round_rule:
+    title: Did this round change anything?
+    subtitle: Checks, Reviewer findings, new evidence
+    kind: program
+    state: built
+    first: Another round if this one brought new claims, up to a fixed number of rounds. Keeps the best version.
+    done: The run log names the rule that ended the run.
+  output:
+    title: GDML + evidence report + run log
+    subtitle: The run ends here, by its own rule
+    kind: data
+  public_code:
+    title: Public code
+    subtitle: Closest ground truth
+    kind: data
+  evaluator:
+    title: Evaluator
+    subtitle: Reasons about what to compare, measures with tools
+    kind: ai
+    state: stub
+    first: Not built. Which public geometry to grade against is open.
+    done: The run log shows the step.
+  system_audit:
+    title: System audit
+    subtitle: Patterns across runs and detector types
+    kind: program
+    state: stub
+    first: Not built. It needs runs on several detectors first.
+    done: Nothing yet.
+  design_changes:
+    title: Design changes
+    subtitle: Architecture, tools, lessons. Never back into a run
+    kind: data
+
+# [from, to, label]. A step may only hand over to a box it has an arrow to.
+arrows:
+  - [evidence_folder, reader_A]
+  - [evidence_folder, reader_B]
+  - [reader_A, compare]
+  - [reader_B, compare]
+  - [compare, reader_A, 'disagree: re-read']
+  - [compare, reader_B, 'disagree: re-read']
+  - [compare, agreed_claims, agree]
+  - [agreed_claims, coordinator]
+  - [coordinator, compare, re-check claim]
+  - [coordinator, teams, 'interfaces, answers']
+  - [teams, coordinator, 'questions, changes']
+  - [teams, build, each team runs]
+  - [build, measure_vs_claims]
+  - [measure_vs_claims, look]
+  - [measure_vs_claims, build, 'fail: fix']
+  - [look, build, 'fail: fix']
+  - [teams, research, when a value or a part is missing]
+  - [measure_vs_claims, research, when a value or a part is missing]
+  - [look, research, when a value or a part is missing]
+  - [research, evidence_folder, saves pages and figures]
+  - [research, teams, nothing found]
+  - [look, integrate]
+  - [integrate, check_whole_detector]
+  - [check_whole_detector, run_geant4]
+  - [run_geant4, final_look]
+  - [final_look, round_rule]
+  - [check_whole_detector, teams, 'subsystem error: owning team']
+  - [final_look, teams, 'subsystem error: owning team']
+  - [run_geant4, coordinator, interface or claim]
+  - [round_rule, teams, 'yes: next round']
+  - [round_rule, output, 'no: stop']
+  - [output, evaluator]
+  - [public_code, evaluator]
+  - [evaluator, system_audit]
+  - [system_audit, design_changes]

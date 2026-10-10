@@ -85,6 +85,8 @@ def walk(pv, mother, parts, overlaps):
     """Parts report and Geant4's own overlap check for pv and everything below it."""
     lv = pv.GetLogicalVolume()
     position = pv.GetTranslation()
+    lo, hi = G4ThreeVector(), G4ThreeVector()
+    lv.GetSolid().BoundingLimits(lo, hi)
     parts.append({
         "volume": pv.GetName(),
         "mother": mother,
@@ -92,6 +94,8 @@ def walk(pv, mother, parts, overlaps):
         "density_g_cm3": lv.GetMaterial().GetDensity() / (g / cm3),
         "solid": lv.GetSolid().GetEntityType(),
         "position_mm": [position.x / mm, position.y / mm, position.z / mm],
+        # full size of the solid along its own axes
+        "size_mm": [(hi.x - lo.x) / mm, (hi.y - lo.y) / mm, (hi.z - lo.z) / mm],
         "solid_volume_cm3": lv.GetSolid().GetCubicVolume() / cm3,
         # daughters are subtracted, so this is the material actually in this part
         "mass_g": lv.GetMass(True, False) / g,

@@ -180,17 +180,20 @@ def _read_piece(job, reader, log):
         return None
 
 
-def read_paper(documents, reader, log=None, coverage=True, whole_limit=WHOLE_LIMIT, window=1):
+def read_paper(documents, reader, log=None, coverage=True, whole_limit=WHOLE_LIMIT, window=1, known_parts=()):
     """Read papers: only what describes the construction. Long documents are read in pieces.
 
     With `coverage`, the reader is then asked once about numbers it left out near its claims.
+    `known_parts` are names of parts from earlier documents, to be used again where they fit.
     """
+    use = "Use these names for the parts where they fit: "
     words = sum(len(text.split()) for text in documents.values())
     if words <= whole_limit:
-        reading = read(documents, reader, log, prompt=PAPER_PROMPT)
+        names = use + ", ".join(known_parts) + "." if known_parts else ""
+        reading = read(documents, reader, log, prompt=PAPER_PROMPT, extra=names)
     else:
         parts = _outline(documents, reader, log)
-        names = "Use these names for the parts where they fit: " + ", ".join(p.name for p in parts) + "."
+        names = use + ", ".join(dict.fromkeys([*known_parts, *(p.name for p in parts)])) + "."
         jobs = [({name: piece}, names) for name, text in documents.items() for piece in _pieces(text)]
         with ThreadPoolExecutor(4) as pool:
             readings = [r for r in pool.map(lambda job: _read_piece(job, reader, log), jobs) if r]

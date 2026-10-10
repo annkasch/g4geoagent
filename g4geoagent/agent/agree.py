@@ -112,6 +112,11 @@ def agreed_reading(documents, log=None, check=True):
         confirmed_b, rejected_b = cross_check(only_b, documents, "A", log)
     else:
         confirmed_a, rejected_a, confirmed_b, rejected_b = only_a, [], only_b, []
+    return assemble(a, b, pairs, confirmed_a + confirmed_b, rejected_a + rejected_b, dropped, log)
+
+
+def assemble(a, b, pairs, confirmed, rejected, dropped, log=None):
+    """The agreed list: paired claims, and claims of one reader that the other confirmed."""
     parts = {p.name: p for p in a.parts + b.parts}
     claims, category_conflicts = [], 0
     for first, second in pairs:
@@ -122,12 +127,11 @@ def agreed_reading(documents, log=None, check=True):
         claims.append(first)
         if set(claim_numbers(second)) - set(claim_numbers(first)):     # the other reader's claim says more
             claims.append(second)
-    claims += confirmed_a + confirmed_b
+    claims += confirmed
     counts = {"reader_a": len(a.claims), "reader_b": len(b.claims), "both": len(pairs),
-              "only_one_confirmed": len(confirmed_a) + len(confirmed_b),
-              "disputed": len(rejected_a) + len(rejected_b), "dropped": len(dropped),
+              "only_one_confirmed": len(confirmed), "disputed": len(rejected), "dropped": len(dropped),
               "category_conflicts": category_conflicts}
     if log:
         log.event("agreed", "compare", **counts)
     return Agreed(reading=Reading(parts=list(parts.values()), claims=claims, gaps=a.gaps + b.gaps),
-                  disputed=rejected_a + rejected_b, dropped=dropped, counts=counts)
+                  disputed=rejected, dropped=dropped, counts=counts)
