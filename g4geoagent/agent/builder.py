@@ -64,7 +64,7 @@ def _describe(report):
 
 
 def build(specification, model, workdir, style="pyg4ometry", feedback="errors", attempts=5,
-          log=None, seed=None, prompt=None, check=None):
+          log=None, seed=None, prompt=None, check=None, overlap_details=False):
     """Build a geometry for `specification` (text). Returns a dict:
 
     gdml       path of the last valid GDML file, or None
@@ -112,7 +112,12 @@ def build(specification, model, workdir, style="pyg4ometry", feedback="errors", 
             if not report["ok"]:
                 # after a crash the last lines of Geant4's output hold the full error message
                 output = [line for line in report.get("log_tail", []) if line.strip()] or report["problems"][:12]
-                details = [report["error"] or "", *(f"overlap: {v}" for v in report["overlaps"]), *output]
+                overlaps = ([f"overlap: {v}" for v in report["overlaps"]] if not overlap_details else
+                            [f"overlap: {v}" for v in report["overlap_details"][:20]]
+                            + (["A part must lie completely inside its mother volume, and parts in the same mother "
+                                "must not share space. Work out the positions from the sizes."] if report["overlaps"] else []))
+                output = [] if overlap_details and report["loaded"] and report["overlaps"] else output
+                details = [report["error"] or "", *overlaps, *output]
                 problem = ("Geant4 could not load the file.\n" if not report["loaded"]
                            else "Geant4 reports problems with the geometry.\n") + "\n".join(d for d in details if d)
 

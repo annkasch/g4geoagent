@@ -81,8 +81,12 @@ class Actions(G4VUserActionInitialization):
         self.SetUserAction(Recorder(self.state))
 
 
-def walk(pv, mother, parts, overlaps):
-    """Parts report and Geant4's own overlap check for pv and everything below it."""
+def walk(pv, mother, parts, overlaps, checked=None):
+    """Parts report and Geant4's own overlap check for pv and everything below it.
+
+    The daughters of a volume that is placed many times are checked for overlaps only once.
+    """
+    checked = set() if checked is None else checked
     lv = pv.GetLogicalVolume()
     position = pv.GetTranslation()
     lo, hi = G4ThreeVector(), G4ThreeVector()
@@ -100,10 +104,12 @@ def walk(pv, mother, parts, overlaps):
         # daughters are subtracted, so this is the material actually in this part
         "mass_g": lv.GetMass(True, False) / g,
     })
-    if mother is not None and pv.CheckOverlaps(OVERLAP_POINTS, OVERLAP_TOL, True):
+    first = id(pv) not in checked
+    checked.add(id(pv))
+    if mother is not None and first and pv.CheckOverlaps(OVERLAP_POINTS, OVERLAP_TOL, True):
         overlaps.append(pv.GetName())
     for i in range(lv.GetNoDaughters()):
-        walk(lv.GetDaughter(i), pv.GetName(), parts, overlaps)
+        walk(lv.GetDaughter(i), pv.GetName(), parts, overlaps, checked)
 
 
 def default_scans(world):

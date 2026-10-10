@@ -15,6 +15,20 @@ from pathlib import Path
 _PROBLEM = re.compile(r"G4Exception|WARNING|ERROR|stuck", re.IGNORECASE)
 
 
+_OVERLAP = re.compile(r"Overlap is detected for volume (\S+?)(?::\d+)? \((\w+)\)\s+with (its mother volume )?(\S+?)(?::\d+)? \((\w+)\)"
+                      r"\s+(?:protrusion|overlapping)?[^\n]*? by ([\d.eE+-]+ \w+)")
+
+
+def overlap_details(log):
+    """Geant4's overlap messages, each pair of volumes once: "a (G4Box) sticks out of its mother b (G4Tubs) by 1 cm"."""
+    found = {}
+    for volume, solid, mother, other, other_solid, size in _OVERLAP.findall(log):
+        text = (f"{volume} ({solid}) sticks out of its mother {other} ({other_solid}) by up to {size}" if mother
+                else f"{volume} ({solid}) overlaps {other} ({other_solid}) by up to {size}")
+        found.setdefault((volume.rstrip("0123456789"), other.rstrip("0123456789"), bool(mother)), text)
+    return list(found.values())
+
+
 def geant4_run(gdml_path, scans=None, real_run=None, timeout=600, log_path=None):
     """Run the Geant4 checks on `gdml_path` and return a report dict.
 
@@ -53,6 +67,7 @@ def geant4_run(gdml_path, scans=None, real_run=None, timeout=600, log_path=None)
     report.setdefault("overlaps", [])
     report["problems"] = [line.strip() for line in log.splitlines()
                           if _PROBLEM.search(line)]
+    report["overlap_details"] = overlap_details(log)
     report["error"] = error
     if error:
         report["log_tail"] = log.splitlines()[-30:]

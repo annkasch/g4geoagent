@@ -42,6 +42,10 @@ class State:
     max_rounds: int = 2
     searches_per_round: int = 1
     seed: int | None = None
+    build_model: str = BUILD_MODEL
+    build_prompt: str = "builder_claims.md"
+    build_attempts: int = BUILD_ATTEMPTS
+    build_overlap_details: bool = False
     # reading
     unread: list = field(default_factory=list)  # documents in the folder that were not read yet
     readings: dict = field(default_factory=dict)
@@ -227,9 +231,10 @@ def build(state):
             state.log.enter(("build",))       # fail: fix
         return feedback or None
 
-    result = run_builder("Detector: " + state.name + "\n\n" + claims_text(state), BUILD_MODEL, workdir,
-                         attempts=BUILD_ATTEMPTS, log=state.log, seed=state.seed,
-                         prompt="builder_claims.md", check=check)
+    result = run_builder("Detector: " + state.name + "\n\n" + claims_text(state), state.build_model, workdir,
+                         attempts=state.build_attempts, log=state.log, seed=state.seed,
+                         prompt=state.build_prompt, check=check,
+                         overlap_details=state.build_overlap_details)
     state.log.event("build", "build", attempts=result["attempts"], finished=result["finished"],
                     valid=result["valid"], measured=len(state.attempts))
     # the best of the valid attempts: most claims met
