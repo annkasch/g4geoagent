@@ -44,12 +44,10 @@ def arrow(points, label=None, at=None, ha="left", both=False):
 
 C, W, H = 6.0, 6.0, 0.9          # main column: centre, width, box height
 L1, L2, R1 = 0.2, 1.9, 10.6      # x of the loops on the left and right
-RX = 12.2                        # x of the line up to Research
+RX = 12.6                        # x of Research and of its line up to the evidence folder
 
 # --- evidence and reading
-box(C, 0, W, H, "Evidence folder", "Starting documents + saved pages", "data")
-box(11.4, 0, 2.6, H, "Research", "Online search", "ai")
-arrow([(10.1, 0.0), (9.0, 0.0)], "saves", at=(9.55, 0.2), ha="center")
+box(C, 0, W, H, "Evidence folder", "Documents and figures + saved finds", "data")
 box(4.4, -1.5, 2.8, H, "Reader A")
 box(7.6, -1.5, 2.8, H, "Reader B")
 arrow([(4.4, -0.45), (4.4, -1.05)])
@@ -62,10 +60,9 @@ box(C, -4.5, W, H, "Agreed claims", "Each with source and uncertainty", "data")
 arrow([(C, -3.45), (C, -4.05)], "agree")
 
 # --- coordination and building
-box(C, -6.0, W, H, "Coordinator", "Splits detector, keeps interfaces, fills gaps")
+box(C, -6.0, W, H, "Coordinator", "Splits detector, detail levels, interfaces")
 arrow([(C, -4.95), (C, -5.55)])
 arrow([(9.0, -5.8), (R1, -5.8), (R1, -3.0), (9.0, -3.0)], "re-check\nclaim", at=(R1 + 0.12, -4.4))
-arrow([(9.0, -6.2), (RX, -6.2), (RX, -0.45)], "gap or\nquestion:\nsearch", at=(RX + 0.12, -3.4))
 for x, name in ((3.6, "Team 1"), (5.6, "Team 2"), (9.0, "Team N")):
     box(x, -7.7, 1.7, 0.8, name)
     arrow([(x, -6.9), (x, -7.3)], both=True) if x != 5.6 else None
@@ -88,6 +85,11 @@ arrow([(4.75, -9.55), (5.15, -9.55)])
 arrow([(6.85, -9.55), (7.25, -9.55)])
 arrow([(8.1, -10.0), (8.1, -10.4), (3.9, -10.4), (3.9, -10.0)], "fail: fix", at=(C, -10.58), ha="center")
 ax.plot([6.0, 6.0], [-10.0, -10.4], color=GREY, linewidth=1.3, zorder=1)
+
+# --- research, inside each team
+box(RX, -9.55, 3.6, H, "Research", "Online: text and figures")
+arrow([(9.3, -9.55), (RX - 1.8, -9.55)], "when a value or\na part is missing", at=(RX, -10.4), ha="center")
+arrow([(RX, -9.1), (RX, 0.0), (9.0, 0.0)], "saves pages\nand figures", at=(RX + 0.12, -3.4))
 
 # --- whole-detector checks
 rows = [(-11.9, "Integrate", "Place subsystems at interfaces", "program"),
@@ -113,25 +115,19 @@ arrow([(C, -18.05), (C, -18.65)], "no: stop")
 ax.plot([-1.4, 13.9], [-20.05, -20.05], color="#999999", linewidth=1.2, linestyle=(0, (6, 4)))
 ax.text(-1.4, -20.3, "Afterwards, outside the system. Only for detectors with a public implementation.",
         fontsize=10, color="#444444", va="center", style="italic")
-box(1.9, -21.4, 2.9, H, "Public code", "Gives the reference", "data")
-box(5.3, -21.4, 2.9, H, "Measure", "All differences", "program")
-box(9.2, -21.4, 3.9, H, "Judge", "Could the agent have known?")
-ax.add_patch(FancyBboxPatch((3.6, -22.02), 7.8, 1.24, boxstyle="round,pad=0,rounding_size=0.2",
-                            facecolor="none", edgecolor="#bbbbbb", linestyle=(0, (4, 3)), linewidth=1.1))
-ax.text(11.3, -20.6, "Evaluator", fontsize=10, color="#444444", va="center", ha="right")
-arrow([(3.35, -21.4), (3.85, -21.4)])
-arrow([(6.75, -21.4), (7.25, -21.4)])
-arrow([(C, -19.55), (C, -20.6), (5.3, -20.6), (5.3, -20.95)])
-arrow([(C, -20.6), (9.2, -20.6), (9.2, -20.95)])
+box(1.6, -21.4, 2.9, H, "Public code", "Closest ground truth", "data")
+box(7.3, -21.4, 7.2, H, "Evaluator", "Reasons about what to compare, measures with tools")
+arrow([(3.05, -21.4), (3.7, -21.4)])
+arrow([(C, -19.55), (C, -20.95)])
 box(C, -22.9, W, H, "System audit", "Patterns across runs and detector types", "program")
-arrow([(9.2, -21.85), (9.2, -22.2), (C, -22.2), (C, -22.45)])
+arrow([(C, -21.85), (C, -22.45)])
 box(C, -24.4, W, H, "Design changes", "Architecture, tools, lessons. Never back into a run", "data")
 arrow([(C, -23.35), (C, -23.95)])
 
 ax.legend(handles=[Patch(facecolor=STYLE[k][0], edgecolor=STYLE[k][1], label=n)
                    for k, n in (("ai", "AI step"), ("program", "Program"), ("data", "Data"))],
           loc="lower center", bbox_to_anchor=(0.5, -0.005), ncol=3, frameon=False, fontsize=11)
-ax.set_xlim(-1.7, 14.3)
+ax.set_xlim(-1.7, 14.9)
 ax.set_ylim(-25.7, 0.7)
 ax.set_aspect("equal")
 ax.axis("off")
