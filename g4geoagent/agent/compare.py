@@ -1,8 +1,10 @@
 """Program checks on what the readers extracted. No LLM in this file.
 
-So far: checks on a single reading. Matching the two readings comes next.
+Checks on a single reading (quotes, numbers without a claim) and the pairing
+of the claims of two readings.
 """
 
+import difflib
 import re
 import unicodedata
 
@@ -107,19 +109,10 @@ def uncovered_near_claims(reading, documents, window=1):
     found = []
     for name, text in documents.items():
         parts = sentences(text)
-        squashed = [_squash(s) for s in parts]
-        starts, total = [], 0
-        for s in squashed:
-            starts.append(total)
-            total += len(s)
-        whole, active = "".join(squashed), set()
+        squashed, active = [_squash(s) for s in parts], set()
         for claim in reading.claims:
-            quote = _squash(claim.quote)
-            at = whole.find(quote) if claim.source == name and quote else -1
-            if at < 0:
-                continue
-            for i, start in enumerate(starts):
-                if start < at + len(quote) and start + len(squashed[i]) > at:
+            if claim.source == name:
+                for i in _sentences_of(claim.quote, squashed):
                     active.update(range(max(0, i - window), min(len(parts), i + window + 1)))
         for i in sorted(active):
             for number in dict.fromkeys(numbers_in(POINTERS.sub(" ", parts[i]))):
@@ -128,19 +121,23 @@ def uncovered_near_claims(reading, documents, window=1):
     return found
 
 
-def locate(quote, text):
-    """Indices of the sentences of `text` that a quote lies in. Empty if the quote is not found."""
-    parts = [_squash(s) for s in sentences(text)]
-    whole, wanted = "".join(parts), _squash(quote)
+def _sentences_of(quote, squashed):
+    """Indices of the sentences (given squashed) that a quote lies in. Empty if the quote is not found."""
+    whole, wanted = "".join(squashed), _squash(quote)
     at = whole.find(wanted) if wanted else -1
     if at < 0:
         return set()
     found, start = set(), 0
-    for i, part in enumerate(parts):
+    for i, part in enumerate(squashed):
         if start < at + len(wanted) and start + len(part) > at:
             found.add(i)
         start += len(part)
     return found
+
+
+def locate(quote, text):
+    """Indices of the sentences of `text` that a quote lies in. Empty if the quote is not found."""
+    return _sentences_of(quote, [_squash(s) for s in sentences(text)])
 
 
 def _same_claim(one, other):
@@ -165,8 +162,6 @@ def match_readings(a, b, documents):
     state the same number with the same unit, or are both text claims of the
     same category. Returns (pairs, only in a, only in b).
     """
-    import difflib
-
     def place(claim):
         return locate(claim.quote, documents.get(claim.source, ""))
 
@@ -187,7 +182,6 @@ def match_readings(a, b, documents):
 
 def closest_sentences(claim, text, n=3):
     """The sentences most likely meant by a quote that is not in the text word for word."""
-    import difflib
     numbers = set(claim_numbers(claim))
     scored = []
     for sentence in sentences(text):

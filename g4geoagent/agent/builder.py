@@ -78,7 +78,7 @@ def build(specification, model, workdir, style="pyg4ometry", feedback="errors", 
     options = {"temperature": 0} | ({"seed": seed} if seed is not None else {})
     messages = [{"role": "system", "content": (PROMPTS / f"builder_{style}.md").read_text()},
                 {"role": "user", "content": "Specification:\n\n" + specification}]
-    best, shown_measurements = None, False
+    best = None
 
     def event(**fields):
         if log:
@@ -119,11 +119,10 @@ def build(specification, model, workdir, style="pyg4ometry", feedback="errors", 
             continue
 
         best = gdml
-        if feedback == "errors" or shown_measurements and feedback == "measure_once":
+        if feedback == "errors":
             event(attempt=attempt, outcome="valid")
             return {"gdml": best, "valid": True, "attempts": attempt, "finished": "valid"}
         event(attempt=attempt, outcome="valid, measurements sent")
-        shown_measurements = True
         messages.append({"role": "user", "content":
                          "The file loads in Geant4 without overlaps. This is what Geant4 measures in it:\n\n"
                          + _describe(report) + "\n\nCompare this with the specification: every dimension, position, "

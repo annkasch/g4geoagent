@@ -61,17 +61,14 @@ def repair_quotes(reading, documents, reader, log=None):
         except ValueError:
             fixed = {}
         for i, (claim, _) in enumerate(batch):
-            claim.quote = fixed.get(i, "") or claim.quote
+            claim.quote = fixed.get(i) or claim.quote
         still = {id(c) for c, _ in check_quotes(Reading(parts=[], claims=[c for c, _ in batch]), documents)}
-        dropped += [c for c, _ in batch if id(c) in still or not fixed.get(i_of(batch, c))]
+        # dropped: withdrawn or not answered by the reader, or the new quote fails again
+        dropped += [c for i, (c, _) in enumerate(batch) if not fixed.get(i) or id(c) in still]
     reading.claims = [c for c in reading.claims if not any(c is d for d in dropped)]
     if log:
         log.event("quote_repair", f"reader_{reader}", failing=len(failing), dropped=len(dropped))
     return dropped
-
-
-def i_of(batch, claim):
-    return next(i for i, (c, _) in enumerate(batch) if c is claim)
 
 
 def cross_check(claims, documents, reader, log=None):

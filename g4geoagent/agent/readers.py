@@ -5,10 +5,9 @@ going through the text, so that they do not make the same mistakes.
 """
 
 import json
+import re
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-
-import re
 
 from g4geoagent.agent.compare import NUMBER, uncovered_near_claims, uncovered_numbers
 from g4geoagent.agent.llm import call_llm_json
@@ -40,12 +39,17 @@ def load_documents(folder):
     return {p.name: p.read_text() for p in files}
 
 
+def _text(documents):
+    """All documents as one text, each under its file name."""
+    return "\n\n".join(f"===== Document: {name} =====\n{body}" for name, body in documents.items())
+
+
 def read(documents, reader, log=None, prompt=PROMPT, extra=""):
     """One reader's Reading of `documents` ({file name: text}). `extra` is added to the instructions."""
     model, procedure = READERS[reader]
     procedure = f"{procedure}\n\n{extra}".strip()
     schema = json.dumps(Reading.model_json_schema(), separators=(",", ":"))
-    text = "\n\n".join(f"===== Document: {name} =====\n{body}" for name, body in documents.items())
+    text = _text(documents)
     messages = [{"role": "system", "content": prompt.format(procedure=procedure, schema=schema)},
                 {"role": "user", "content": text}]
     reading, _ = call_llm_json(model, messages, Reading, log=log, stage=f"reader_{reader}", temperature=0)
@@ -71,7 +75,7 @@ def read_with_coverage(documents, reader, log=None, rounds=2):
     """Read, then send back the numbers that no claim covers, up to `rounds` times."""
     reading = read(documents, reader, log)
     model, _ = READERS[reader]
-    text = "\n\n".join(f"===== Document: {name} =====\n{body}" for name, body in documents.items())
+    text = _text(documents)
     schema = json.dumps(MoreClaims.model_json_schema(), separators=(",", ":"))
     for round_number in range(rounds):
         missing = uncovered_numbers(reading, documents)
@@ -98,13 +102,6 @@ def read_with_coverage(documents, reader, log=None, rounds=2):
     return reading
 
 
-def read_twice(documents, log=None):
-    """Both readers, in parallel. Returns {"A": Reading, "B": Reading}."""
-    with ThreadPoolExecutor(len(READERS)) as pool:
-        readings = pool.map(lambda name: read(documents, name, log), READERS)
-        return dict(zip(READERS, readings))
-
-
 def _pieces(text):
     """Split a long document at its page markers into pieces of about PIECE_WORDS words."""
     pages = re.split(r"(?=\[page \d+\])", text)
@@ -120,7 +117,7 @@ def _pieces(text):
 def _outline(documents, reader, log):
     """The parts of the detector, from one look at the whole text."""
     model, _ = READERS[reader]
-    text = "\n\n".join(f"===== Document: {name} =====\n{body}" for name, body in documents.items())
+    text = _text(documents)
     schema = json.dumps(Outline.model_json_schema(), separators=(",", ":"))
     messages = [{"role": "system", "content":
                  "List the physical parts of the particle detector described in the documents: the main "

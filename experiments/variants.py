@@ -33,20 +33,17 @@ def agreed(documents, log, **options):
 
 
 VARIANTS = {
-    # iteration 3: repair failing quotes, pair up the readers, cross-check what only one has
-    "repaired_union": lambda d, log: agreed(d, log, check=False),
+    # the pipeline: repair failing quotes, pair up the readers, cross-check what only one has
     "agreed": agreed,                                             # disputed claims are left out
     "agreed_keep": lambda d, log: agreed(d, log, keep_disputed=True),   # disputed claims are kept (and flagged)
+    "repaired_union": lambda d, log: agreed(d, log, check=False),       # no cross-check
+    # one reader, and both without pairing
     "A": lambda d, log: readers.read_paper(d, "A", log),
     "B": lambda d, log: readers.read_paper(d, "B", log),
     "A_no_verdicts": lambda d, log: readers.read_paper(d, "A", log, coverage=False),
     "B_no_verdicts": lambda d, log: readers.read_paper(d, "B", log, coverage=False),
     "union": lambda d, log: union(*both(d, log)),
-    # iteration 1: prompt forbids joined or reworded quotes (all variants below use it)
-    "A1": lambda d, log: readers.read_paper(d, "A", log),
-    "B1": lambda d, log: readers.read_paper(d, "B", log),
-    "union1": lambda d, log: union(*both(d, log)),
-    # iteration 2: ways to find more
+    # ways to find more
     "union_pieces": lambda d, log: union(*both(d, log, whole_limit=0)),          # always read in pieces
     "union_window3": lambda d, log: union(*both(d, log, window=3)),              # verdicts on a wider neighbourhood
     "union_pieces_window3": lambda d, log: union(*both(d, log, whole_limit=0, window=3)),
