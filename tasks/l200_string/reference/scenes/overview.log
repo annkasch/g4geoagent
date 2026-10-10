@@ -1,0 +1,7 @@
+2026-10-08 21:45:58.954 ( 406.357s) [    7FABB6B85040]vtkXOpenGLRenderWindow.:1452  WARN| bad X server connection. DISPLAY=
+2026-10-08 22:01:15.489 (1322.892s) [    7FABB6B85040]vtkContourLoopExtractio:335    ERR| vtkContourLoopExtraction (0x563d8e8f0d80): Input contains no points
+2026-10-08 22:01:15.495 (1322.898s) [    7FABB6B85040]vtkContourLoopExtractio:335    ERR| vtkContourLoopExtraction (0x563d8e908250): Input contains no points
+2026-10-08 22:01:15.515 (1322.918s) [    7FABB6B85040]vtkContourLoopExtractio:335    ERR| vtkContourLoopExtraction (0x563d8e87fa30): Input contains no points
+2026-10-08 22:01:15.518 (1322.921s) [    7FABB6B85040]vtkContourLoopExtractio:335    ERR| vtkContourLoopExtraction (0x563d8e882050): Input contains no points
+2026-10-08 22:01:15.537 (1322.940s) [    7FABB6B85040]vtkContourLoopExtractio:335    ERR| vtkContourLoopExtraction (0x563d8e8aac30): Input contains no points
+2026-10-08 22:01:15.540 (1322.943s) [    7FABB6B85040]vtkContourLoopExtractio:335    ERR| vtkContourLoopExtraction (0x563d8e8b3680): Input contains no points

@@ -1,0 +1,24 @@
+# Construction values listed by hand (Claude, 2026-10-09; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim.
+# optional: fine to extract, fine to leave out.
+- {value: 693, key: "sensor|module|optical", what: new optical sensors}
+- {value: 50, key: "calibration|device", what: standalone calibration devices}
+- {value: 402, key: "mdom|multi", what: number of mDOMs}
+- {value: 24, key: "pmt|photomult", what: PMTs per mDOM}
+- {value: 7, key: "string", what: seven strings}
+- {value: 80, alt: 3.15, key: "pmt|diameter", what: PMT diameter 80 mm}
+- {value: 91, key: "length|tube", what: PMT tube length (mm)}
+- {value: 3, key: "camera", what: cameras per mDOM}
+- {value: 4, key: "led|illumination", what: illumination LEDs per mDOM}
+- {value: 5, key: "flasher|hemisphere", what: flashers per hemisphere}
+- {value: 3, key: "inch|pmt", what: three-inch class PMT, optional: true}
+- {value: 205, key: "mm", what: dimension in a figure, optional: true}
+- {value: 356, key: "mm", what: dimension in a figure, optional: true}
+- {value: 700, key: "bar|pressure", what: pressure rating, optional: true}
+- {value: 250, key: "bar|pressure", what: ambient pressure, optional: true}
+- {value: 13, key: "stage|multiplier|cockcroft", what: multiplier stages, optional: true}
+- {value: 2, key: "hemisphere|converter|led chain|flasher", what: two hemispheres or converters, optional: true}
+- {value: 24, key: "channel|afe", what: front-end channels, optional: true}
+- {value: 4, key: "flasher|equatorial", what: four flashers between equatorial and polar PMTs, optional: true}
+- {value: 1, key: "flasher|pole", what: one flasher at the pole, optional: true}
+- {value: 10, key: "flasher|led", what: ten flashers per module, optional: true}

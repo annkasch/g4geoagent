@@ -1,0 +1,37 @@
+# Construction values in T2K.txt, listed by hand (Claude, 2026-10-09; not checked by a detector expert).
+# value: the number. key: a word that must appear in the claim (quote, part or quantity), to tell
+# apart small numbers that occur many times. optional: fine to extract, fine to leave out.
+- {value: 1.9, key: "superfgd|scintillator|target", what: SuperFGD width and length (m)}
+- {value: 0.6, key: "superfgd|scintillator|target", what: SuperFGD height (m)}
+- {value: 2, key: "ton", what: SuperFGD mass}
+- {value: 2000000, alt: 2, key: "cube", what: number of cubes}
+- {value: 1, key: "cube", what: cube volume 1 cm3}
+- {value: 3, key: "fiber|fibre", what: three WLS fibers per cube}
+- {value: 0.8, key: "tpc", what: HA-TPC third dimension (m)}
+- {value: 2, key: "tpc", what: HA-TPC dimensions 2 x 2 m, or two TPCs}
+- {value: 32, key: "micromegas", what: Micromegas per TPC system}
+- {value: 3, key: "cage|thick", what: field cage thickness 3 cm}
+- {value: 34, key: "micromegas", what: Micromegas width (cm)}
+- {value: 42, key: "micromegas", what: Micromegas height (cm)}
+- {value: 90, key: "drift", what: drift length (cm)}
+- {value: 1.01, key: "pad", what: pad width (cm)}
+- {value: 1.12, key: "pad", what: pad length (cm)}
+- {value: 6, key: "plane|panel|tof", what: six TOF planes}
+- {value: 5, key: "surface|area|plane|tof", what: TOF plane area 5 m2}
+- {value: 2.2, alt: 230, key: "bar", what: bar length 2.2 m / 230 cm}
+- {value: 12, key: "bar|width", what: bar width (cm)}
+- {value: 1, key: "bar|thick", what: bar thickness (cm)}
+- {value: 8, key: "mppc|array", what: eight MPPCs per bar end}
+- {value: 6, key: "mppc|mm", what: MPPC size 6 x 6 mm2}
+- {value: 95, key: "ar|gas", what: gas mixture, argon share}
+- {value: 60000, key: "channel", what: readout channels, optional: true}
+- {value: 4, key: "ton|mass", what: total target mass, optional: true}
+- {value: 4, key: "rad", what: field cage radiation length (percent), optional: true}
+- {value: 1, key: "pad", what: pad area about 1 cm2, optional: true}
+- {value: 3, key: "gas|cf4|ar", what: gas mixture CF4 share, optional: true}
+- {value: 2, key: "gas|ic4h10|ar", what: gas mixture isobutane share, optional: true}
+- {value: 280, key: "nd280|near|source|away", what: distance of ND280 from the source (m), optional: true}
+- {value: 500, key: "dlc|kohm|foil", what: DLC foil resistivity, optional: true}
+- {value: 4, key: "attenuation", what: scintillator attenuation length, optional: true}
+- {value: 2, key: "fgd|fine", what: two FGDs of the existing ND280, optional: true}
+- {value: 3, key: "tpc|projection", what: three TPCs of the existing ND280 or three projections, optional: true}

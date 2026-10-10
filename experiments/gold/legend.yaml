@@ -1,0 +1,23 @@
+# Construction values listed by hand (Claude, 2026-10-09; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim.
+# optional: fine to extract, fine to leave out.
+- {value: 10, key: "tank|water", what: water tank diameter (m)}
+- {value: 8, key: "tank|water", what: water tank height (m)}
+- {value: 590, key: "water|tank", what: water volume (m3)}
+- {value: 66, key: "pmt|photo", what: number of PMTs}
+- {value: 4, key: "cryostat", what: cryostat diameter (m)}
+- {value: 64, key: "argon|lar|cryostat", what: liquid argon volume (m3)}
+- {value: 1374, key: "wlsr|reflector|cylinder", what: reflector diameter (mm)}
+- {value: 3, key: "wlsr|reflector|cylinder", what: reflector height (m)}
+- {value: 6, key: "lar|argon", what: argon inside the reflector (t)}
+- {value: 2, key: "shroud|fiber|fibre", what: two fiber shrouds}
+- {value: 12, key: "string", what: number of strings}
+- {value: 200, key: "kg|germanium|detector|array", what: detector mass}
+- {value: 90, key: "enrich|76ge|ge", what: enrichment (percent)}
+- {value: 0.7, key: "dead|layer|n\\+", what: dead layer thickness, optional: true}
+- {value: 0.3, key: "p\\+|electrode", what: p+ electrode thickness, optional: true}
+- {value: 5, key: "kv|voltage", what: bias voltage, optional: true}
+- {value: 60, key: "icpc|mass", what: ICPC share of the mass, optional: true}
+- {value: 3500, key: "overburden|rock|water", what: overburden, optional: true}
+- {value: 2, key: "stage|csa", what: two amplifier stages, optional: true}
+- {value: 76, key: "ge|isotope|enrich", what: isotope name read as a number, optional: true}

@@ -1,0 +1,12 @@
+# cut the whole setup in half through the centre and look into it
+export_and_exit: render_overview.png
+window_size: [1500, 1500]
+fine_mesh: true
+clipper:
+  - origin: [0, 0, 0]
+    normal: [0, 1, 0]
+    close_cuts: true
+default:
+  camera: [6000, -24000, 8000]
+  focus: [0, 0, 200]
+  up: [0, 0, 1]

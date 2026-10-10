@@ -1,0 +1,16 @@
+# Construction values listed by hand (Claude, 2026-10-09; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim.
+# optional: fine to extract, fine to leave out.
+# Only pages 3 to 7 of the 45-page paper are listed. Claims from other pages are not judged.
+- {value: 39, key: "tank|diameter", what: tank diameter (m)}
+- {value: 42, key: "tank|tall|height", what: tank height (m)}
+- {value: 50000, key: "ton|water|capacity", what: water capacity}
+- {value: 2, key: "hatch", what: hatches on the tank top}
+- {value: 55, key: "framework|structure|thick", what: framework thickness (cm)}
+- {value: 2.5, key: "wall|spaced|inside|inward", what: framework distance from the wall (m)}
+- {value: 11146, key: "pmt|inward|inner|id", what: inner PMTs}
+- {value: 50, key: "pmt|diameter", what: inner PMT diameter (cm)}
+- {value: 1885, key: "pmt|outward|outer|od", what: outer PMTs}
+- {value: 20, key: "pmt|diameter", what: outer PMT diameter (cm)}
+- {value: 50, key: "plate|ws|wavelength", what: wavelength-shifter plate size (cm)}
+- {value: 4, key: "hut|quadrant", what: quadrant huts}

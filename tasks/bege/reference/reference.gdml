@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<gdml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://cern.ch/service-spi/app/releases/GDML/schema/gdml.xsd">
+	<define/>
+	<materials>
+		<isotope name="Ge76" Z="32" N="76">
+			<atom value="75.9214"/>
+		</isotope>
+		<isotope name="Ge74" Z="32" N="74">
+			<atom value="73.9212"/>
+		</isotope>
+		<element name="EnrichedGe" formula="Ge">
+			<fraction ref="Ge76" n="0.91"/>
+			<fraction ref="Ge74" n="0.08999999999999997"/>
+		</element>
+		<material name="EnrichedGermanium">
+			<D value="5.551030929175273"/>
+			<fraction ref="EnrichedGe" n="1.0"/>
+		</material>
+	</materials>
+	<solids>
+		<box name="world_s" x="300.0" y="300.0" z="300.0" lunit="mm"/>
+		<tube name="body" rmin="0" rmax="35.9" z="40.0" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
+		<tube name="groove" rmin="7.0" rmax="10.0" z="3.0" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
+		<tube name="edge_ring" rmin="33.9" rmax="36.9" z="3.0" startphi="0" deltaphi="6.283185307179586" lunit="mm" aunit="rad"/>
+		<torus name="edge_torus" rmin="0" rmax="2.0" rtor="33.9" deltaphi="6.283185307179586" startphi="0" lunit="mm" aunit="rad"/>
+		<subtraction name="top_edge">
+			<first ref="edge_ring"/>
+			<second ref="edge_torus"/>
+			<position name="top_edge_translation" x="0.000000000000000" y="0.000000000000000" z="-1.500000000000000" unit="mm"/>
+		</subtraction>
+		<subtraction name="bottom_edge">
+			<first ref="edge_ring"/>
+			<second ref="edge_torus"/>
+			<position name="bottom_edge_translation" x="0.000000000000000" y="0.000000000000000" z="1.500000000000000" unit="mm"/>
+		</subtraction>
+		<subtraction name="crystal_s_cut0">
+			<first ref="body"/>
+			<second ref="groove"/>
+			<position name="crystal_s_cut0_translation" x="0.000000000000000" y="0.000000000000000" z="-19.500000000000000" unit="mm"/>
+		</subtraction>
+		<subtraction name="crystal_s_cut1">
+			<first ref="crystal_s_cut0"/>
+			<second ref="top_edge"/>
+			<position name="crystal_s_cut1_translation" x="0.000000000000000" y="0.000000000000000" z="19.500000000000000" unit="mm"/>
+		</subtraction>
+		<subtraction name="crystal_s">
+			<first ref="crystal_s_cut1"/>
+			<second ref="bottom_edge"/>
+			<position name="crystal_s_translation" x="0.000000000000000" y="0.000000000000000" z="-19.500000000000000" unit="mm"/>
+		</subtraction>
+	</solids>
+	<structure>
+		<volume name="crystal">
+			<materialref ref="EnrichedGermanium"/>
+			<solidref ref="crystal_s"/>
+		</volume>
+		<volume name="world">
+			<materialref ref="G4_lAr"/>
+			<solidref ref="world_s"/>
+			<physvol name="crystal">
+				<volumeref ref="crystal"/>
+				<position name="crystal_pos" x="0.000000000000000" y="0.000000000000000" z="20.000000000000000" unit="mm"/>
+			</physvol>
+		</volume>
+	</structure>
+	<setup name="Default" version="1.0">
+		<world ref="world"/>
+	</setup>
+</gdml>

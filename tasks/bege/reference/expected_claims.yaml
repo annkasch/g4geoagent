@@ -1,0 +1,24 @@
+# Every value stated in docs/description.md. Hidden from the agent.
+# built: true if the value is needed to build the geometry (shape, position, material),
+#        false if it must be marked as not_geometry.
+- {value: 71.8, built: true, what: crystal diameter}
+- {value: 40.0, built: true, what: crystal height}
+- {value: 2.0, built: true, what: edge rounding radius}
+- {value: 33.9, built: true, what: radius where the rounding meets the flat face}
+- {value: 2.0, built: true, what: distance from the face where the rounding meets the side}
+- {value: 7.0, built: false, what: point contact radius (a surface region, not a volume)}
+- {value: 7.0, built: true, what: groove inner radius}
+- {value: 10.0, built: true, what: groove outer radius}
+- {value: 2.0, built: true, what: groove depth}
+- {value: 0.4, built: false, what: n+ layer thickness}
+- {value: 0.2, built: false, what: p+ layer thickness}
+- {value: 4000, built: false, what: bias voltage}
+- {value: 0, built: false, what: point contact potential}
+- {value: 77, built: false, what: temperature}
+- {value: 0.88e10, built: false, what: impurity concentration at the bottom}
+- {value: 0.60e10, built: false, what: impurity concentration at the top}
+- {value: 91, built: true, what: Ge-76 fraction}
+- {value: 9, built: true, what: Ge-74 fraction}
+- {value: 5.551, built: true, what: germanium density}
+- {value: 300, built: true, what: world edge length}
+- {value: 40.0, built: true, what: z of the top face}

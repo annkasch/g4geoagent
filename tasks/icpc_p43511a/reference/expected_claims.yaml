@@ -1,0 +1,30 @@
+# Every value stated in docs/description.md. Hidden from the agent.
+# built: true if the value is needed to build the geometry (shape, position, material),
+#        false if it must be marked as not_geometry.
+- {value: 71.8, built: true, what: crystal diameter}
+- {value: 99.3, built: true, what: crystal height}
+- {value: 2.0, built: true, what: edge rounding radius}
+- {value: 33.9, built: true, what: radius where the rounding meets the flat face}
+- {value: 2.0, built: true, what: distance from the face where the rounding meets the side}
+- {value: 75.0, built: true, what: borehole total depth}
+- {value: 24.3, built: true, what: germanium left below the borehole}
+- {value: 50.0, built: true, what: length of the tapered part}
+- {value: 27.6, built: true, what: borehole diameter at the top face}
+- {value: 10.0, built: true, what: diameter at the end of the taper}
+- {value: 20.0, built: true, what: length of the straight part}
+- {value: 10.0, built: true, what: diameter of the straight part}
+- {value: 5.0, built: true, what: radius of the hemispherical end}
+- {value: 1.0, built: true, what: dimple radius}
+- {value: 13.0, built: true, what: groove inner radius}
+- {value: 16.0, built: true, what: groove outer radius}
+- {value: 2.0, built: true, what: groove depth}
+- {value: 3500, built: false, what: bias voltage}
+- {value: 0, built: false, what: point contact potential}
+- {value: 77, built: false, what: temperature}
+- {value: 1.8e10, built: false, what: impurity concentration at the bottom}
+- {value: 1.1e10, built: false, what: impurity concentration at the top}
+- {value: 91, built: true, what: Ge-76 fraction}
+- {value: 9, built: true, what: Ge-74 fraction}
+- {value: 5.551, built: true, what: germanium density}
+- {value: 300, built: true, what: world edge length}
+- {value: 99.3, built: true, what: z of the top face}

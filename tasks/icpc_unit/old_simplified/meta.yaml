@@ -1,0 +1,71 @@
+id: icpc_unit
+title: Simplified LEGEND-200 detector unit with inverted-coaxial detector P43511A
+ladder_level: 3
+phase: 1                      # complete description: every dimension is stated
+
+docs:
+  - docs/description.md
+reference:
+  gdml: reference/reference.gdml
+  build: reference/build_reference.py
+  check: reference/check_reference.py
+
+features: [relative_placement, nesting, rotation, rotated_cuts, repeated_placement_by_angle, several_materials,
+           holes, touching_parts, boolean]
+
+world:
+  material: G4_lAr
+  shape: box
+  size_mm: 300
+
+parts:                        # placed directly in the world unless a mother is given
+  - {name: crystal,   material: EnrichedGermanium, detail_level: exact, count: 1, mass_g: 2133.8}
+  - {name: pen_plate, material: PEN,               detail_level: exact, count: 1, mass_g: 8.301}
+  - {name: support,   material: PEN,               detail_level: exact, count: 3, mass_g: 0.076}
+  - {name: rod,       material: G4_Cu,             detail_level: exact, count: 3, mass_g: 8.233}
+  - {name: lmfe_frame, material: Ultem,            detail_level: exact, count: 1, mass_g: 0.338}
+  - {name: lmfe,      material: FusedSilica,       detail_level: exact, count: 1, mass_g: 0.141, mother: lmfe_frame}
+  - {name: signal_out, material: CoaxCable,        detail_level: exact, count: 4, mass_g: 0.0037}
+  - {name: signal_up, material: CoaxCable,         detail_level: exact, count: 4, mass_g: 0.0462}
+  - {name: hv_out,    material: G4_KAPTON,         detail_level: exact, count: 1, mass_g: 0.0093}
+  - {name: hv_up,     material: G4_KAPTON,         detail_level: exact, count: 1, mass_g: 0.0648}
+
+non_geometric:
+  - 3500 V bias
+  - 30 cm to the next amplifier stage (outside this model)
+
+# Where the numbers come from. In Phase 1 the description is the ground truth,
+# so the estimated values are correct for this task even where the real unit differs.
+provenance:
+  real:
+    - crystal dimensions (tasks/icpc_p43511a)
+  published:
+    - PEN plate thickness 1.5 mm (moulded stock; arXiv:2204.13747 and the PEN production paper)
+    - LMFE substrate 8 x 16 x 0.5 mm fused silica (LEGEND front-end electronics poster, TAUP 2021)
+    - three copper rods per unit
+    - LMFE mounted in a low-mass Ultem (PEI) frame
+    - four Axon pico-coax signal cables from the LMFE to the next stage about 30 cm above
+    - 0.4 mm signal cable diameter (value published for the Majorana Demonstrator pico-coax)
+  estimated_from_pictures:
+    - rod diameter, length, distance from the axis and angles
+    - plate outline (corner diameter 92 mm, straight edges 30 mm from the axis), central hole, gap between crystal and plate
+    - support size and positions
+    - LMFE position and frame size
+    - cable routing and spacing
+    - high-voltage cable as a Kapton strip, with its width, thickness and position
+  assumed:
+    - 91% Ge-76 enrichment, PEN density 1.35 g/cm3, fused silica density 2.20 g/cm3,
+      Ultem density 1.27 g/cm3, cable material (half copper, half FEP by mass, 3.0 g/cm3)
+
+notes:
+  - Simplified. The baseplate is a triangle with rounded corners, as in the
+    pictures, but without the cut-outs and arms of the real plate. The real
+    supports are not cylinders, and the unit has clamps, nuts, contact pins and
+    wire bonds that are left out.
+  - The LMFE substrate is nested inside its frame; everything else is placed
+    directly in the liquid argon.
+  - Each signal cable and the high-voltage cable are two straight pieces that touch at the bend. The real
+    cables are continuous and curved, and are not resolved into conductor and
+    insulation here.
+  - Pictures of the real unit are in evidence/legend_detector_unit/. They are not
+    given to the agent in this task.

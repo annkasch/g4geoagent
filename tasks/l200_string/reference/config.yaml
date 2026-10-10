@@ -1,0 +1,8 @@
+public_geom: true
+fiber_modules: segmented
+channelmap: channelmap_one_string.json
+assemblies:
+- strings
+- fibers
+- top
+- watertank

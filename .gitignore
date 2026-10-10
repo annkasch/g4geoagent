@@ -1,0 +1,16 @@
+# local environment and data
+env/
+geant4_data/
+runs/
+smoke/out/
+
+# not for GitHub
+PROPOSAL.md
+
+__pycache__/
+*.egg-info/
+.ipynb_checkpoints/
+
+# third-party pictures: check the rights before publishing
+evidence/
+env_l200/

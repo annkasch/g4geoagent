@@ -1,0 +1,61 @@
+"""Geant4 test run: load a GDML file, check overlaps, scan with geantinos, short real run.
+
+Shared by the Inspector and the Evaluator. Geant4 runs in a separate process,
+so a crash or hang on a bad geometry comes back as a failed report.
+"""
+
+import json
+import re
+import subprocess
+import sys
+import tempfile
+from pathlib import Path
+
+# Lines in Geant4's output that mean something went wrong.
+_PROBLEM = re.compile(r"G4Exception|WARNING|ERROR|stuck", re.IGNORECASE)
+
+
+def geant4_run(gdml_path, scans=None, real_run=None, timeout=600, log_path=None):
+    """Run the Geant4 checks on `gdml_path` and return a report dict.
+
+    scans     list of {"start": [x, y, z], "direction": [dx, dy, dz]} in mm, in
+              world coordinates. Default: one line along each axis.
+    real_run  {"particle", "energy_MeV", "n", "start", "direction"} or None.
+    log_path  where to keep Geant4's full output (optional).
+
+    Report keys: ok, loaded, parts, overlaps, scans, real_run, problems, error.
+    `ok` is True when the file loaded, nothing overlaps and Geant4 printed
+    no warnings or errors.
+    """
+    gdml_path = Path(gdml_path).resolve()
+    with tempfile.TemporaryDirectory() as tmp:
+        request_file = Path(tmp) / "request.json"
+        result_file = Path(tmp) / "result.json"
+        request_file.write_text(json.dumps(
+            {"gdml": str(gdml_path), "scans": scans, "real_run": real_run}))
+        command = [sys.executable, "-m", "g4geoagent.inspector._geant4_worker",
+                   str(request_file), str(result_file)]
+        error = None
+        try:
+            process = subprocess.run(command, capture_output=True, text=True,
+                                     timeout=timeout)
+            log = process.stdout + process.stderr
+            if process.returncode != 0:
+                error = f"Geant4 process exited with code {process.returncode}"
+        except subprocess.TimeoutExpired as expired:
+            log = (expired.stdout or b"").decode(errors="replace")
+            error = f"Geant4 process timed out after {timeout} s"
+        report = json.loads(result_file.read_text()) if result_file.exists() else {}
+
+    if log_path:
+        Path(log_path).write_text(log)
+    report.setdefault("loaded", False)
+    report.setdefault("overlaps", [])
+    report["problems"] = [line.strip() for line in log.splitlines()
+                          if _PROBLEM.search(line)]
+    report["error"] = error
+    if error:
+        report["log_tail"] = log.splitlines()[-30:]
+    report["ok"] = (error is None and report["loaded"]
+                    and not report["overlaps"] and not report["problems"])
+    return report

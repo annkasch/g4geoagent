@@ -1,0 +1,19 @@
+# Construction values listed by hand (Claude, 2026-10-09; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim.
+# optional: fine to extract, fine to leave out.
+- {value: 7, key: "array|module", what: ND-LAr array 7 x 5}
+- {value: 5, key: "array|module", what: ND-LAr array 7 x 5}
+- {value: 1, key: "module|m3|m³", what: module cross-section 1 x 1 m}
+- {value: 3, key: "module|m3|m³", what: module height 3 m}
+- {value: 2, key: "tpc", what: two TPCs per module}
+- {value: 50, key: "drift", what: drift length 50 cm}
+- {value: 4, key: "cavern", what: four far-detector caverns, optional: true}
+- {value: 17, key: "kton|module", what: far-detector module mass, optional: true}
+- {value: 68, key: "kton|mass", what: far-detector total mass, optional: true}
+- {value: 500, key: "baseline|target|near", what: near-detector distance from target (m), optional: true}
+- {value: 60, key: "depth|underground", what: near-detector depth (m), optional: true}
+- {value: 1300, key: "km|baseline|far", what: far-detector baseline, optional: true}
+- {value: 30, key: "prism|transverse|travel|axis", what: off-axis travel (m), optional: true}
+- {value: 10, key: "atm|pressure", what: ND-GAr pressure, optional: true}
+- {value: 2, key: "array|prototype", what: 2 x 2 prototype array, optional: true}
+- {value: 70, key: "scale|prototype", what: 70 percent scale prototype, optional: true}

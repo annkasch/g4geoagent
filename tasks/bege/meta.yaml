@@ -1,0 +1,48 @@
+id: bege
+title: Broad-energy germanium (BEGe) detector (LEGEND)
+ladder_level: 1
+phase: 1                      # complete description: every dimension is stated
+
+docs:
+  - docs/description.md       # written by hand from reference/source/BeGe.json
+reference:
+  gdml: reference/reference.gdml
+  build: reference/build_reference.py
+  check: reference/check_reference.py
+  source: reference/source/BeGe.json    # SolidStateDetectors.jl configuration
+
+features: [groove, rounded_edges, boolean]
+
+world:
+  material: G4_lAr
+  shape: box
+  size_mm: 300
+
+parts:
+  - name: crystal
+    material: EnrichedGermanium   # 91% Ge-76, 9% Ge-74 (atom fractions), 5.551 g/cm3
+    detail_level: exact
+    mother: world
+    volume_cm3: 161.254       # from the dimensions
+    mass_g: 895.1
+
+# Values in the description that are not geometry, or must not become volumes.
+# The coverage check must mark them instead of building something from them.
+non_geometric:
+  - 4000 V bias
+  - 0 V point contact
+  - 77 K
+  - impurity concentration 0.88e10 and 0.60e10 per cm3
+  - contact layer thicknesses 0.4 mm and 0.2 mm (layers, not separate volumes)
+  - point contact radius 7.0 mm (a surface region; it coincides with the groove's inner radius)
+
+notes:
+  - The source file carries the name P43511A, the same as the inverted-coax
+    file. The task therefore does not use a detector name.
+  - The source file makes the groove cutter 0.1 mm longer than the true depth
+    (h = 2.1). The reference and the description use 2.0.
+  - The source file only says HPGe. The 91% Ge-76 enrichment is assumed, as for
+    the inverted-coax task, and so is Ge-74 for the remainder.
+
+evaluate:
+  region_mm: [[-45, 45], [-45, 45], [-10, 50]]     # box in which the build is compared with the reference

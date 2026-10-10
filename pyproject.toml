@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "g4geoagent"
+version = "0.0.1"
+description = "Agentic system for building Geant4 detector geometries from documents"
+requires-python = ">=3.11"
+dependencies = [
+    "geant4_pybind",
+    "pyg4ometry",
+    "openai",
+    "pydantic",
+    "pyyaml",
+    "pyvista",
+    "matplotlib",
+    "trimesh",
+]
+
+[tool.setuptools.packages.find]
+include = ["g4geoagent*"]

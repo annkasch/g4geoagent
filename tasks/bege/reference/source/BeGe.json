@@ -1,0 +1,60 @@
+{
+ "name": "P43511A",
+ "units": {"length": "mm", "angle": "deg", "potential": "V", "temperature": "K"},
+ "grid": {
+  "coordinates": "cylindrical",
+  "axes": {
+   "r": {"to": 45.0, "boundaries": "inf"},
+   "phi": {"from": 0, "to": 0, "boundaries": "periodic"},
+   "z": {"from": -10, "to": 50, "boundaries": {"left": "inf", "right": "inf"}}
+  }
+ },
+ "medium": "LAr",
+ "detectors": [
+  {
+   "semiconductor": {
+    "material": "HPGe",
+    "bulk_type": "p",
+    "temperature": 77.0,
+    "geometry": {
+     "difference": [
+      {"tube": {"r": 35.9, "h": 40, "phi": {"from": "0.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 20]}},
+      {"union": [
+       {"cone": {"r": {"bottom": {"from": 7.0, "to": 10.0}, "top": {"from": 7.0, "to": 10.0}}, "h": 2.1, "origin": [0.0, 0.0, 1.0]}},
+       {"torus": {"r_torus": 33.9, "r_tube": {"from": 2.0, "to": 4.0}, "theta": {"from": "270.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 2.0]}},
+       {"torus": {"r_torus": 33.9, "r_tube": {"from": 2.0, "to": 4.0}, "theta": {"from": "0.0°", "to": "90.0°"}, "origin": [0.0, 0.0, 38.0]}}
+      ]}
+     ]
+    },
+    "impurity_density": {
+     "name": "linear",
+     "r": {"init": 0, "gradient": 0},
+     "phi": {"init": 0.0, "gradient": 0.0},
+     "z": {"init": -8.794375e6, "gradient": 70687.5}
+    }
+   },
+   "contacts": [
+    {
+     "name": "p contact",
+     "material": "HPGe",
+     "potential": 0.0,
+     "geometry": {"cone": {"r": {"bottom": {"from": 0, "to": 7.0}, "top": {"from": 0, "to": 7.0}}, "h": 0.2, "origin": [0.0, 0.0, 0.1]}},
+     "id": 1
+    },
+    {
+     "name": "n contact",
+     "material": "HPGe",
+     "potential": 4000.0,
+     "geometry": {"union": [
+      {"cone": {"r": {"bottom": {"from": 35.5, "to": 35.9}, "top": {"from": 35.5, "to": 35.9}}, "h": 36, "origin": [0.0, 0.0, 20]}},
+      {"cone": {"r": {"bottom": {"from": 0, "to": 33.9}, "top": {"from": 0, "to": 33.9}}, "h": 0.4, "origin": [0.0, 0.0, 39.8]}},
+      {"torus": {"r_torus": 33.9, "r_tube": {"from": 1.6, "to": 2.0}, "theta": {"from": "0.0°", "to": "90.0°"}, "origin": [0.0, 0.0, 38.0]}},
+      {"torus": {"r_torus": 33.9, "r_tube": {"from": 1.6, "to": 2.0}, "theta": {"from": "270.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 2.0]}},
+      {"cone": {"r": {"bottom": {"from": 10.0, "to": 33.9}, "top": {"from": 10.0, "to": 33.9}}, "h": 0.4, "origin": [0.0, 0.0, 0.2]}}
+     ]},
+     "id": 2
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,67 @@
+{
+ "name": "P43511A",
+ "units": {"length": "mm", "angle": "deg", "potential": "V", "temperature": "K"},
+ "grid": {
+  "coordinates": "cylindrical",
+  "axes": {
+   "r": {"to": 45.0, "boundaries": "inf"},
+   "phi": {"from": 0, "to": 0, "boundaries": "periodic"},
+   "z": {"from": -10, "to": 110, "boundaries": {"left": "inf", "right": "inf"}}
+  }
+ },
+ "medium": "LAr",
+ "detectors": [
+  {
+   "semiconductor": {
+    "material": "HPGe",
+    "bulk_type": "p",
+    "temperature": 77.0,
+    "geometry": {
+     "difference": [
+      {"tube": {"r": 35.9, "h": 99.3, "phi": {"from": "-29.0°", "to": "200.0°"}, "origin": [0.0, 0.0, 49.65]}},
+      {"union": [
+       {"cone": {"r": {"bottom": 5.0, "top": 13.8}, "h": 50.1, "origin": [0.0, 0.0, 74.3]}},
+       {"tube": {"r": 5.0, "h": 20.1, "origin": [0.0, 0.0, 39.3]}},
+       {"torus": {"r_torus": 0.0, "r_tube": 5.0, "theta": {"from": "0.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 29.3]}},
+       {"torus": {"r_torus": 33.9, "r_tube": {"from": 2.0, "to": 4.0}, "theta": {"from": "0.0°", "to": "90.0°"}, "origin": [0.0, 0.0, 97.3]}},
+       {"torus": {"r_torus": 33.9, "r_tube": {"from": 2.0, "to": 4.0}, "theta": {"from": "270.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 2.0]}},
+       {"torus": {"r_torus": 0.0, "r_tube": 1.0, "theta": {"from": "0.0°", "to": "360.0°"}}},
+       {"cone": {"r": {"bottom": {"from": 13.0, "to": 16.0}, "top": {"from": 13.0, "to": 16.0}}, "h": 2.1, "origin": [0.0, 0.0, 1.0]}}
+      ]}
+     ]
+    },
+    "impurity_density": {
+     "name": "linear",
+     "r": {"init": 0, "gradient": 0},
+     "phi": {"init": 0.0, "gradient": 0.0},
+     "z": {"init": -1.794375e7, "gradient": 70687.5}
+    }
+   },
+   "contacts": [
+    {
+     "name": "p contact",
+     "material": "HPGe",
+     "potential": 0.0,
+     "geometry": {"torus": {"r_torus": 0.0, "r_tube": {"from": 1.0, "to": 1.0}, "phi": {"from": "-29°", "to": "200°"}, "theta": {"from": "0.0°", "to": "90.0°"}}},
+     "id": 1
+    },
+    {
+     "name": "n contact",
+     "material": "HPGe",
+     "potential": 3500.0,
+     "geometry": {"union": [
+      {"cone": {"r": {"bottom": {"from": 35.9, "to": 35.9}, "top": {"from": 35.9, "to": 35.9}}, "h": 95.3, "phi": {"from": "-29°", "to": "200°"}, "origin": [0.0, 0.0, 49.65]}},
+      {"cone": {"r": {"bottom": {"from": 13.8, "to": 33.9}, "top": {"from": 13.8, "to": 33.9}}, "h": 0.0, "phi": {"from": "-29°", "to": "200°"}, "origin": [0.0, 0.0, 99.3]}},
+      {"torus": {"r_torus": 33.9, "r_tube": {"from": 2.0, "to": 2.0}, "phi": {"from": "-29°", "to": "200°"}, "theta": {"from": "0.0°", "to": "90.0°"}, "origin": [0.0, 0.0, 97.3]}},
+      {"torus": {"r_torus": 33.9, "r_tube": {"from": 2.0, "to": 2.0}, "phi": {"from": "-29°", "to": "200°"}, "theta": {"from": "270.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 2.0]}},
+      {"cone": {"r": {"bottom": {"from": 16.0, "to": 33.9}, "top": {"from": 16.0, "to": 33.9}}, "h": 0.0, "phi": {"from": "-29°", "to": "200°"}, "origin": [0.0, 0.0, 0.0]}},
+      {"cone": {"r": {"bottom": {"from": 5.0, "to": 5.0}, "top": {"from": 13.8, "to": 13.8}}, "h": 50.0, "phi": {"from": "-29°", "to": "200°"}, "origin": [0.0, 0.0, 74.3]}},
+      {"cone": {"r": {"bottom": {"from": 5.0, "to": 5.0}, "top": {"from": 5.0, "to": 5.0}}, "h": 20.0, "phi": {"from": "-29°", "to": "200°"}, "origin": [0.0, 0.0, 39.3]}},
+      {"torus": {"r_torus": 0.0, "r_tube": {"from": 5.0, "to": 5.0}, "phi": {"from": "-29°", "to": "200°"}, "theta": {"from": "180.0°", "to": "360.0°"}, "origin": [0.0, 0.0, 29.3]}}
+     ]},
+     "id": 2
+    }
+   ]
+  }
+ ]
+}

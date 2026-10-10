@@ -1,0 +1,47 @@
+id: icpc_p43511a
+title: Inverted-coaxial HPGe detector P43511A (LEGEND)
+ladder_level: 2
+phase: 1                      # complete description: every dimension is stated
+
+docs:
+  - docs/description.md       # written by hand from reference/source/IC_section.json
+reference:
+  gdml: reference/reference.gdml
+  build: reference/build_reference.py
+  check: reference/check_reference.py
+  source: reference/source/IC_section.json    # SolidStateDetectors.jl configuration
+
+features: [borehole, taper, hemisphere, groove, rounded_edges, boolean]
+
+world:
+  material: G4_lAr
+  shape: box
+  size_mm: 300
+
+parts:
+  - name: crystal
+    material: EnrichedGermanium   # 91% Ge-76, 9% Ge-74 (atom fractions), 5.551 g/cm3
+    detail_level: exact
+    mother: world
+    volume_cm3: 384.400       # from the dimensions
+    mass_g: 2133.8
+
+# Values in the description that are not geometry. The coverage check must
+# mark them as non-geometric instead of building something from them.
+non_geometric:
+  - 3500 V bias
+  - 0 V point contact
+  - 77 K
+  - impurity concentration 1.8e10 and 1.1e10 per cm3
+
+notes:
+  - The source file describes a 229 degree section (phi from -29 to 200 degrees),
+    a cut-away for display. The reference is the full 360 degree crystal.
+  - The source file makes its cutters 0.1 mm longer than the true dimensions
+    (h = 50.1, 20.1, 2.1) so that surfaces do not coincide. The reference and
+    the description use the true dimensions 50.0, 20.0 and 2.0.
+  - The source file only says HPGe. The 91% Ge-76 enrichment is an assumed
+    value (the exact fraction is not known), and so is Ge-74 for the remainder.
+
+evaluate:
+  region_mm: [[-45, 45], [-45, 45], [-10, 110]]     # box in which the build is compared with the reference

@@ -1,0 +1,11 @@
+# remove everything in front of the detector string and look at it
+export_and_exit: render_string.png
+window_size: [1100, 1700]
+clipper:
+  - origin: [0, -262, 0]
+    normal: [0, -1, 0]
+    close_cuts: false
+default:
+  camera: [330, -1750, 700]
+  focus: [109, -189, 560]
+  up: [0, 0, 1]

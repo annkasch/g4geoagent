@@ -1,0 +1,12 @@
+# same cut, close to the liquid-argon instrumentation
+export_and_exit: render_instrumentation.png
+window_size: [1300, 1500]
+fine_mesh: true
+clipper:
+  - origin: [0, 0, 0]
+    normal: [0, 1, 0]
+    close_cuts: true
+default:
+  camera: [900, -3600, 1500]
+  focus: [0, 0, 620]
+  up: [0, 0, 1]
