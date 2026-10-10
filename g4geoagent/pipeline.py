@@ -46,6 +46,7 @@ class State:
     build_prompt: str = "builder_claims.md"
     build_attempts: int = BUILD_ATTEMPTS
     build_overlap_details: bool = False
+    build_account_for_all: bool = False     # every claim must be shown or listed as not built
     # reading
     unread: list = field(default_factory=list)  # documents in the folder that were not read yet
     readings: dict = field(default_factory=dict)
@@ -223,7 +224,7 @@ def build(state):
     """Write the geometry from the claims. Each valid geometry is measured against the claims
     (measure_vs_claims), and what is not met goes back to the builder."""
     workdir = state.folder / "build" / f"round{state.round}"
-    state.attempts = []
+    state.attempts, state._asked_to_account = [], False
 
     def check(gdml, report):
         feedback = measure_vs_claims(state, gdml, report)
@@ -262,6 +263,17 @@ def measure_vs_claims(state, gdml, report):
     state.attempts.append(attempt)
     state.log.event("check", "measure_vs_claims", gdml=gdml.name, **attempt["summary"])
     feedback = as_feedback(rows, claims)
+    if state.build_account_for_all and shown and not feedback:
+        listed = {str(e.get("id")) for e in notes.get("not_built", []) if isinstance(e, dict)}
+        open_ids = [r["id"] for r in rows if r["status"] == "not shown" and r["id"] not in listed]
+        asked = getattr(state, "_asked_to_account", False)
+        if open_ids and not asked:              # asked once per build, so that the loop ends
+            state._asked_to_account = True
+            return ("The file loads in Geant4 without overlaps and the claims you showed are met. These claims are "
+                    "neither in \"shown\" nor in \"not_built\": " + ", ".join(open_ids) + ". Build what they "
+                    "describe if it is missing, add an entry to \"shown\" for each one that can be measured "
+                    "(sizes, counts, masses, volumes, and \"material\" for a claim about what a part is made of), "
+                    "and list the others under \"not_built\" with the reason.")
     if not shown:
         return "The notes file is missing or has no \"shown\" list, so nothing could be measured against the claims."
     if feedback:

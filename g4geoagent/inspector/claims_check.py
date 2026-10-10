@@ -5,14 +5,17 @@ what to measure). This module takes the expected number from the claim itself,
 measures the volume in Geant4's report and compares the two.
 """
 
+import re
+
 from g4geoagent.agent.compare import claim_numbers
+from g4geoagent.blueprint.materials import _nist_name
 
 LENGTH = {"mm": 1.0, "cm": 10.0, "m": 1000.0, "km": 1e6, "um": 1e-3, "µm": 1e-3, "μm": 1e-3, "nm": 1e-6, "inch": 25.4}
 MASS = {"g": 1.0, "kg": 1e3, "t": 1e6, "ton": 1e6, "tons": 1e6, "tonne": 1e6, "tonnes": 1e6, "kt": 1e9, "kton": 1e9, "mg": 1e-3}
 VOLUME = {"cm3": 1.0, "m3": 1e6, "mm3": 1e-3, "l": 1e3, "liter": 1e3, "litre": 1e3, "liters": 1e3, "litres": 1e3}
 # what can be measured: (units it accepts, relative tolerance)
 MEASURES = {"size_x": (LENGTH, 0.01), "size_y": (LENGTH, 0.01), "size_z": (LENGTH, 0.01),
-            "mass": (MASS, 0.10), "volume": (VOLUME, 0.10), "count": (None, 0.0)}
+            "mass": (MASS, 0.10), "volume": (VOLUME, 0.10), "count": (None, 0.0), "material": (None, 0.0)}
 
 
 def _unit(text):
@@ -58,6 +61,16 @@ def check_claims(claims, shown, report):
             row["why"] = f"'{measure}' is not one of {', '.join(MEASURES)}"
             continue
         units, tolerance = MEASURES[measure]
+        if measure == "material":
+            placed = [p for p in parts if p["volume"] == volume] or [p for p in parts if p["volume"].startswith(volume)]
+            if not placed:
+                row.update(status="not met", why=f"there is no volume named '{volume}'")
+                continue
+            plain = lambda text: re.sub(r"[^a-z0-9]+", "", str(text).lower().replace("g4_", ""))
+            stated, used = str(claim.value), placed[0]["material"]
+            same = _nist_name(stated) == used or plain(stated) in plain(used) or plain(used) in plain(stated)
+            row.update(status="met" if same else "not met", why="" if same else f"the claim says '{stated}', the volume is made of '{used}'")
+            continue
         numbers = claim_numbers(claim)
         if len(numbers) != 1:
             row["why"] = "the claim does not state exactly one number"

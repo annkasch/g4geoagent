@@ -41,7 +41,8 @@ json.dump(notes, open(sys.argv[2], "w"), indent=1)
 
 "volume" is the name of a physical volume. "measure" is one of: size_x, size_y,
 size_z (full size of the solid along its own axis, so the diameter of a tube
-along z is size_x), count, mass, volume.
+along z is size_x), count, mass, volume, material (for a claim about what a part
+is made of).
 
 pyg4ometry in brief. All lengths are in mm and are FULL lengths, not
 half-lengths. Angles are in radians. Box, Tubs, Cons, Orb and Torus are centred

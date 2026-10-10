@@ -17,11 +17,17 @@ _PROBLEM = re.compile(r"G4Exception|WARNING|ERROR|stuck", re.IGNORECASE)
 
 _OVERLAP = re.compile(r"Overlap is detected for volume (\S+?)(?::\d+)? \((\w+)\)\s+with (its mother volume )?(\S+?)(?::\d+)? \((\w+)\)"
                       r"\s+(?:protrusion|overlapping)?[^\n]*? by ([\d.eE+-]+ \w+)")
+_ENCLOSING = re.compile(r"Overlap is detected for volume (\S+?)(?::\d+)? \((\w+)\)\s+apparently fully encapsulating "
+                        r"volume (\S+?)(?::\d+)? \((\w+)\)")
 
 
 def overlap_details(log):
     """Geant4's overlap messages, each pair of volumes once: "a (G4Box) sticks out of its mother b (G4Tubs) by 1 cm"."""
     found = {}
+    for volume, solid, other, other_solid in _ENCLOSING.findall(log):
+        found.setdefault((volume.rstrip("0123456789"), other.rstrip("0123456789"), "in"),
+                         f"{volume} ({solid}) completely encloses {other} ({other_solid}), which is placed in the same "
+                         f"mother: place {other} inside {volume}, or move it out")
     for volume, solid, mother, other, other_solid, size in _OVERLAP.findall(log):
         text = (f"{volume} ({solid}) sticks out of its mother {other} ({other_solid}) by up to {size}" if mother
                 else f"{volume} ({solid}) overlaps {other} ({other_solid}) by up to {size}")
