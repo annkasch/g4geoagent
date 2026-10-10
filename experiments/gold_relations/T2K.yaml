@@ -1,0 +1,16 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-10; not checked by a detector expert).
+# subject / object: a word that must appear in the name or another name of the part (regular expression).
+# family: nest = the object is within the subject (contains, encloses, surrounds, consists of);
+#         attach = mounted on or attached to, either way round; place = the named relation exactly;
+#         any = any relation between the two, either way round.
+
+- {subject: "superfgd|fine", object: "cube", family: nest, what: "the SuperFGD consists of cubes"}
+- {subject: "tof|time_of_flight", object: "superfgd|fine", family: nest, what: "the TOF planes surround the SuperFGD"}
+- {subject: "tof|time_of_flight", object: "tpc", family: nest, what: "the TOF planes surround the TPCs"}
+- {subject: "tof|time_of_flight", object: "plane", family: nest, what: "the TOF consists of 6 planes"}
+- {subject: "plane|tof|time_of_flight", object: "bar", family: nest, what: "each plane is made of scintillator bars"}
+- {subject: "superfgd|fine", object: "tpc", family: any, what: "the SuperFGD is sandwiched between two TPCs"}
+- {subject: "bar", object: "mppc", family: any, what: "the bars are read out by MPPC arrays at both ends"}
+- {subject: "cube", object: "fib", family: any, what: "each cube is read out by three fibres"}
+- {subject: "tpc", object: "micromegas", family: any, what: "the TPCs are read out by Micromegas modules"}
+- {subject: "tpc", object: "cage", family: any, what: "each TPC has a field cage"}

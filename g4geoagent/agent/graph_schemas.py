@@ -12,7 +12,7 @@ SHAPES = ("cylinder", "tube", "box", "sphere", "plate", "other", "not_stated")
 QUANTITIES = ("diameter", "radius", "height", "length", "width", "thickness", "mass", "volume", "count",
               "material", "density", "enrichment", "other")
 RELATIONS = ("contains", "surrounds", "encloses", "concentric_with", "at_bottom_of", "at_top_of", "centred_in",
-             "mounted_on", "attached_to", "outside", "consists_of")
+             "mounted_on", "attached_to", "outside", "consists_of", "next_to")
 
 
 class PartRecord(BaseModel):
@@ -48,7 +48,7 @@ class Property(BaseModel):
 class Relation(BaseModel):
     subject: str
     relation: Literal["contains", "surrounds", "encloses", "concentric_with", "at_bottom_of", "at_top_of", "centred_in",
-                      "mounted_on", "attached_to", "outside", "consists_of"]
+                      "mounted_on", "attached_to", "outside", "consists_of", "next_to"]
     object: str
     count: int | None = Field(default=None, description="For 'consists_of' and repeated parts: how many, if stated")
     about: str = Field(description="Which detector or experiment the statement describes")

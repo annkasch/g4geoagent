@@ -1,0 +1,17 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-10; not checked by a detector expert).
+# subject / object: a word that must appear in the name or another name of the part (regular expression).
+# family: nest = the object is within the subject (contains, encloses, surrounds, consists of);
+#         attach = mounted on or attached to, either way round; place = the named relation exactly;
+#         any = any relation between the two, either way round.
+
+- {subject: "water", object: "cryostat", family: nest, what: "the cryostat is inside the water tank"}
+- {subject: "water", object: "pmt|photo", family: nest, what: "the PMTs are in the water tank"}
+- {subject: "cryostat", object: "argon|lar", family: nest, what: "the cryostat holds the liquid argon"}
+- {subject: "llama", object: "cryostat", family: at_bottom_of, what: "LLAMA is at the bottom of the cryostat"}
+- {subject: "cryostat|argon|lar", object: "wlsr|reflector", family: nest, what: "the reflector is at the centre of the cryostat"}
+- {subject: "wlsr|reflector|inner", object: "shroud|instrumentation", family: nest, what: "the fibre shrouds are within the reflector"}
+- {subject: "shroud|instrumentation", object: "hpge|germanium|detector", family: nest, what: "the fibre shrouds surround the germanium detectors"}
+- {subject: "hpge|germanium|detector", object: "pen|support", family: attach, what: "the detectors are mounted on PEN supports"}
+- {subject: "nylon|nms|mini", object: "string|hpge|detector", family: nest, what: "each string is enclosed in a nylon mini shroud"}
+- {subject: "head", object: "cryostat|flange", family: attach, what: "the head electronics is at the cryostat flange"}
+- {subject: "front", object: "cryostat", family: outside, what: "the front-end electronics is outside the cryostat"}

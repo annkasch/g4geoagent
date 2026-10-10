@@ -1,0 +1,14 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-10; not checked by a detector expert).
+# subject / object: a word that must appear in the name or another name of the part (regular expression).
+# family: nest = the object is within the subject (contains, encloses, surrounds, consists of);
+#         attach = mounted on or attached to, either way round; place = the named relation exactly;
+#         any = any relation between the two, either way round.
+
+- {subject: "vessel", object: "pmt|photomultiplier", family: nest, what: "24 PMTs are inside the pressure vessel"}
+- {subject: "vessel", object: "support|structure", family: nest, what: "the support structure is inside the pressure vessel"}
+- {subject: "pmt|photomultiplier", object: "support|structure", family: attach, what: "the PMTs are mounted in the support structure"}
+- {subject: "gel", object: "pmt|photomultiplier|vessel", family: any, what: "gel couples the PMTs to the pressure vessel"}
+- {subject: "calibration|flasher|led|camera", object: "support|structure", family: attach, what: "calibration devices are mounted on the support structure"}
+- {subject: "mdom|module", object: "pmt|photomultiplier", family: nest, what: "the mDOM has 24 PMTs"}
+- {subject: "base", object: "pmt|photomultiplier", family: any, what: "each PMT has an active base"}
+- {subject: "vessel|mdom|module", object: "mainboard|electronic|board", family: nest, what: "the readout electronics is inside the module"}
