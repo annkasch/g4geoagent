@@ -196,7 +196,7 @@ def claim_step(folder, text_files, pdf=None, detector="detector", log=None, orig
             seen = G.read_figure(figure, folder / "figures", detector, log)
             if seen:
                 readings[f"figure:{figure['file']}"] = seen
-    claims = ledger(readings, dropped, disputed, documents, origin)
+    claims = ledger(readings, dropped, disputed, documents, origin, join_same_facts=True)
     save(claims, folder)
     return claims
 

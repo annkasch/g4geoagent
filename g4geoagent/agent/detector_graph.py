@@ -450,11 +450,12 @@ def as_text(data):
     return "\n".join(lines)
 
 
-def graph_step(folder, detector, log=None, with_review=True):
-    """Build the graph from claims.jsonl in `folder`. Writes detector_graph.json and detector_graph.txt."""
+def graph_step(folder, detector, log=None):
+    """Build the graph from claims.jsonl in `folder`, in two stages (see experiments/notes/claims_graph.md).
+    Writes detector_graph.json and detector_graph.txt."""
     folder = Path(folder)
     claims = C.load(folder)
-    graph, record = build(claims, detector, log, with_review=with_review)
+    graph, record = build_in_two(claims, detector, log)
     data = to_dict(graph, [c for c in claims if c.status == "accepted"], detector, record)
     (folder / "detector_graph.json").write_text(json.dumps(data, indent=1))
     (folder / "detector_graph.txt").write_text(as_text(data) + "\n")
