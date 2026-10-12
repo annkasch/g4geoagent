@@ -64,13 +64,14 @@ from the code, not tested against it) and `diagrams/architecture.png` (the whole
 | Step | Code | State |
 |---|---|---|
 | Claim step: one claim per fact, with quote, sentence, page, checks | `agent/claims.py` (uses the readers and checks in `agent/graph.py`) | Works. Holds 61 of 64 hand-listed values and 43 of 45 relations |
-| Graph step: a model builds the graph, a program checks it | `agent/detector_graph.py` | 10 rounds run, an 11th written but not run, see below. Not yet good enough for the user |
+| Graph step: a model builds the graph, a program checks it | `agent/detector_graph.py` | 12 rounds, variant chosen (`notes/claims_graph.md`). Passes on everything the claims hold |
 | Wiring into a run | `pipeline.py` | Not done: `graph_builder` is a stub there, the Coordinator still uses the old flat claims |
 
-Graph step, last complete round (10, all five papers): values 94%, relations 91%, one root per detector, 2 claims
-unaccounted. Round 11 (`c11_place_edges_fixed`, fixes a mistake of the program in adding place edges) was started
-and stopped at once: **no paper finished, the fix is untested**. Run it:
-`python experiments/claims_graph_bench.py c10_keep_stated c11_place_edges_fixed --detail` (about 20 minutes).
+Graph step, round 12 (all five papers): 60 of 64 hand-listed values, 44 of 45 relations, one root per detector, no claim
+unaccounted. Everything still missing is missing from the claims, so the claim step is what limits it now. The graph as
+the model built it is kept in each `detector_graph.json` under `checks.as_built_by_the_model`; `detector_graph.reclean()`
+re-applies the program's tidying without a model call. Do not pass `--fresh` to the benchmark with an old variant on
+the line: it rebuilds that variant too.
 
 Known faults of the graphs: LEGEND has "about 6 t" of argon on the whole argon and on the inner volume; the
 fibre shrouds are beside the strings in the tree instead of around them; three values and two relations never

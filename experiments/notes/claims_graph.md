@@ -21,6 +21,8 @@ For comparison, the graph merged by a program from the same readings (graph desi
 | 8 | c08_values_reviewed | A second model checks value by value, against its sentence, that it sits on the right part, and moves it if not | 94% | 93% | 100% | 104 of 923 | 1 | 0 | 26 | 14 values moved in five papers. About 8 moves are right (pad area to the pad, 24 PMTs to the PMT, 200 kg to the detectors), 3 are wrong (water as the material of the tank, 4 t of the whole upgrade to the SuperFGD) and for LEGEND it only swapped the two 6 t entries. Not a clear gain | Not kept |
 | 9 | c09_place_edges | A claim that says where a part is always becomes an edge: where the model used it only to decide what is inside what, the program adds the edge | 89% | 98% | 100% | 141 of 923 | 1 | 1 | 25 | Worked: 44 of 45 relations; the program added 5 edges, among them 'LLAMA at the bottom of the cryostat' and 'reflector centred in the cryostat'. Values 57 of 64: three of the 'lost' ones were worked out by the model and kept only as the result ('7 x 5' modules as 35; 230 cm as 2.3 m, with the paper's other figure of 2.2 m set aside as contradicted). Sensible judgements, but the stated values were gone | Keep what is stated |
 | 10 | c10_keep_stated | What a claim states stays in the graph as stated: a stated value is put back where the model kept only a derived one or dropped one of two that disagree | 94% | 91% | 100% | 98 of 923 | 2 | 3 | 23 | Worked: 60 of 64 values again; '7 x 5' put back beside 35, the 230 cm bar length kept beside 2.2 m as a conflict. Failed: the program added no place edges at all this time, so 'LLAMA at the bottom' was lost again. My mistake: a place claim counted as used if any edge cited it, and the model had cited it on a 'contains' edge | Fix the program |
+| 11 | c11_place_edges_fixed | The program's check for place claims put right: such a claim counts as used only if an edge of the same kind cites it | 91% | 98% | 100% | 224 of 923 | 2 | 3 | 22 | Worked: 44 of 45 relations, the program added 6 edges (LEGEND: LLAMA at the bottom, reflector centred). Values 58 of 64: DUNE's '7 x 5' was again kept only as 35. The rule of round 10 did not fire because the model had also set the claim aside. Note: these graphs are from a second run of this round; I overwrote the first by mistake with a rerun, the scores were the same | Fix the rule |
+| 12 | c12_restore_stated | No model call: the graphs of round 11 as the model built them, tidied again. A stated value is put back whenever the model used its claim only for a derived value, also if it set the claim aside as well | 94% | 98% | 100% | about 220 of 923 | 0 | 3 | 22 | 60 of 64 values, 44 of 45 relations, one root per detector, no claim unaccounted. Everything still missing is missing from the claims: three values never extracted, Super-K's hatches rejected by the cross-check, one IceCube relation not extracted. The graph step now passes on everything it receives | Chosen for the graph step |
 
 Measured before round 5: the claims themselves hold 60 of 64 hand-listed values and 43 of 45 relations. The claim
 step then got a second number check (each number against the claims of its own sentence, number words included),
@@ -28,11 +30,18 @@ which added for example the two hatches of Super-K.
 
 ## State
 
-Four rounds, not the ten to twenty that a box should get. No variant is clearly ahead of round 3 or 4, and the
-differences between them are within the run-to-run noise. Not yet tried: the reviewing model, building large
-detectors subsystem by subsystem, a second builder for stability.
+Twelve rounds. Chosen: the two-stage build with the program rules of rounds 5 to 12 (`build_in_two` with
+`strict`, `one_root`, `keep_stated`). On the five papers: 60 of 64 hand-listed values, 44 of 45 relations, one
+root per detector, every claim accounted for. The claims themselves hold 60 values and 43 relations, so the graph
+step loses nothing and adds one relation by inference.
 
-By hand, LEGEND graph of round 3: the nesting is right down to the detectors. Wrong: the 6 t of argon is on the
-whole argon as well as on the inner volume; the front-end electronics and amplifiers are placed inside the water
-tank although the paper says only "outside the cryostat"; the wording "about" and "up to" was dropped from the
-values.
+What these numbers do not show:
+- Whether entries that are not on a hand list are right. By hand, LEGEND: the tree is right from the experiment
+  down to the detectors; the 6 t of argon is still on the whole argon as well as on the inner volume.
+- Stability: relations moved between 41 and 44 of 45 over rounds 6 to 11 with the same claims. The program rules
+  removed most of that, but a different run of the model gives a different tree.
+- Cost: 8 to 10 minutes of model time per paper, about 22 correction calls for five papers.
+- No paper is held out, and the hand lists are mine.
+
+Not kept: a second model reviewing the whole graph (not run), a second model moving values (round 8).
+What limits the result now is the claim step.

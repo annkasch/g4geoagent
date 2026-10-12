@@ -56,6 +56,9 @@ VARIANTS = {
     # 11: variant 10 with a mistake of the program put right: a place claim counts as "on an edge" only if an edge of
     #     the same kind cites it (in round 10 an edge "contains" citing it was enough, so no edge was added)
     "c11_place_edges_fixed": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True, "keep_stated": True}},
+    # 12: the graphs the model built in round 11, tidied again by the program (no model call): a value the model
+    #     changed without marking it as derived is replaced by what its claim states
+    "c12_restore_stated": {"claims": "v3", "tidy_again": "c11_place_edges_fixed"},
 }
 
 
@@ -91,7 +94,11 @@ def one(job):
     if not (folder / "detector_graph.json").exists() or fresh:
         folder.mkdir(parents=True, exist_ok=True)
         try:
-            if VARIANTS[variant].get("stages") == 2:
+            if VARIANTS[variant].get("tidy_again"):
+                saved = json.loads((OUT / VARIANTS[variant]["tidy_again"] / paper / "detector_graph.json").read_text())
+                graph, record = D.reclean(saved["checks"]["as_built_by_the_model"], claims)
+                record["rounds"] = saved["checks"]["rounds"]
+            elif VARIANTS[variant].get("stages") == 2:
                 graph, record = D.build_in_two(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"), **VARIANTS[variant].get("options", {}))
             else:
                 graph, record = D.build(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"),

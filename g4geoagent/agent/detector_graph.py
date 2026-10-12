@@ -304,6 +304,19 @@ def _clean(graph, accepted, record):
 
     keep = [p for p in graph.properties if supported(p)]
     record["removed"] += [f"property {p.of}: {p.quantity} = {p.value}" for p in graph.properties if p not in keep]
+    if KEEP_STATED:
+        # a value the model changed without saying so (7 x 5 written as 35) is taken out above; what its claim
+        # states goes in instead, on the same part
+        kept_ids = {i for p in keep for i in p.claims}
+        record["restored"] = []
+        for p in [p for p in graph.properties if p not in keep and p.of in names]:
+            for i in p.claims:
+                claim = by_id.get(i)
+                if claim and claim.kind == "value" and claim.built and i not in kept_ids:
+                    keep.append(NodeProperty(of=p.of, quantity=claim.quantity or p.quantity, which=claim.which or "not_stated",
+                                             value=claim.value, unit=claim.unit, wording=claim.wording or "exact", claims=[i]))
+                    kept_ids.add(i)
+                    record["restored"].append(f"{p.of}: {claim.quantity} = {claim.value} {claim.unit} ({i})")
     graph.properties = keep
     keep = [e for e in graph.edges if e.subject in names and e.object in names and e.claims and all(i in by_id for i in e.claims)
             and (e.inferred and e.reasoning or any(by_id[i].kind == "relation" for i in e.claims))]
@@ -351,9 +364,11 @@ def _clean(graph, accepted, record):
         for p in list(graph.properties):
             if p.derived:
                 for i in p.claims:
-                    if by_id[i].kind == "value" and by_id[i].built and i not in stated and i not in aside:
+                    # also if the model set the claim aside as well: it used it, so the claim is about this part
+                    if by_id[i].kind == "value" and by_id[i].built and i not in stated:
                         add(by_id[i], p.of, "stated_added")
                         stated.add(i)
+                        graph.set_aside = [x for x in graph.set_aside if x.claim != i]
         home = {i: p.of for p in graph.properties for i in p.claims}
         for i, s in aside.items():
             claim = by_id.get(i)
@@ -515,6 +530,16 @@ def review_values(graph, accepted, detector, log=None, model=REVIEWER):
     return moves
 
 
+def reclean(raw, claims, strict=True, one_root=True, keep_stated=True):
+    """Apply the program's tidying again to a graph as the model built it (record["as_built_by_the_model"]).
+    No model call. Returns (DetectorGraph, record)."""
+    global STRICT_TREE, TIDY, ONE_ROOT, KEEP_STATED
+    STRICT_TREE = TIDY = strict
+    ONE_ROOT, KEEP_STATED = one_root, keep_stated
+    record = {"rounds": [], "review": [], "removed": [], "unaccounted": [], "as_built_by_the_model": raw}
+    return _clean(DetectorGraph.model_validate(raw), [c for c in claims if c.status == "accepted"], record)
+
+
 def to_dict(graph, claims, detector, record=None):
     """The graph as plain data, with the quotes of its claims and what each part still lacks."""
     by_id = {c.id: c for c in claims}
@@ -603,7 +628,7 @@ def graph_step(folder, detector, log=None):
     Writes detector_graph.json and detector_graph.txt."""
     folder = Path(folder)
     claims = C.load(folder)
-    graph, record = build_in_two(claims, detector, log)
+    graph, record = build_in_two(claims, detector, log, batch=40, strict=True, parallel=True, one_root=True, keep_stated=True)
     data = to_dict(graph, [c for c in claims if c.status == "accepted"], detector, record)
     (folder / "detector_graph.json").write_text(json.dumps(data, indent=1))
     (folder / "detector_graph.txt").write_text(as_text(data) + "\n")
