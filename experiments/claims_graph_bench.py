@@ -32,6 +32,8 @@ VARIANTS = {
     # 3: the same fact found by both readers under two names for the part is one claim (claims "v2");
     #    fixed reasons for setting a claim aside, checked by program; materials are properties
     "c03_fixed_reasons": {"claims": "v2"},
+    # 4: variant 3 in two stages: first the parts and how they are arranged, then the values in batches
+    "c04_two_stages": {"claims": "v2", "stages": 2},
 }
 
 
@@ -60,8 +62,11 @@ def one(job):
     if not (folder / "detector_graph.json").exists() or fresh:
         folder.mkdir(parents=True, exist_ok=True)
         try:
-            graph, record = D.build(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"),
-                                    with_review=VARIANTS[variant].get("with_review", False))
+            if VARIANTS[variant].get("stages") == 2:
+                graph, record = D.build_in_two(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"))
+            else:
+                graph, record = D.build(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"),
+                                        with_review=VARIANTS[variant].get("with_review", False))
             data = D.to_dict(graph, accepted, B.NAMES[paper], record)
         except Exception as error:
             data = {"detector": B.NAMES[paper], "nodes": [], "properties": [], "relations": [], "set_aside": [],

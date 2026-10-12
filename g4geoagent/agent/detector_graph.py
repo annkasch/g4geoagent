@@ -132,8 +132,9 @@ Answer with one JSON object that fits this schema and nothing else:
 {schema}"""
 
 
-def check(graph, claims):
-    """What is wrong with a graph, as sentences for the model. `claims` are the accepted claims."""
+def check(graph, claims, cover=None):
+    """What is wrong with a graph, as sentences for the model. `claims` are the accepted claims;
+    `cover` are the ones that must be accounted for (all of them unless given)."""
     by_id = {c.id: c for c in claims}
     names = {n.name for n in graph.nodes}
     problems = []
@@ -185,7 +186,7 @@ def check(graph, claims):
                             "Name the relation claim, or mark the edge as inferred and say how it follows")
     in_graph = {i for entries in (graph.nodes, graph.properties, graph.edges) for e in entries for i in e.claims}
     used = in_graph | {s.claim for s in graph.set_aside}
-    missing = [c.id for c in claims if c.id not in used]
+    missing = [c.id for c in (claims if cover is None else cover) if c.id not in used]
     if missing:
         problems.append("these claims are neither used nor set aside: " + ", ".join(missing))
     both = sorted(in_graph & {s.claim for s in graph.set_aside})
@@ -252,7 +253,11 @@ def build(claims, detector, log=None, model=MODEL, with_review=True):
             graph, _ = call_llm_json(model, messages, DetectorGraph, log=log, stage="graph_repair", temperature=0)
         except ValueError:
             break
-    # what still fails is taken out, so that nothing unsupported stays in the graph
+    return _clean(graph, accepted, record)
+
+
+def _clean(graph, accepted, record):
+    """Take out what the checks still reject, so that nothing unsupported stays in the graph."""
     by_id = {c.id: c for c in accepted}
     names = {n.name for n in graph.nodes}
 
@@ -282,6 +287,84 @@ def build(claims, detector, log=None, model=MODEL, with_review=True):
            {s.claim for s in graph.set_aside}
     record["unaccounted"] = [c.id for c in accepted if c.id not in used]
     return graph, record
+
+
+class Structure(BaseModel):
+    nodes: list[Node]
+    edges: list[Edge]
+    set_aside: list[SetAside] = Field(default_factory=list)
+
+
+class Values(BaseModel):
+    properties: list[NodeProperty]
+    set_aside: list[SetAside] = Field(default_factory=list)
+
+
+def _with_repairs(model, messages, schema, problems_of, log, stage):
+    """Ask, check, send the problems back, up to REPAIRS times. Returns (answer, problems of each round)."""
+    answer, _ = call_llm_json(model, messages, schema, log=log, stage=stage, temperature=0)
+    rounds = []
+    for _ in range(REPAIRS + 1):
+        problems = problems_of(answer)
+        rounds.append(problems)
+        if not problems or len(rounds) > REPAIRS:
+            break
+        messages += [{"role": "assistant", "content": answer.model_dump_json()},
+                     {"role": "user", "content": "A program checked your answer and found:\n" + "\n".join(f"- {p}" for p in problems[:40])
+                      + "\n\nSend the complete corrected answer as one JSON object."}]
+        try:
+            answer, _ = call_llm_json(model, messages, schema, log=log, stage=stage + "_repair", temperature=0)
+        except ValueError:
+            break
+    return answer, rounds
+
+
+def build_in_two(claims, detector, log=None, model=MODEL, batch=70):
+    """As build(), in two stages, so that the model never has to hold everything at once: first the parts and
+    how they are arranged, from the part, shape, feature and relation claims; then the values, part by part."""
+    accepted = [c for c in claims if c.status == "accepted"]
+    structure_claims = [c for c in accepted if c.kind != "value"]
+    value_claims = [c for c in accepted if c.kind == "value"]
+    head = PROMPT[:PROMPT.index("Build the graph:")].format(detector=detector, claims="{claims}")
+    rules = PROMPT[PROMPT.index("Rules\n"):PROMPT.index("Answer with one JSON object")]
+    nodes_text = PROMPT[PROMPT.index("nodes: one node per physical part."):PROMPT.index("properties: the values of each part")]
+    edges_text = PROMPT[PROMPT.index("edges: how the parts are arranged"):PROMPT.index("set_aside: every claim")]
+    aside_text = PROMPT[PROMPT.index("set_aside: every claim"):PROMPT.index("Rules\n")]
+    values_text = PROMPT[PROMPT.index("properties: the values of each part"):PROMPT.index("edges: how the parts are arranged")]
+    request = (head.replace("{claims}", "\n".join(c.line() for c in structure_claims))
+               + "First only the parts and how they are arranged; the values follow later.\n\n" + nodes_text + edges_text
+               + aside_text + rules + "Answer with one JSON object that fits this schema and nothing else:\n"
+               + json.dumps(Structure.model_json_schema(), separators=(",", ":")))
+    empty = lambda s: DetectorGraph(nodes=s.nodes, properties=[], edges=s.edges, set_aside=s.set_aside)
+    structure, rounds = _with_repairs(model, [{"role": "user", "content": request}], Structure,
+                                      lambda s: check(empty(s), accepted, structure_claims), log, "graph_structure")
+    record = {"rounds": rounds, "review": [], "removed": [], "unaccounted": []}
+    graph = empty(structure)
+    parts = "\n".join(f"  {n.name}: {n.what} (also called: {', '.join(n.also_called) or '-'}; inside {n.inside})" for n in graph.nodes)
+    for start in range(0, len(value_claims), batch):
+        some = value_claims[start:start + batch]
+        request = (f"You add the values to a graph of the detector {detector}. The parts of the graph:\n{parts}\n\n"
+                   "Value claims (id | claim | source). A claim may name its part differently from the graph, or name "
+                   "two names for it:\n" + "\n".join(c.line() for c in some) + "\n\n" + values_text
+                   + "Use the names of the parts exactly as in the list above for 'of'.\n\n" + aside_text + rules
+                   + "Answer with one JSON object that fits this schema and nothing else:\n"
+                   + json.dumps(Values.model_json_schema(), separators=(",", ":")))
+
+        def problems_of(v, some=some):
+            trial = DetectorGraph(nodes=graph.nodes, properties=graph.properties + v.properties, edges=graph.edges,
+                                  set_aside=graph.set_aside + v.set_aside)
+            keep = ("property ", "these claims", "claim ")
+            return [p for p in check(trial, accepted, some) if p.startswith(keep)]
+
+        try:
+            values, more = _with_repairs(model, [{"role": "user", "content": request}], Values, problems_of, log, "graph_values")
+        except ValueError:
+            record["rounds"].append([f"no usable answer for {len(some)} value claims"])
+            continue
+        record["rounds"] += more
+        graph.properties += values.properties
+        graph.set_aside += values.set_aside
+    return _clean(graph, accepted, record)
 
 
 def to_dict(graph, claims, detector, record=None):

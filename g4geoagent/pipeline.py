@@ -204,6 +204,12 @@ def construction_figures(state):
     return state.figures
 
 
+@step("graph_builder")
+def graph_builder(state):
+    """Not called for real yet: the graph is built by g4geoagent.agent.detector_graph as a step of its own."""
+    state.log.event("stub", "graph_builder", note=BOXES["graph_builder"]["first"])
+
+
 @step("coordinator")
 def coordinator(state):
     """Settle the layout of the whole detector: nesting, hollow parts, detail levels, arrangement, teams."""
@@ -654,6 +660,7 @@ def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, 
 
     read_documents(state)
     construction_figures_step(state)
+    graph_builder(state)
     coordinator(state)
     while True:
         state.round += 1
@@ -663,6 +670,7 @@ def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, 
             if state.unread:
                 read_documents(state)
                 construction_figures_step(state)
+                graph_builder(state)
                 coordinator(state)
             team_continues(state)
         build_round(state)

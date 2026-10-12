@@ -25,7 +25,29 @@ STYLE = {   # kind: (fill, edge, text)
     "data": ("#ffffff", "#cfcfcf", "#111111"),
 }
 GREY = "#777777"
-fig, ax = plt.subplots(figsize=(11.5, 23))
+fig, ax = plt.subplots(figsize=(11.5, 25.6))
+
+# Everything from the Coordinator down was moved 3 units lower to make room for the graph builder.
+# The numbers below are the old places; the drawing calls shift them. SHIFT[0] = False draws at the place given.
+SHIFT = [True]
+
+
+def S(y):
+    return y - 3.0 if SHIFT[0] and y < -5.0 else y
+
+
+_plot, _text, _annotate, _add_patch = ax.plot, ax.text, ax.annotate, ax.add_patch
+ax.plot = lambda xs, ys, *a, **k: _plot(xs, [S(y) for y in ys], *a, **k)
+ax.text = lambda x, y, *a, **k: _text(x, S(y), *a, **k)
+ax.annotate = lambda s, xy, xytext, **k: _annotate(s, xy=(xy[0], S(xy[1])), xytext=(xytext[0], S(xytext[1])), **k)
+
+
+def _shifted_patch(patch):
+    patch.set_y(S(patch.get_y()))
+    return _add_patch(patch)
+
+
+ax.add_patch = _shifted_patch
 
 
 def box(cx, cy, w, h, name, title=None):
@@ -77,7 +99,13 @@ arrow([(C, -3.45), (C, -4.05)], "agree", links="compare>agreed_claims")
 
 # --- coordination and building
 box(C, -6.0, W, H, "coordinator")
-arrow([(C, -4.95), (C, -5.55)], links="agreed_claims>coordinator")
+SHIFT[0] = False
+arrow([(C, -4.95), (C, -5.55)], links="agreed_claims>graph_builder")
+box(C, -6.0, W, H, "graph_builder")
+arrow([(C, -6.45), (C, -7.05)], links="graph_builder>detector_graph")
+box(C, -7.5, W, H, "detector_graph")
+arrow([(C, -7.95), (C, -8.55)], links="detector_graph>coordinator")
+SHIFT[0] = True
 arrow([(9.0, -5.8), (R1, -5.8), (R1, -3.0), (9.0, -3.0)], "re-check\nclaim", at=(R1 + 0.12, -4.4), links="coordinator>compare")
 for x, name in ((3.6, "Team 1"), (5.6, "Team 2"), (9.0, "Team N")):
     box(x, -7.7, 1.7, 0.8, "teams", name)
@@ -150,7 +178,7 @@ wanted = {(a, b) for a, b, *_ in SPEC["arrows"]}
 assert DRAWN_BOXES == set(SPEC["boxes"]), f"boxes differ from architecture.yaml: {DRAWN_BOXES ^ set(SPEC['boxes'])}"
 assert DRAWN_ARROWS == wanted, f"arrows differ from architecture.yaml: {DRAWN_ARROWS ^ wanted}"
 ax.set_xlim(-1.7, 14.9)
-ax.set_ylim(-25.7, 0.7)
+ax.set_ylim(-28.7, 0.7)
 ax.set_aspect("equal")
 ax.axis("off")
 fig.patch.set_facecolor("#fbfbf9")

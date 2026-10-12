@@ -43,6 +43,17 @@ boxes:
     title: Agreed claims
     subtitle: Each with source and uncertainty
     kind: data
+  graph_builder:
+    title: Graph builder
+    subtitle: Claims into one picture of the detector
+    kind: ai
+    state: stub
+    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them. A run does not call it yet; the Coordinator still works from the claims."
+    done: The run log shows the step.
+  detector_graph:
+    title: Detector graph
+    subtitle: Parts, relations, unknowns, each with its claims
+    kind: data
   coordinator:
     title: Coordinator
     subtitle: Splits detector, detail levels, interfaces
@@ -168,7 +179,9 @@ arrows:
   - [compare, reader_A, 'disagree: re-read']
   - [compare, reader_B, 'disagree: re-read']
   - [compare, agreed_claims, agree]
-  - [agreed_claims, coordinator]
+  - [agreed_claims, graph_builder]
+  - [graph_builder, detector_graph]
+  - [detector_graph, coordinator]
   - [coordinator, compare, re-check claim]
   - [coordinator, teams, 'interfaces, answers']
   - [teams, coordinator, 'questions, changes']
