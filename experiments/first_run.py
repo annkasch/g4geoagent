@@ -130,6 +130,10 @@ def compare(paper, name):
         wanted = "value" if kind == "values" else "relation"
         for entry in entries:
             hits = [c for c in accepted if c.kind == wanted and test(c, entry)]
+            if kind == "values":                    # a count that a relation carries: "module consists of bar (x192)"
+                hits += [c for c in accepted if c.kind == "relation" and c.count is not None
+                         and abs(c.count - float(entry["value"])) < 1e-9
+                         and re.search(entry["key"], f"{c.quote} {c.subject} {c.object}".lower())]
             near = [c for c in claims if c.status != "accepted" and c.kind == wanted and test(c, entry)]
             used.update(c.id for c in hits)
             rows[kind].append({"entry": entry, "among_claims": bool(hits), "in_graph": entry["what"] in in_graph[kind],

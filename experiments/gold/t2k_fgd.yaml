@@ -30,9 +30,9 @@
 - {value: 348.2, key: "plate|side", what: "side plate length along the beam (mm)"}
 - {value: 1.6, key: "cover|plate", what: "cover plate thickness in the central area (mm)"}
 - {value: 1856, key: "cover|plate|central", what: "side of the thin central area of the cover plates (mm)"}
-- {value: 5, key: "crossbar|bar|steel", what: "steel crossbars the modules hang from"}
+- {value: 5, key: "crossbar", what: "steel crossbars the modules hang from"}
 - {value: 5, key: "strap", what: "straps per module"}
 - {value: 0.025, key: "strap", what: "strap thickness (mm)"}
 - {value: 24, key: "backplane", what: "backplanes around the dark box"}
-- {value: 16, key: "busboard|mppc", what: "MPPCs per busboard"}
+- {value: 16, key: "mppc", what: "MPPCs per busboard"}
 - {value: 2, key: "fgd", what: "fine-grained detectors"}

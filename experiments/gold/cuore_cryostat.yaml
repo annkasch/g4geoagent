@@ -19,3 +19,9 @@
 - {value: 3.4, key: "ivc|inner|vacuum|chamber", what: "inner vacuum chamber volume (m3)"}
 - {value: 17, key: "cryostat|mass", what: "total mass of the cryostat (t)"}
 - {value: 3, key: "bar|suspension|(?<![a-z])(ds)s?(?![a-z])", what: "detector suspension bars"}
+- {value: 12, key: "bar|suspension|(?<![a-z])(ds)(?![a-z])", what: "largest diameter of a suspension bar (mm)"}
+- {value: 6, key: "rope|kevlar", what: "Kevlar rope diameter (mm)"}
+- {value: 5, key: "pulse|tube|(?<![a-z])(pt)(?![a-z])", what: "pulse tubes"}
+- {value: 4, key: "connector", what: "copper connectors of the tower support plate"}
+- {value: 3, key: "insulator|minus", what: "Minus-K insulators"}
+- {value: 7, key: "lead|shield", what: "lead shielding at low temperature, more than (t)"}

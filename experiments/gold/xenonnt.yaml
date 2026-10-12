@@ -36,3 +36,8 @@
 - {value: 640, key: "ptfe|sheet", what: "height covered by the outer PTFE sheet (mm)"}
 - {value: 200, key: "lxe|xenon|region|cathode", what: "liquid xenon below the cathode (kg)"}
 - {value: 4, key: "level|meter", what: "capacitive level meters"}
+- {value: 71, key: "electrode|wire|ring", what: "wire field electrodes"}
+- {value: 48, key: "ptfe|panel", what: "PTFE panels of the TPC wall"}
+- {value: 24, key: "pillar", what: "PTFE pillars"}
+- {value: 84, key: "pmt|neutron|veto", what: "PMTs of the neutron veto"}
+- {value: 5, key: "grid|electrode", what: "wire grid electrodes"}

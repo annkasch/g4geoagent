@@ -8,7 +8,6 @@
 - {subject: "water|tank", object: "cryostat", family: nest, what: "the cryostat is submerged in water"}
 - {subject: "neutron|veto", object: "cryostat", family: any, what: "the neutron veto surrounds the cryostat"}
 - {subject: "bell", object: "pmt|array", family: nest, what: "the top PMT array is inside a diving bell"}
-- {subject: "lxe|xenon", object: "tpc", family: any, what: "liquid xenon surrounds the TPC"}
 - {subject: "tank", object: "water", family: nest, what: "the water is kept inside a cylindrical tank"}
 - {subject: "tpc", object: "pmt|array", family: any, what: "PMT arrays are at the top and bottom of the TPC"}
 - {subject: "ring|electrode|field", object: "tpc|active|volume|ptfe|wall", family: any, what: "two sets of field-shaping electrodes surround the active volume outside the PTFE walls"}
@@ -16,3 +15,4 @@
 - {subject: "rod|support|structure", object: "cryostat", family: any, what: "the cryostat hangs on three rods from the support structure"}
 - {subject: "superinsulation", object: "vessel|(?<![a-z])(iv)s?(?![a-z])|inner", family: any, what: "superinsulation surrounds the inner vessel"}
 - {subject: "tpc", object: "panel|ptfe|reflector", family: any, what: "PTFE panels form the wall of the TPC"}
+- {subject: "lxe|xenon", object: "tpc", family: surrounds, what: "liquid xenon surrounds the TPC"}

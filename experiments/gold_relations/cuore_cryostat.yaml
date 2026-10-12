@@ -11,4 +11,4 @@
 - {subject: "ivc|vessel", object: "lead|shield", family: nest, what: "the side lead shield is inside the inner vacuum chamber"}
 - {subject: "beam|bar|suspension", object: "tsp|support|plate", family: any, what: "the tower support plate is suspended from the Y-beam by three suspension bars"}
 - {subject: "600|still|plate", object: "lead|shield", family: any, what: "the Roman lead shield is suspended from the 600 mK plate"}
-- {subject: "beam", object: "msp|main|support|plate", family: any, what: "the Y-beam stands on the main support plate"}
+- {subject: "beam", object: "msp|main", family: any, what: "the Y-beam stands on the main support plate"}
