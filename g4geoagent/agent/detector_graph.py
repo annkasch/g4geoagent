@@ -30,6 +30,7 @@ from g4geoagent.agent.llm import call_llm_json
 MODEL, REVIEWER = "lbl/gpt-oss-120b", "lbl/gemma-4"
 REPAIRS = 3
 TIDY = False               # values once per part with the claim's wording; features and shapes taken from the cited claims
+KEEP_STATED = False        # a stated value stays in the graph even if the model derived another from it or found it contradicted
 ONE_ROOT = False           # only one node inside 'world'; "A consists of B" puts B inside A
 STRICT_TREE = False        # 'inside' must agree with the relations that claims state (set by build_in_two)
 
@@ -334,6 +335,48 @@ def _clean(graph, accepted, record):
                     n.features.append(claim.text)
                 if claim.kind == "shape" and n.shape == "not_stated" and claim.text in G.NEEDED:
                     n.shape = claim.text
+    if TIDY and KEEP_STATED:
+        # What a claim states stays in the graph as stated. Where the model worked a value out and kept only the
+        # result ("7 x 5" as 35, 230 cm as 2.3 m), or dropped one of two values that disagree, the program puts
+        # the stated value back, on the same part, and notes it.
+        record["stated_added"], record["conflicts"] = [], []
+        stated = {i for p in graph.properties if not p.derived for i in p.claims}
+        aside = {s.claim: s for s in graph.set_aside}
+
+        def add(claim, of, note):
+            graph.properties.append(NodeProperty(of=of, quantity=claim.quantity or "value", which=claim.which or "not_stated",
+                                                 value=claim.value, unit=claim.unit, wording=claim.wording or "exact", claims=[claim.id]))
+            record[note].append(f"{of}: {claim.quantity} = {claim.value} {claim.unit} ({claim.id})")
+
+        for p in list(graph.properties):
+            if p.derived:
+                for i in p.claims:
+                    if by_id[i].kind == "value" and by_id[i].built and i not in stated and i not in aside:
+                        add(by_id[i], p.of, "stated_added")
+                        stated.add(i)
+        home = {i: p.of for p in graph.properties for i in p.claims}
+        for i, s in aside.items():
+            claim = by_id.get(i)
+            if claim and claim.kind == "value" and claim.built and s.reason == "contradicted_by" and s.other in home:
+                add(claim, home[s.other], "conflicts")
+                graph.set_aside = [x for x in graph.set_aside if x.claim != i]
+    if TIDY and ONE_ROOT:
+        # a claim that says where a part is (at the bottom of, attached to, next to ...) is an edge of the graph.
+        # Where the model used such a claim only to decide what is inside what, the program adds the edge.
+        name_of = {G.norm(x): n.name for n in graph.nodes for x in (n.name, *n.also_called)}
+        on_edges = {i for e in graph.edges for i in e.claims}
+        aside = {s.claim for s in graph.set_aside}
+        have = {(e.subject, e.relation, e.object) for e in graph.edges}
+        record["edges_added"] = []
+        for claim in accepted:
+            if claim.kind != "relation" or claim.relation in ("contains", "consists_of") or claim.id in on_edges or claim.id in aside:
+                continue
+            ends = [next((name_of[G.norm(x)] for x in side.split(" / ") if G.norm(x) in name_of), None)
+                    for side in (claim.subject, claim.object)]
+            if all(ends) and ends[0] != ends[1] and (ends[0], claim.relation, ends[1]) not in have:
+                graph.edges.append(Edge(subject=ends[0], relation=claim.relation, object=ends[1], count=claim.count, claims=[claim.id]))
+                have.add((ends[0], claim.relation, ends[1]))
+                record["edges_added"].append(f"{ends[0]} {claim.relation} {ends[1]} ({claim.id})")
     used = {i for entries in (graph.nodes, graph.properties, graph.edges) for e in entries for i in e.claims} | \
            {s.claim for s in graph.set_aside}
     record["unaccounted"] = [c.id for c in accepted if c.id not in used]
@@ -371,12 +414,12 @@ def _with_repairs(model, messages, schema, problems_of, log, stage):
 
 
 def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False, parallel=False, one_root=False,
-                 review=False):
+                 review=False, keep_stated=False):
     """As build(), in two stages, so that the model never has to hold everything at once: first the parts and
     how they are arranged, from the part, shape, feature and relation claims; then the values, part by part."""
-    global STRICT_TREE, TIDY, ONE_ROOT
+    global STRICT_TREE, TIDY, ONE_ROOT, KEEP_STATED
     STRICT_TREE = TIDY = strict
-    ONE_ROOT = one_root
+    ONE_ROOT, KEEP_STATED = one_root, keep_stated
     accepted = [c for c in claims if c.status == "accepted"]
     structure_claims = [c for c in accepted if c.kind != "value"]
     value_claims = [c for c in accepted if c.kind == "value"]

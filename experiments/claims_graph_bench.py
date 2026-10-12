@@ -47,6 +47,12 @@ VARIANTS = {
     "c07_place_relations": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True}},
     # 8: variant 7, and a second model checks value by value, against its sentence, that it sits on the right part
     "c08_values_reviewed": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True, "review": True}},
+    # 9: variant 7, and a claim that says where a part is always becomes an edge: where the model used it only to
+    #    decide what is inside what, the program adds the edge
+    "c09_place_edges": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True}},
+    # 10: variant 9, and what a claim states stays in the graph as stated: where the model kept only a value it
+    #     worked out, or dropped one of two values that disagree, the program puts the stated value back and notes it
+    "c10_keep_stated": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True, "keep_stated": True}},
 }
 
 
