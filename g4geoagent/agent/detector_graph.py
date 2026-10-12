@@ -204,7 +204,10 @@ def check(graph, claims, cover=None):
             if ONE_ROOT and e.relation == "consists_of" and e.subject not in chain[1:]:
                 problems.append(f"edge {e.subject} consists of {e.object}: a claim states it, so {e.object} must be inside "
                                 f"{e.subject}, but it is inside '{inside.get(e.object)}'")
-            elif e.relation != "consists_of" and e.subject not in chain[1:] and (
+            elif ONE_ROOT and e.relation == "contains" and e.subject not in chain[1:]:
+                problems.append(f"edge {e.subject} contains {e.object}: a claim states it, so {e.object} must be inside {e.subject} "
+                                f"(or inside its filling), but it is inside '{inside.get(e.object)}'")
+            elif e.relation not in ("consists_of", "contains") and e.subject not in chain[1:] and (
                     inside.get(e.object) != inside.get(e.subject) or (ONE_ROOT and inside.get(e.object) == "world")):
                 problems.append(f"edge {e.subject} {e.relation} {e.object}: a claim states it, but {e.object} is inside "
                                 f"'{inside.get(e.object)}'. Put {e.object} inside {e.subject}, or, if {e.subject} is an open shell "
@@ -350,6 +353,44 @@ def _clean(graph, accepted, record):
                     n.features.append(claim.text)
                 if claim.kind == "shape" and n.shape == "not_stated" and claim.text in G.NEEDED:
                     n.shape = claim.text
+    if TIDY and ONE_ROOT:
+        # "A contains B" is stated by a claim: then B is inside A. Where the model's tree says otherwise, the program
+        # moves B into A, or into A's filling if A is a vessel with one.
+        record["moved_inside"] = []
+        node = {n.name: n for n in graph.nodes}
+
+        def ancestors(name):
+            seen = []
+            while name in node and node[name].inside in node and node[name].inside not in seen:
+                name = node[name].inside
+                seen.append(name)
+            return seen
+
+        sized = {p.of for p in graph.properties if p.quantity in ("diameter", "radius", "height", "length", "width", "thickness", "volume")}
+
+        def physical(name):                 # a vessel or body with a shape or a size, as against a system such as "muon veto"
+            return node[name].shape not in ("not_stated", "other") or name in sized
+
+        wanted = {}                         # part: the parts that claims say contain it
+        for e in graph.edges:
+            if not e.inferred and e.relation == "contains" and e.subject in node and e.object in node and e.subject != e.object:
+                wanted.setdefault(e.object, []).append((e.subject, e.claims))
+        record["container_conflicts"] = []
+        for part, holders in wanted.items():
+            names = list(dict.fromkeys(h for h, _ in holders))
+            if any(h in ancestors(part) for h in names if physical(h)) or any(part in ancestors(h) for h in names):
+                continue                    # already inside a physical part that is said to contain it
+            # several parts are said to contain it: the innermost one, and a physical part before a system
+            inner = [h for h in names if not any(h in ancestors(other) for other in names if other != h)]
+            choice = next((h for h in inner if physical(h)), None) or next((h for h in names if physical(h)), None) or inner[0]
+            if len(names) > 1:
+                record["container_conflicts"].append(f"{part}: said to be contained in {', '.join(names)}; placed in {choice}")
+            if choice in ancestors(part):
+                continue
+            filling = next((n.name for n in graph.nodes if n.inside == choice and n.form == "filling" and n.name != part), None)
+            ids = ", ".join(i for h, c in holders if h == choice for i in c)
+            record["moved_inside"].append(f"{part}: from {node[part].inside} into {filling or choice} ({ids})")
+            node[part].inside = filling or choice
     if TIDY and KEEP_STATED:
         # What a claim states stays in the graph as stated. Where the model worked a value out and kept only the
         # result ("7 x 5" as 35, 230 cm as 2.3 m), or dropped one of two values that disagree, the program puts
