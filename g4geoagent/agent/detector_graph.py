@@ -222,6 +222,11 @@ def check(graph, claims, cover=None):
             problems.append(f"claim {s.claim} is set aside as {s.reason} {s.other or '(no claim named)'}, but that claim is not "
                             "in the graph. Put one of the two into the graph")
         claim = by_id.get(s.claim)
+        other = by_id.get(s.other)
+        if ONE_ROOT and claim and claim.kind == "relation" and s.reason == "same_as" and claim.relation not in ("contains", "consists_of") \
+                and not (other and other.kind == "relation" and other.relation == claim.relation):
+            problems.append(f"claim {s.claim} ({claim.subject} {claim.relation.replace('_', ' ')} {claim.object}) says more than that one part is "
+                            "inside the other. Make it an edge with this relation")
         if claim and claim.kind == "value" and claim.built and s.reason == "not_geometry" and (STRICT_TREE or claim.quantity in G.NEEDED_QUANTITIES):
             problems.append(f"claim {s.claim} ({claim.subject}: {claim.quantity} = {claim.value} {claim.unit}) is a size, count, mass "
                             "or material and was set aside as not geometry. Make it a property")
@@ -311,6 +316,10 @@ def _clean(graph, accepted, record):
     if TIDY:
         merged = {}
         for p in graph.properties:
+            if isinstance(p.value, str) and p.quantity != "material":
+                found = re.fullmatch(r"\s*(?:about|approximately|around|~|∼|up to|more than|at least)?\s*([-+]?\d+(?:\.\d+)?)\s*[A-Za-zμµ%³0-9/]*\s*", p.value)
+                if found:
+                    p.value = float(found.group(1))
             number = round(float(p.value), 9) if isinstance(p.value, (int, float)) else re.sub(r"\W+", "", str(p.value).lower())
             source = next((by_id[i] for i in p.claims if by_id[i].kind == "value"), None)
             if source and not p.derived:                # wording, unit and 'each'/'total' are the claim's, not the model's
@@ -361,7 +370,8 @@ def _with_repairs(model, messages, schema, problems_of, log, stage):
     return answer, rounds
 
 
-def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False, parallel=False, one_root=False):
+def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False, parallel=False, one_root=False,
+                 review=False):
     """As build(), in two stages, so that the model never has to hold everything at once: first the parts and
     how they are arranged, from the part, shape, feature and relation claims; then the values, part by part."""
     global STRICT_TREE, TIDY, ONE_ROOT
@@ -417,7 +427,48 @@ def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False
         if values:
             graph.properties += values.properties
             graph.set_aside += values.set_aside
+    if review:
+        record["moved"] = review_values(graph, accepted, detector, log)
     return _clean(graph, accepted, record)
+
+
+class Belongs(BaseModel):
+    item: int
+    part: str = Field(description="The name of the part the value belongs to, from the list; or 'none' if to none of them")
+
+
+class BelongsList(BaseModel):
+    answers: list[Belongs]
+
+
+def review_values(graph, accepted, detector, log=None, model=REVIEWER):
+    """A second model checks, value by value, that it sits on the right part: it sees the sentence the value was
+    taken from and the parts of the graph, and names the part the value belongs to. Where it names another part
+    than the graph has, the value is moved. Returns the list of moves."""
+    by_id = {c.id: c for c in accepted}
+    names = [n.name for n in graph.nodes]
+    listing = "\n".join(f"  {n.name}: {n.what}" for n in graph.nodes)
+    todo = [p for p in graph.properties if not p.derived and any(i in by_id and by_id[i].sentence for i in p.claims)]
+    moves = []
+    for start in range(0, len(todo), 25):
+        batch = todo[start:start + 25]
+        items = "\n".join(f"{i}. {p.quantity} = {p.value} {p.unit}, in: \"{next(by_id[c].sentence for c in p.claims if c in by_id and by_id[c].sentence)[:400]}\""
+                          for i, p in enumerate(batch))
+        request = (f"These are the parts of the detector {detector}:\n{listing}\n\nEach item below is a value with the sentence "
+                   "it was taken from. Which part does the value describe? Read the sentence closely: a value in brackets "
+                   "belongs to the thing named just before the brackets, and the amount of a liquid belongs to that "
+                   "liquid, not to its vessel. Answer with the name of the part from the list, or 'none'.\n\nItems:\n" + items
+                   + '\n\nAnswer with one JSON object: {"answers": [{"item": 0, "part": "name"}, ...]}')
+        try:
+            answer, _ = call_llm_json(model, [{"role": "user", "content": request}], BelongsList, log=log,
+                                      stage="graph_review_values", temperature=0)
+        except ValueError:
+            continue
+        for a in answer.answers:
+            if 0 <= a.item < len(batch) and a.part in names and a.part != batch[a.item].of:
+                moves.append(f"{batch[a.item].quantity} = {batch[a.item].value} {batch[a.item].unit}: from {batch[a.item].of} to {a.part}")
+                batch[a.item].of = a.part
+    return moves
 
 
 def to_dict(graph, claims, detector, record=None):

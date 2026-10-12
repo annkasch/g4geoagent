@@ -42,6 +42,11 @@ VARIANTS = {
     # 6: variant 5, with claims whose numbers were checked sentence by sentence (claims "v3"), and a tree with one
     #    root: only the detector as a whole or the outermost part is inside 'world', and "A consists of B" puts B inside A
     "c06_one_root": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True}},
+    # 7: variant 6, and a relation claim that says where something is (at the bottom of, attached to, next to) may
+    #    not be set aside as "same as" a claim of another kind; text values such as "about 6 t" become numbers
+    "c07_place_relations": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True}},
+    # 8: variant 7, and a second model checks value by value, against its sentence, that it sits on the right part
+    "c08_values_reviewed": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True, "review": True}},
 }
 
 
