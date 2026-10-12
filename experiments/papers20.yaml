@@ -1,4 +1,7 @@
 # The 20 further papers with hand lists (2026-10-12). PDFs: ../papers/more/<name>.pdf, from arXiv.
+# split (decided with the user, 2026-10-12): 5 are development papers, together with the five earlier ones (legend, T2K, dune,
+# ice_cube, super-k); 15 are test papers. On test papers only total scores are looked at, not which entries were missed; their
+# hand lists are corrected once, at the end, every change logged. A test paper may be opened for development later, never the reverse.
 - name: t2k_fgd
   arxiv: '1204.3666'
   detector: T2K fine-grained detectors (FGD)
@@ -6,6 +9,7 @@
   words: 26172
   values: 34
   relations: 14
+  split: development
 - name: sno_plus
   arxiv: '2104.11687'
   detector: SNO+
@@ -13,6 +17,7 @@
   words: 27850
   values: 19
   relations: 11
+  split: test
 - name: snd_lhc
   arxiv: '2210.02784'
   detector: SND@LHC
@@ -20,6 +25,7 @@
   words: 19416
   values: 37
   relations: 15
+  split: test
 - name: lz
   arxiv: '1910.09124'
   detector: LUX-ZEPLIN (LZ)
@@ -27,6 +33,7 @@
   words: 21511
   values: 20
   relations: 12
+  split: test
 - name: xenonnt
   arxiv: '2402.10446'
   detector: XENONnT
@@ -34,6 +41,7 @@
   words: 21485
   values: 34
   relations: 13
+  split: development
 - name: cuore_cryostat
   arxiv: '1805.06209'
   detector: CUORE cryostat
@@ -41,6 +49,7 @@
   words: 3338
   values: 17
   relations: 9
+  split: development
 - name: kamland_zen_balloon
   arxiv: '2104.10452'
   detector: KamLAND-Zen 800 inner balloon
@@ -48,6 +57,7 @@
   words: 9500
   values: 23
   relations: 10
+  split: test
 - name: next_white
   arxiv: '1804.02409'
   detector: NEXT-White (NEW)
@@ -55,6 +65,7 @@
   words: 9535
   values: 23
   relations: 16
+  split: test
 - name: next100
   arxiv: '1511.09246'
   detector: NEXT-100
@@ -62,6 +73,7 @@
   words: 11952
   values: 21
   relations: 15
+  split: test
 - name: hawc
   arxiv: '2304.00730'
   detector: HAWC
@@ -69,6 +81,7 @@
   words: 16188
   values: 21
   relations: 6
+  split: test
 - name: swift_bat
   arxiv: astro-ph/0507410
   detector: Swift Burst Alert Telescope (BAT)
@@ -76,6 +89,7 @@
   words: 7631
   values: 21
   relations: 11
+  split: test
 - name: juno
   arxiv: '2104.02565'
   detector: JUNO (with its satellite detectors TAO and OSIRIS)
@@ -83,6 +97,7 @@
   words: 41254
   values: 17
   relations: 9
+  split: test
 - name: antares
   arxiv: '1104.1607'
   detector: ANTARES
@@ -90,6 +105,7 @@
   words: 28835
   values: 36
   relations: 16
+  split: development
 - name: cosine100
   arxiv: '1804.05167'
   detector: COSINE-100
@@ -97,6 +113,7 @@
   words: 6226
   values: 12
   relations: 9
+  split: test
 - name: pandax4t
   arxiv: '2107.13438'
   detector: PandaX-4T
@@ -104,6 +121,7 @@
   words: 6658
   values: 15
   relations: 9
+  split: test
 - name: project8_phase2
   arxiv: '2503.08807'
   detector: Project 8 phase II apparatus
@@ -111,6 +129,7 @@
   words: 11036
   values: 12
   relations: 10
+  split: test
 - name: baikal_gvd
   arxiv: '2309.16310'
   detector: Baikal-GVD
@@ -118,6 +137,7 @@
   words: 3007
   values: 14
   relations: 8
+  split: test
 - name: veritas
   arxiv: astro-ph/0604119
   detector: VERITAS (first telescope)
@@ -125,6 +145,7 @@
   words: 7278
   values: 10
   relations: 7
+  split: development
 - name: supernemo_calo
   arxiv: '2412.18021'
   detector: SuperNEMO Demonstrator (calorimeter)
@@ -132,6 +153,7 @@
   words: 17728
   values: 30
   relations: 15
+  split: test
 - name: cta_sst
   arxiv: '2110.14527'
   detector: CTA Small-Sized Telescope
@@ -139,3 +161,4 @@
   words: 3351
   values: 14
   relations: 11
+  split: test

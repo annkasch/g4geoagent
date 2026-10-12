@@ -107,3 +107,11 @@ not see that the geometry was arranged wrongly. 3D pictures: `python -m g4geoage
 - Files in `runs/` are not in git. They hold the readers' saved answers that the benchmarks reuse
   (`runs/graph_bench/readings/`, `runs/claims_graph/claims_v3/`); without them a benchmark reads the papers again.
 - The papers are in `../papers/` (PDF) and as text in `runs/papers_test/text/`.
+
+## Development and test papers (decided 2026-10-12)
+
+- Development (10): legend, T2K, dune, ice_cube, super-k, and of the 20 further papers t2k_fgd, antares, xenonnt, cuore_cryostat, veritas.
+- Test (15): the other papers in `experiments/papers20.yaml` (field `split`). Hand lists: `experiments/gold/`, `experiments/gold_relations/`.
+- The first run on all 20 is frozen and kept. On test papers look at total scores only, never at which entries were missed.
+- Hand lists of test papers are corrected once, at the end, each change logged with its sentence. An entry is added only if the paper states it plainly.
+- The lists measure what the system misses, not whether its other claims are right; extra claims are not counted as wrong.
