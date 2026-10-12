@@ -64,12 +64,12 @@ from the code, not tested against it) and `diagrams/architecture.png` (the whole
 | Step | Code | State |
 |---|---|---|
 | Claim step: one claim per fact, with quote, sentence, page, checks | `agent/claims.py` (uses the readers and checks in `agent/graph.py`) | Works. Holds 61 of 64 hand-listed values and 43 of 45 relations |
-| Graph step: a model builds the graph, a program checks it | `agent/detector_graph.py` | 11 rounds, see below. Not yet good enough for the user |
+| Graph step: a model builds the graph, a program checks it | `agent/detector_graph.py` | 10 rounds run, an 11th written but not run, see below. Not yet good enough for the user |
 | Wiring into a run | `pipeline.py` | Not done: `graph_builder` is a stub there, the Coordinator still uses the old flat claims |
 
 Graph step, last complete round (10, all five papers): values 94%, relations 91%, one root per detector, 2 claims
 unaccounted. Round 11 (`c11_place_edges_fixed`, fixes a mistake of the program in adding place edges) was started
-and **only two of five papers finished**; rerun it:
+and stopped at once: **no paper finished, the fix is untested**. Run it:
 `python experiments/claims_graph_bench.py c10_keep_stated c11_place_edges_fixed --detail` (about 20 minutes).
 
 Known faults of the graphs: LEGEND has "about 6 t" of argon on the whole argon and on the inner volume; the
