@@ -24,6 +24,7 @@ from g4geoagent.agent.readers import READERS
 
 NESTING = ("contains", "encloses", "surrounds")           # edges that say: the object is within the subject
 PLACING = (*NESTING, "at_bottom_of", "at_top_of", "centred_in", "mounted_on", "attached_to", "outside", "consists_of", "next_to")
+NEEDED_QUANTITIES = {"diameter", "radius", "height", "length", "width", "thickness", "mass", "volume", "count", "material"}
 NEEDED = {"cylinder": [("diameter", "radius"), ("height", "length")], "tube": [("diameter", "radius"), ("height", "length")],
           "box": [("length",), ("width",), ("height", "thickness")], "plate": [("length", "diameter"), ("thickness",)],
           "sphere": [("diameter", "radius")]}
