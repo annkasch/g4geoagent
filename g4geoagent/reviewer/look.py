@@ -60,27 +60,17 @@ def _image(path):
 
 
 def extract_figures(pdf_path, folder):
-    """Save the figures of a PDF as PNG files. Returns [{file, page, caption, source}]."""
-    import pymupdf
+    """Save the figures of a PDF as PNG files. Returns [{file, page, caption, source}].
+    Done by the tools of step 1 (g4geoagent/agent/documents.py), which also find figures drawn as lines."""
+    import tempfile
+    from g4geoagent.agent.documents import read_pdf
     folder = Path(folder)
-    folder.mkdir(parents=True, exist_ok=True)
-    figures = []
-    with pymupdf.open(pdf_path) as document:
-        for number, page in enumerate(document, 1):
-            captions = re.findall(r"(Fig(?:ure|\.)\s*\d+[.:][^\n]*(?:\n[^\n]+){0,5})", page.get_text())
-            large = [i for i in page.get_image_info() if i["width"] >= MIN_SIZE[0] and i["height"] >= MIN_SIZE[1]]
-            for k, info in enumerate(large):
-                name = f"{Path(pdf_path).stem}_p{number}_{k}.png"
-                try:                                    # a picture that cannot be cut out is left out
-                    box = pymupdf.Rect(info["bbox"]) & page.rect
-                    if box.is_empty or box.width < 20 or box.height < 20:
-                        continue
-                    page.get_pixmap(clip=box, dpi=150, colorspace=pymupdf.csRGB, alpha=False).save(folder / name)
-                except Exception:
-                    continue
-                caption = " ".join(captions[min(k, len(captions) - 1)].split()) if captions else ""
-                figures.append({"file": name, "page": number, "caption": caption[:500], "source": Path(pdf_path).name})
-    return figures
+    with tempfile.TemporaryDirectory() as tmp:
+        result = read_pdf(pdf_path, tmp)
+        folder.mkdir(parents=True, exist_ok=True)
+        for figure in result["figures"]:
+            (folder / figure["file"]).write_bytes((Path(tmp) / "figures" / figure["file"]).read_bytes())
+    return result["figures"]
 
 
 def construction_figures(figures, folder, detector, log=None, model=MODEL, most=MAX_FIGURES):

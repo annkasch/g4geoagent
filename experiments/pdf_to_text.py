@@ -1,5 +1,8 @@
 """Turn PDF papers into text files, one per paper, with page markers.
 
+Superseded by g4geoagent/agent/documents.py (2026-10-12), which also repairs damaged letters, sets captions and
+tables apart and cuts out figures. Kept because the benchmarks so far were run on the text this script made.
+
     python -I experiments/pdf_to_text.py <folder with PDFs> <output folder>
 """
 

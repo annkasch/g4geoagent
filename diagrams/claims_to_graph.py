@@ -60,8 +60,8 @@ R = 11.9                 # side column: what is taken out, and tools
 # ------------------------------------------------------------------ documents
 band(0.75, -3.95, "Documents")
 box(C, 0, W, 0.95, "Paper (PDF)", ["the starting document; later also papers found by Research"], "data")
-box(3.6, -1.75, 4.6, 1.25, "PDF to text", ["tool: pymupdf", "text with page marks"])
-box(8.6, -1.75, 4.6, 1.25, "Cut out figures", ["tool: pymupdf", "pictures with page and caption"])
+box(3.6, -1.75, 4.6, 1.25, "PDF to text", ["tool: pymupdf; damaged letters repaired,", "captions and tables set apart"])
+box(8.6, -1.75, 4.6, 1.25, "Cut out figures", ["tool: pymupdf; stored and drawn figures,", "all panels, each with its caption"])
 arrow([(4.6, -0.48), (3.9, -1.12)])
 arrow([(7.4, -0.48), (8.3, -1.12)])
 box(3.6, -3.25, 4.6, 0.75, "Text of the paper", kind="data")
