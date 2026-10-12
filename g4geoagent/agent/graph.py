@@ -483,10 +483,17 @@ class MissedList(BaseModel):
     answers: list[Missed]
 
 
-def coverage_pass(readings, documents, detector, log=None, window=1, reader="A"):
+NUMBER_WORDS = {w: float(i) for i, w in enumerate("zero one two three four five six seven eight nine ten eleven twelve".split())}
+NUMBER_WORDS.update({"sixteen": 16.0, "twenty": 20.0, "twenty-four": 24.0})
+
+
+def coverage_pass(readings, documents, detector, log=None, window=1, reader="A", per_sentence=False):
     """Numbers that no property covers, in the sentences the readers took records from and their neighbours,
     go back to one reader: is it a construction value that was missed? Returns the new Property records
-    (already checked against the document). They still count as found by one reader only."""
+    (already checked against the document). They still count as found by one reader only.
+    With `per_sentence`, a number counts as covered only if a property taken from the same sentence states it
+    (otherwise small numbers such as 2 or 3 are always "covered" by some other sentence), and numbers written
+    as words ("three fibres", "seven strings") are looked at as well."""
     from g4geoagent.agent.compare import POINTERS
     covered = {float(n) for e in readings.values() for p in e.properties
                for n in ([p.value] if isinstance(p.value, (int, float)) else numbers_in(str(p.value)))}
@@ -499,9 +506,20 @@ def coverage_pass(readings, documents, detector, log=None, window=1, reader="A")
             for record in [*e.parts, *e.properties, *e.relations]:
                 for i in locate(record.quote, text):
                     active.update(range(max(0, i - window), min(len(parts), i + window + 1)))
+        here = {}
+        if per_sentence:
+            for e in readings.values():
+                for p in e.properties:
+                    numbers = [float(p.value)] if isinstance(p.value, (int, float)) else numbers_in(str(p.value))
+                    for i in locate(p.quote, text):
+                        here.setdefault(i, set()).update(numbers)
         for i in sorted(active):
-            for number in dict.fromkeys(numbers_in(POINTERS.sub(" ", REFERENCE.sub(" ", parts[i])))):
-                if number not in covered:
+            clean = POINTERS.sub(" ", REFERENCE.sub(" ", parts[i]))
+            numbers = numbers_in(clean)
+            if per_sentence:
+                numbers += [NUMBER_WORDS[w] for w in re.findall(r"[a-z]+(?:-[a-z]+)?", clean.lower()) if w in NUMBER_WORDS and w != "one"]
+            for number in dict.fromkeys(numbers):
+                if number not in (here.get(i, set()) if per_sentence else covered):
                     items.append((number, parts[i]))
     added = []
     schema = json.dumps(MissedList.model_json_schema(), separators=(",", ":"))
@@ -521,6 +539,9 @@ def coverage_pass(readings, documents, detector, log=None, window=1, reader="A")
         except ValueError:
             continue
         added += [a.property for a in answer.answers if a.construction and a.property]
+    if per_sentence:                                # a count written as a word passes if the quote is in the document
+        whole = _squash(REFERENCE.sub(" ", " ".join(documents.values())))
+        return [p for p in added if _squash(REFERENCE.sub(" ", p.quote)) and _squash(REFERENCE.sub(" ", p.quote)) in whole]
     kept, _ = check(Extraction(parts=[], properties=added, relations=[]), documents, tolerant=True)
     return kept.properties
 

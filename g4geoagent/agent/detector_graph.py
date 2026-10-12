@@ -29,6 +29,9 @@ from g4geoagent.agent.llm import call_llm_json
 
 MODEL, REVIEWER = "lbl/gpt-oss-120b", "lbl/gemma-4"
 REPAIRS = 3
+TIDY = False               # values once per part with the claim's wording; features and shapes taken from the cited claims
+ONE_ROOT = False           # only one node inside 'world'; "A consists of B" puts B inside A
+STRICT_TREE = False        # 'inside' must agree with the relations that claims state (set by build_in_two)
 
 
 class Node(BaseModel):
@@ -110,6 +113,10 @@ nodes: one node per physical part.
 - inside: the part that directly contains it. Work from the outside in. A vessel (form 'hollow') contains its
   filling (form 'filling'); what sits in the liquid is inside the filling, not inside the vessel. A part that
   surrounds or encloses other parts is 'hollow'. Only the outermost part is inside 'world'.
+- A part that a claim places outside another part is not inside that part or its contents. If no claim says
+  what contains a part, put it inside the detector as a whole, or the outermost part.
+- When a claim says that A surrounds or encloses B, then B is inside A; or, if A is an open shell standing in
+  a liquid, B is inside the same liquid as A.
 - Leave out things that are not parts of the detector: materials, coatings, signals, software, other experiments.
 
 properties: the values of each part: sizes, masses, volumes, counts, and what it is made of (quantity 'material').
@@ -154,6 +161,11 @@ def check(graph, claims, cover=None):
             break
     if graph.nodes and sum(n.inside == "world" for n in graph.nodes) == 0:
         problems.append("no node is inside 'world': the outermost part must be")
+    roots = [n.name for n in graph.nodes if n.inside == "world"]
+    if ONE_ROOT and len(roots) > 1:
+        problems.append(f"{len(roots)} nodes are inside 'world': {', '.join(roots)}. Only one may be: the detector as a whole "
+                        "(add it as a node if the claims name it) or the outermost part. Give every other one the part that "
+                        "contains it: what its claims and relations say, and if they say nothing, the detector as a whole")
     for kind, entries in (("node", graph.nodes), ("property", graph.properties), ("edge", graph.edges)):
         for e in entries:
             label = e.name if kind == "node" else (f"{e.of}: {e.quantity}" if kind == "property" else f"{e.subject} {e.relation} {e.object}")
@@ -181,6 +193,19 @@ def check(graph, claims, cover=None):
                 problems.append(f"edge {e.subject} {e.relation} {e.object}: '{end}' is not a node")
         if e.inferred and not e.reasoning:
             problems.append(f"edge {e.subject} {e.relation} {e.object}: an inferred relation needs its reasoning")
+        if STRICT_TREE and not e.inferred and e.relation in ("surrounds", "encloses", "contains", "consists_of") and e.subject in names and e.object in names:
+            chain, at = [], e.object
+            while at in inside and at not in chain:
+                chain.append(at)
+                at = inside[at]
+            if ONE_ROOT and e.relation == "consists_of" and e.subject not in chain[1:]:
+                problems.append(f"edge {e.subject} consists of {e.object}: a claim states it, so {e.object} must be inside "
+                                f"{e.subject}, but it is inside '{inside.get(e.object)}'")
+            elif e.relation != "consists_of" and e.subject not in chain[1:] and (
+                    inside.get(e.object) != inside.get(e.subject) or (ONE_ROOT and inside.get(e.object) == "world")):
+                problems.append(f"edge {e.subject} {e.relation} {e.object}: a claim states it, but {e.object} is inside "
+                                f"'{inside.get(e.object)}'. Put {e.object} inside {e.subject}, or, if {e.subject} is an open shell "
+                                f"around it, inside the same part as {e.subject} ('{inside.get(e.subject)}')")
         if not e.inferred and not any(i in by_id and by_id[i].kind == "relation" for i in e.claims):
             problems.append(f"edge {e.subject} {e.relation} {e.object}: none of its claims is a relation claim. "
                             "Name the relation claim, or mark the edge as inferred and say how it follows")
@@ -197,7 +222,7 @@ def check(graph, claims, cover=None):
             problems.append(f"claim {s.claim} is set aside as {s.reason} {s.other or '(no claim named)'}, but that claim is not "
                             "in the graph. Put one of the two into the graph")
         claim = by_id.get(s.claim)
-        if claim and claim.kind == "value" and claim.built and s.reason == "not_geometry" and claim.quantity in G.NEEDED_QUANTITIES:
+        if claim and claim.kind == "value" and claim.built and s.reason == "not_geometry" and (STRICT_TREE or claim.quantity in G.NEEDED_QUANTITIES):
             problems.append(f"claim {s.claim} ({claim.subject}: {claim.quantity} = {claim.value} {claim.unit}) is a size, count, mass "
                             "or material and was set aside as not geometry. Make it a property")
     return problems
@@ -283,6 +308,23 @@ def _clean(graph, accepted, record):
             record["removed"].append(f"container of {n.name} ('{n.inside}')")
             n.inside = "world"
         n.claims = [i for i in n.claims if i in by_id]
+    if TIDY:
+        merged = {}
+        for p in graph.properties:
+            number = round(float(p.value), 9) if isinstance(p.value, (int, float)) else re.sub(r"\W+", "", str(p.value).lower())
+            source = next((by_id[i] for i in p.claims if by_id[i].kind == "value"), None)
+            if source and not p.derived:                # wording, unit and 'each'/'total' are the claim's, not the model's
+                p.wording, p.unit, p.which = source.wording or "exact", source.unit or p.unit, source.which or p.which
+            known = merged.setdefault((p.of, number, G._squash(p.unit)), p)
+            if known is not p:                          # the same value on the same part once, resting on all its claims
+                known.claims = list(dict.fromkeys(known.claims + p.claims))
+        graph.properties = list(merged.values())
+        for n in graph.nodes:
+            for claim in (by_id[i] for i in n.claims):
+                if claim.kind == "feature" and claim.text.lower() not in {f.lower().replace("_", " ") for f in n.features}:
+                    n.features.append(claim.text)
+                if claim.kind == "shape" and n.shape == "not_stated" and claim.text in G.NEEDED:
+                    n.shape = claim.text
     used = {i for entries in (graph.nodes, graph.properties, graph.edges) for e in entries for i in e.claims} | \
            {s.claim for s in graph.set_aside}
     record["unaccounted"] = [c.id for c in accepted if c.id not in used]
@@ -319,9 +361,12 @@ def _with_repairs(model, messages, schema, problems_of, log, stage):
     return answer, rounds
 
 
-def build_in_two(claims, detector, log=None, model=MODEL, batch=70):
+def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False, parallel=False, one_root=False):
     """As build(), in two stages, so that the model never has to hold everything at once: first the parts and
     how they are arranged, from the part, shape, feature and relation claims; then the values, part by part."""
+    global STRICT_TREE, TIDY, ONE_ROOT
+    STRICT_TREE = TIDY = strict
+    ONE_ROOT = one_root
     accepted = [c for c in claims if c.status == "accepted"]
     structure_claims = [c for c in accepted if c.kind != "value"]
     value_claims = [c for c in accepted if c.kind == "value"]
@@ -341,8 +386,7 @@ def build_in_two(claims, detector, log=None, model=MODEL, batch=70):
     record = {"rounds": rounds, "review": [], "removed": [], "unaccounted": []}
     graph = empty(structure)
     parts = "\n".join(f"  {n.name}: {n.what} (also called: {', '.join(n.also_called) or '-'}; inside {n.inside})" for n in graph.nodes)
-    for start in range(0, len(value_claims), batch):
-        some = value_claims[start:start + batch]
+    def values_for(some):
         request = (f"You add the values to a graph of the detector {detector}. The parts of the graph:\n{parts}\n\n"
                    "Value claims (id | claim | source). A claim may name its part differently from the graph, or name "
                    "two names for it:\n" + "\n".join(c.line() for c in some) + "\n\n" + values_text
@@ -350,20 +394,29 @@ def build_in_two(claims, detector, log=None, model=MODEL, batch=70):
                    + "Answer with one JSON object that fits this schema and nothing else:\n"
                    + json.dumps(Values.model_json_schema(), separators=(",", ":")))
 
-        def problems_of(v, some=some):
-            trial = DetectorGraph(nodes=graph.nodes, properties=graph.properties + v.properties, edges=graph.edges,
-                                  set_aside=graph.set_aside + v.set_aside)
+        def problems_of(v):
+            trial = DetectorGraph(nodes=graph.nodes, properties=v.properties, edges=graph.edges, set_aside=v.set_aside)
             keep = ("property ", "these claims", "claim ")
-            return [p for p in check(trial, accepted, some) if p.startswith(keep)]
+            return [p for p in check(trial, accepted, some) if p.startswith(keep) and "set aside as same_as" not in p or
+                    ("set aside as" in p and any(f"claim {c.id} " in p for c in some))]
 
         try:
-            values, more = _with_repairs(model, [{"role": "user", "content": request}], Values, problems_of, log, "graph_values")
+            return _with_repairs(model, [{"role": "user", "content": request}], Values, problems_of, log, "graph_values")
         except ValueError:
-            record["rounds"].append([f"no usable answer for {len(some)} value claims"])
-            continue
+            return None, [[f"no usable answer for {len(some)} value claims"]]
+
+    batches = [value_claims[i:i + batch] for i in range(0, len(value_claims), batch)]
+    if parallel:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(4) as pool:
+            answers = list(pool.map(values_for, batches))
+    else:
+        answers = [values_for(some) for some in batches]
+    for values, more in answers:
         record["rounds"] += more
-        graph.properties += values.properties
-        graph.set_aside += values.set_aside
+        if values:
+            graph.properties += values.properties
+            graph.set_aside += values.set_aside
     return _clean(graph, accepted, record)
 
 

@@ -34,6 +34,14 @@ VARIANTS = {
     "c03_fixed_reasons": {"claims": "v2"},
     # 4: variant 3 in two stages: first the parts and how they are arranged, then the values in batches
     "c04_two_stages": {"claims": "v2", "stages": 2},
+    # 5: variant 4, and (a) the tree must follow the relations that claims state (surrounds, encloses, contains);
+    #    (b) a built value is never "not geometry"; (c) a program keeps each value once per part, with the wording,
+    #    unit and each/total of its claim, and copies shapes and features from the cited claims; (d) a part said to
+    #    be outside another is not put inside it; (e) values in batches of 40, in parallel
+    "c05_strict_tidy": {"claims": "v2", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40}},
+    # 6: variant 5, with claims whose numbers were checked sentence by sentence (claims "v3"), and a tree with one
+    #    root: only the detector as a whole or the outermost part is inside 'world', and "A consists of B" puts B inside A
+    "c06_one_root": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True}},
 }
 
 
@@ -46,6 +54,13 @@ def claims_of(paper, fresh=False, version="v1"):
     documents, readings, dropped, _ = B.readings_for(design, paper, False, log)
     file = B.OUT / "coverage" / design["coverage"] / f"{paper}.json"
     readings["A"].properties += [G.Property.model_validate(p) for p in json.loads(file.read_text())]
+    if version == "v3":                         # a second pass for numbers not covered in their own sentence, and number words
+        file = B.OUT / "coverage" / "per_sentence" / f"{paper}.json"
+        if not file.exists() or fresh:
+            file.parent.mkdir(parents=True, exist_ok=True)
+            more = G.coverage_pass(readings, documents, B.NAMES[paper], log, per_sentence=True)
+            file.write_text(json.dumps([p.model_dump() for p in more], indent=1))
+        readings["A"].properties += [G.Property.model_validate(p) for p in json.loads(file.read_text())]
     file = B.OUT / "cross_check" / design["cross_check"] / f"{paper}.json"
     known = json.loads(file.read_text()) if file.exists() else {}
     readings, disputed = G.cross_check(readings, documents, B.NAMES[paper], log, known, **design["cross_options"])
@@ -63,7 +78,7 @@ def one(job):
         folder.mkdir(parents=True, exist_ok=True)
         try:
             if VARIANTS[variant].get("stages") == 2:
-                graph, record = D.build_in_two(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"))
+                graph, record = D.build_in_two(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"), **VARIANTS[variant].get("options", {}))
             else:
                 graph, record = D.build(claims, B.NAMES[paper], RunLog(folder / "log.jsonl"),
                                         with_review=VARIANTS[variant].get("with_review", False))
@@ -86,7 +101,8 @@ def one(job):
                      "objections": len(checks.get("review", [])),
                      "inferred": sum(bool(r.get("inferred")) for r in data["relations"]),
                      "derived": sum(bool(p.get("derived")) for p in data["properties"]),
-                     "set_aside": len(data.get("set_aside", []))}
+                     "set_aside": len(data.get("set_aside", [])),
+                     "roots": sum(n["inside"] == "world" for n in data["nodes"])}
 
 
 if __name__ == "__main__":
@@ -100,11 +116,11 @@ if __name__ == "__main__":
         results = list(pool.map(one, [(v, p, "--fresh" in args) for v in variants for p in papers]))
     share = lambda rows, key: sum(r[key][0] for r in rows) / max(sum(r[key][1] for r in rows), 1)
     total = lambda rows, key: sum(r[key] for r in rows)
-    print(f"{'variant':16s} values  relations  joined  doubles  parts  claims  set aside  unaccounted  taken out  inferred  derived  repairs")
+    print(f"{'variant':16s} values  relations  joined  roots  parts  claims  set aside  unaccounted  taken out  inferred  derived  repairs")
     for variant in variants:
         rows = [r for v, r in results if v == variant]
         print(f"{variant:16s} {share(rows, 'values'):5.0%}  {share(rows, 'relations'):8.0%}  {share(rows, 'joined'):5.0%}  "
-              f"{sum(len(r['doubles']) for r in rows):7d}  {total(rows, 'nodes'):5d}  {total(rows, 'claims'):6d}  {total(rows, 'set_aside'):9d}  "
+              f"{total(rows, 'roots'):5d}  {total(rows, 'nodes'):5d}  {total(rows, 'claims'):6d}  {total(rows, 'set_aside'):9d}  "
               f"{total(rows, 'unaccounted'):11d}  {total(rows, 'removed'):9d}  {total(rows, 'inferred'):8d}  {total(rows, 'derived'):7d}  {total(rows, 'repairs'):7d}")
         if "--detail" in args:
             for r in rows:
