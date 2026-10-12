@@ -1,0 +1,15 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: NEXT-White (NEW)
+- {value: 664.5, key: "tpc|length", what: "TPC length (mm)"}
+- {value: 522, key: "tpc|diameter|anode|plate", what: "TPC diameter (mm)"}
+- {value: 60, key: "copper|ics|shell", what: "inner copper shell thickness (mm)"}
+- {value: 120, key: "copper|plate", what: "copper plate thickness (mm)"}
+- {value: 21, key: "cage|hdpe|shell", what: "field cage shell thickness (mm)"}
+- {value: 129.5, key: "buffer", what: "buffer region length (mm)"}
+- {value: 950, key: "vessel", what: "vessel central body length (mm)"}
+- {value: 640, key: "vessel", what: "vessel internal diameter (mm)"}
+- {value: 12, key: "vessel|wall", what: "vessel wall thickness (mm)"}
+- {value: 10, key: "sensor|pitch|sipm", what: "tracking sensor pitch (mm)"}
+- {value: 140, key: "vessel|volume", what: "pressure vessel volume (L)"}

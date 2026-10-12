@@ -1,0 +1,10 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: VERITAS (first telescope)
+- {subject: "telescope", object: "reflector", family: nest, what: "each telescope has a segmented reflector"}
+- {subject: "reflector", object: "facet|mirror", family: nest, what: "the reflector comprises 350 mirror facets"}
+- {subject: "camera", object: "pmt|phototube|pixel", family: nest, what: "the camera consists of 499 PMTs"}
+- {subject: "facet|mirror", object: "oss|structure|frame", family: any, what: "each facet is mounted on the optical support structure"}
+- {subject: "telescope|reflector", object: "camera", family: any, what: "the reflector is instrumented with a camera"}

@@ -1,0 +1,9 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: Swift Burst Alert Telescope (BAT)
+- {subject: "plane|detector|array", object: "czt|cdznte|element", family: nest, what: "the detector plane consists of CdZnTe elements"}
+- {subject: "mask", object: "lead|tile|piece|element|cell", family: nest, what: "the mask consists of lead tiles"}
+- {subject: "mask", object: "plane|detector|array", family: any, what: "the mask is 1 m above the detector plane"}
+- {subject: "shield", object: "bat|detector|plane", family: any, what: "a graded-Z fringe shield goes round the detector"}

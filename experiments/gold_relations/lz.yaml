@@ -1,0 +1,10 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: LUX-ZEPLIN (LZ)
+- {subject: "tpc", object: "lxe|xenon|liquid", family: nest, what: "the TPC contains the active liquid xenon"}
+- {subject: "cage", object: "tpc|drift", family: any, what: "a field cage encloses the drift region"}
+- {subject: "skin", object: "cryostat|icv|vessel|cage", family: any, what: "the skin lies between the field cage and the inner cryostat vessel"}
+- {subject: "pmt|array", object: "tpc|xenon|lxe", family: any, what: "two PMT arrays view the TPC"}
+- {subject: "water", object: "cryostat|detector|tpc|lz", family: any, what: "the detector sits in a water tank"}

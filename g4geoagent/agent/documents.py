@@ -50,19 +50,19 @@ def _clusters(page, tables):
             continue
         rects.append(r)
     rects = [r for r in rects if r.width * r.height < 0.85 * area.width * area.height]
-    groups = []
+    # Graphics that touch or lie within JOIN points of each other form one group. Done on a coarse grid, so that
+    # a plot made of tens of thousands of strokes costs no more than a single picture.
+    import numpy as np
+    from scipy import ndimage
+    cell = JOIN / 2
+    grid = np.zeros((int(area.height / cell) + 3, int(area.width / cell) + 3), dtype=bool)
     for r in rects:
-        r = pymupdf.Rect(r)
-        merged = True
-        while merged:
-            merged = False
-            for g in groups:
-                if (r + (-JOIN, -JOIN, JOIN, JOIN)).intersects(g):
-                    r |= g
-                    groups.remove(g)
-                    merged = True
-                    break
-        groups.append(r)
+        grid[max(int((r.y0 - area.y0) / cell), 0):int((r.y1 - area.y0) / cell) + 2,
+             max(int((r.x0 - area.x0) / cell), 0):int((r.x1 - area.x0) / cell) + 2] = True
+    labels, _ = ndimage.label(ndimage.binary_dilation(grid, iterations=1))
+    groups = [pymupdf.Rect(area.x0 + s[1].start * cell, area.y0 + s[0].start * cell,
+                           area.x0 + s[1].stop * cell, area.y0 + s[0].stop * cell) & area
+              for s in ndimage.find_objects(labels)]
     kept = [g for g in groups if g.width >= MIN_FIGURE[0] and g.height >= MIN_FIGURE[1]]
     return [g for g in kept if not any((g & t).get_area() > 0.5 * g.get_area() for t in tables)]
 

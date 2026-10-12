@@ -1,0 +1,14 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: XENONnT
+- {value: 5.9, key: "tpc|active|target", what: "active liquid xenon (t)"}
+- {value: 8.5, key: "cryostat|total|xenon", what: "total xenon in the cryostat (t)"}
+- {value: 1620, key: "cryostat|vessel|outer", what: "outer cryostat inner diameter (mm)"}
+- {value: 64, key: "lxe|surround|volume|xenon", what: "thickness of xenon around the TPC (mm)"}
+- {value: 1460, key: "vessel|iv|inner", what: "inner vessel diameter (mm)"}
+- {value: 2666, key: "vessel|iv|inner", what: "inner vessel height (mm)"}
+- {value: 700, key: "water", what: "water in the shield (t)"}
+- {value: 33, key: "neutron|veto", what: "neutron veto volume (m3)"}
+- {value: 4, key: "bell", what: "diving bell wall thickness (mm)"}
+- {value: 25, key: "copper|disk|array", what: "copper support disk, bottom array (mm)"}

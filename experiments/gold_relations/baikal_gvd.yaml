@@ -1,0 +1,8 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: Baikal-GVD
+- {subject: "cluster", object: "string", family: any, what: "a cluster has seven strings around a central one"}
+- {subject: "om|optical", object: "string|section", family: any, what: "the optical modules are arranged along the strings"}
+- {subject: "om|optical", object: "cm|module|cable", family: any, what: "each optical module is connected to the control module by a cable"}

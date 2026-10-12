@@ -1,0 +1,12 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: CUORE cryostat
+- {value: 6, key: "shield|lead", what: "side lead shield thickness (cm)"}
+- {value: 64, key: "shield|radius|lead", what: "shield radius (cm)"}
+- {value: 178, key: "shield|height|lead", what: "shield height (cm)"}
+- {value: 30, key: "lead|top", what: "top lead thickness (cm)"}
+- {value: 1520, key: "mass|10 mk|cool|kg", what: "mass cooled below 10 mK (kg)"}
+- {value: 70, key: "lead|external|shield", what: "external lead shield (t)"}
+- {value: 25, key: "lead|external|shield", what: "external lead shield thickness (cm)"}
+- {value: 76.8, key: "tsp|plate|support", what: "tower support plate below the top lead (mm)"}

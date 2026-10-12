@@ -1,0 +1,15 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: NEXT-100
+- {value: 100, key: "xenon|xe", what: "xenon gas (kg)"}
+- {value: 1.15, key: "active|volume", what: "active volume (m3)"}
+- {value: 2.5, key: "hdpe|shell|cage", what: "field cage shell thickness (cm)"}
+- {value: 148, key: "hdpe|shell|cage|long", what: "field cage shell length (cm)"}
+- {value: 107.5, key: "hdpe|shell|cage|diamet", what: "field cage shell diameter (cm)"}
+- {value: 106.5, key: "cathode|anode", what: "cathode distance from the anode (cm)"}
+- {value: 160, key: "vessel", what: "vessel shell length (cm)"}
+- {value: 136, key: "vessel", what: "vessel inner diameter (cm)"}
+- {value: 12, key: "copper", what: "copper bar and plate thickness (cm)"}
+- {value: 5, key: "sapphire|window", what: "sapphire window thickness (mm)"}
+- {value: 91, key: "enrich|136", what: "enrichment (percent)"}

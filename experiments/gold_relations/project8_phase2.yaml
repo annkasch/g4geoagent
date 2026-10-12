@@ -1,0 +1,9 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: Project 8 phase II apparatus
+- {subject: "copper|cylinder", object: "wire|coil", family: any, what: "the coil is wound onto a copper cylinder"}
+- {subject: "copper|cylinder|coil", object: "insert", family: any, what: "the cylinder fits around the cryogenic insert"}
+- {subject: "magnet", object: "insert|cylinder|coil", family: any, what: "the insert sits within the NMR magnet"}
+- {subject: "lead|shield", object: "source|zeolite|bead", family: any, what: "the krypton source is encased in lead shielding"}

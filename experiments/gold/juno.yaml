@@ -1,0 +1,14 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: JUNO (with its satellite detectors TAO and OSIRIS)
+- {value: 35.4, key: "acrylic|vessel|av", what: "acrylic vessel inner diameter (m)"}
+- {value: 120, alt: 12, key: "acrylic|vessel|thick", what: "acrylic vessel thickness (mm)"}
+- {value: 1.884, key: "copper|shell", what: "TAO copper shell inner diameter (m)"}
+- {value: 12, key: "copper|shell", what: "TAO copper shell thickness (mm)"}
+- {value: 2.1, key: "tank|steel", what: "TAO steel tank outer diameter (m)"}
+- {value: 2.2, key: "tank|steel", what: "TAO steel tank height (m)"}
+- {value: 1.2, key: "water|shield|tank", what: "TAO water shielding thickness (m)"}
+- {value: 2.8, key: "gd|ls|scintillator", what: "TAO gadolinium-doped scintillator (t)"}
+- {value: 3.45, key: "buffer", what: "TAO buffer liquid (t)"}
+- {value: 9, key: "tank|steel|water", what: "OSIRIS tank height and diameter (m)"}

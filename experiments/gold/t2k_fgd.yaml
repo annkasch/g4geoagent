@@ -1,0 +1,20 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: T2K fine-grained detectors (FGD)
+- {value: 230, alt: 2300, key: "fgd|dimension|width|outer", what: "FGD width (cm)"}
+- {value: 240, key: "fgd|height|outer", what: "FGD height (cm)"}
+- {value: 36.5, alt: 365, key: "fgd|depth|beam", what: "FGD depth (cm)"}
+- {value: 1.1, key: "tonne|target|mass", what: "target mass per FGD (t)"}
+- {value: 1864.3, key: "bar|length", what: "bar length (mm)"}
+- {value: 9.61, key: "bar|width|height", what: "bar width and height (mm)"}
+- {value: 0.25, key: "tio2|coating", what: "bar coating thickness (mm)"}
+- {value: 186.4, key: "module", what: "XY module outer dimension (cm)"}
+- {value: 2.02, key: "module", what: "XY module thickness (cm)"}
+- {value: 1, key: "fib", what: "fibre diameter (mm)"}
+- {value: 191.5, key: "fib", what: "fibre length (cm)"}
+- {value: 25.4, key: "panel|water", what: "water panel thickness (mm)"}
+- {value: 1809, key: "panel", what: "water panel width (mm)"}
+- {value: 2069, key: "box|internal|dark", what: "dark box internal dimension (mm)"}
+- {value: 352, key: "box|internal|dark", what: "dark box internal depth (mm)"}
+- {value: 11.2, key: "plate|alumin", what: "side plate thickness (mm)"}

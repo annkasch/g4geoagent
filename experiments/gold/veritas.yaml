@@ -1,0 +1,11 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: VERITAS (first telescope)
+- {value: 12, key: "reflector|aperture|diameter|focal", what: "reflector diameter and focal length (m)"}
+- {value: 499, key: "pmt|pixel|camera|element", what: "PMTs in the camera"}
+- {value: 350, key: "facet|mirror", what: "mirror facets"}
+- {value: 0.322, key: "facet|area", what: "facet area (m2)"}
+- {value: 110, key: "mirror|area", what: "total mirror area (m2)"}
+- {value: 24.0, key: "facet|curvature|radius", what: "facet radius of curvature (m)"}
+- {value: 2.86, key: "phototube|pmt|diameter", what: "phototube diameter (cm)"}

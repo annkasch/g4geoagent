@@ -1,0 +1,11 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: Baikal-GVD
+- {value: 1366, alt: 366, key: "depth|lakebed", what: "depth of the lakebed (m)"}
+- {value: 15, key: "om|spacing|vertical", what: "vertical spacing of optical modules (m)"}
+- {value: 525, key: "string|length", what: "active string length (m)"}
+- {value: 90, key: "lakebed|above", what: "start height above the lakebed (m)"}
+- {value: 92, key: "cable", what: "cable from an optical module to the control module (m)"}
+- {value: 60, key: "string|peripheral|distance", what: "distance of peripheral strings from the central one (m)"}
+- {value: 7, key: "string|peripheral", what: "peripheral strings per cluster"}

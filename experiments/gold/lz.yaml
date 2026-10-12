@@ -1,0 +1,11 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: LUX-ZEPLIN (LZ)
+- {value: 7, key: "lxe|xenon|tpc|active", what: "active liquid xenon in the TPC (t)"}
+- {value: 1.5, key: "tpc|volume|diamet|height", what: "TPC diameter and height (m)"}
+- {value: 241, key: "bottom|array|pmt", what: "PMTs in the bottom array"}
+- {value: 253, key: "top|array|pmt", what: "PMTs in the top array"}
+- {value: 145.6, key: "drift|cathode|gate|field", what: "drift region length and diameter (cm)"}
+- {value: 2, key: "skin", what: "xenon in the skin region (t)"}
+- {value: 120, key: "pmt|od|outer", what: "outer-detector PMTs"}

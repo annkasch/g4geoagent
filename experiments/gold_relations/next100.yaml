@@ -1,0 +1,11 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: NEXT-100
+- {subject: "vessel", object: "plane|sensor", family: nest, what: "the sensor planes are inside the pressure vessel"}
+- {subject: "vessel", object: "cage", family: nest, what: "the field cage is inside the pressure vessel"}
+- {subject: "copper", object: "cage", family: any, what: "copper bars surround the field cage"}
+- {subject: "plane|sensor", object: "copper|plate", family: any, what: "the sensor planes are mounted to copper plates"}
+- {subject: "copper|plate", object: "vessel|head|flange", family: any, what: "the copper plates are attached to the vessel heads"}
+- {subject: "pmt|photomult", object: "enclosure|copper", family: any, what: "the PMTs are sealed in copper enclosures"}

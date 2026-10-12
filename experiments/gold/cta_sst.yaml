@@ -1,0 +1,13 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: CTA Small-Sized Telescope
+- {value: 4.3, key: "primary|m1|mirror", what: "primary mirror diameter (m)"}
+- {value: 3, key: "primary|secondary|distance", what: "primary to secondary distance (m)"}
+- {value: 0.52, key: "camera|secondary|m2", what: "camera to secondary distance (m)"}
+- {value: 19, key: "m2|secondary|glass|shell", what: "secondary mirror thickness (mm)"}
+- {value: 1.8, key: "m2|secondary", what: "secondary mirror diameter (m)"}
+- {value: 1060, key: "focal|plane|radius", what: "focal plane radius of curvature (mm)"}
+- {value: 2150, key: "focal", what: "equivalent focal length (mm)"}
+- {value: 64, key: "pixel|tile|sipm", what: "pixels per SiPM tile"}
+- {value: 6, key: "pixel|sipm", what: "pixel size (mm)"}

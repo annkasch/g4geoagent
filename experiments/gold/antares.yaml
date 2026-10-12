@@ -1,0 +1,18 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: ANTARES
+- {value: 12, key: "line", what: "detector lines"}
+- {value: 2475, key: "depth|seabed|sea", what: "depth (m)"}
+- {value: 600, key: "container|cylinder|housing", what: "electronics container length (mm)"}
+- {value: 179, key: "container|cylinder|housing", what: "electronics container outer diameter (mm)"}
+- {value: 22, key: "container|cylinder|wall", what: "electronics container wall thickness (mm)"}
+- {value: 30, key: "cap", what: "end cap thickness (mm)"}
+- {value: 68, key: "mesh|cage", what: "magnetic shield mesh size (mm)"}
+- {value: 1.08, key: "wire|mesh", what: "mesh wire diameter (mm)"}
+- {value: 280, key: "support|plate|om", what: "optical module support plate diameter (mm)"}
+- {value: 705, key: "laser|container", what: "laser container length (mm)"}
+- {value: 170, key: "laser|container", what: "laser container diameter (mm)"}
+- {value: 1347, key: "buoy|foam", what: "buoy horizontal diameter (mm)"}
+- {value: 1530, key: "buoy|foam", what: "buoy height (mm)"}
+- {value: 480, key: "line|cable|length", what: "line length (m)"}

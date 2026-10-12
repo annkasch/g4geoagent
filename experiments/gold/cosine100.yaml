@@ -1,0 +1,13 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: COSINE-100
+- {value: 106, key: "array|crystal|nai", what: "crystal array mass (kg)"}
+- {value: 8, key: "crystal|nai", what: "crystals"}
+- {value: 1.5, key: "copper|tube|wall", what: "copper tube wall thickness (mm)"}
+- {value: 12.0, key: "quartz|window", what: "quartz window thickness (mm)"}
+- {value: 250, key: "ptfe|reflect", what: "PTFE sheet thickness (um)"}
+- {value: 10, key: "ptfe|layer", what: "PTFE layers"}
+- {value: 20, key: "lead", what: "lead shield thickness (cm)"}
+- {value: 3, key: "copper|box", what: "copper box thickness (cm)"}
+- {value: 3, key: "plastic|panel", what: "plastic scintillator panel thickness (cm)"}

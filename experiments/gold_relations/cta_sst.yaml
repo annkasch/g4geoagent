@@ -1,0 +1,10 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: CTA Small-Sized Telescope
+- {subject: "telescope|structure", object: "mirror|m1|primary", family: nest, what: "the telescope has a primary mirror"}
+- {subject: "telescope|structure", object: "camera", family: any, what: "the telescope carries a camera"}
+- {subject: "module|camera", object: "sipm|tile", family: nest, what: "each camera module contains an SiPM tile"}
+- {subject: "m2|secondary", object: "m1|primary", family: any, what: "the secondary mirror is 3 m from the primary"}
+- {subject: "camera", object: "secondary|m2", family: any, what: "the camera is 0.52 m from the secondary mirror"}

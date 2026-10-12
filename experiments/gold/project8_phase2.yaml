@@ -1,0 +1,11 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: Project 8 phase II apparatus
+- {value: 52, key: "bore|solenoid|diameter", what: "bore and solenoid outer diameter (mm)"}
+- {value: 1.4, key: "copper|cylinder", what: "copper cylinder thickness (mm)"}
+- {value: 350, key: "solenoid", what: "solenoid length (mm)"}
+- {value: 46, key: "solenoid", what: "solenoid inner diameter (mm)"}
+- {value: 2.4, key: "caf2|window", what: "CaF2 window thickness (mm)"}
+- {value: 0.9, key: "waveguide", what: "waveguide length (m)"}
+- {value: 2, key: "zeolite|bead", what: "zeolite bead diameter (mm)"}

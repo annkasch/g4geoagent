@@ -1,0 +1,11 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: ANTARES
+- {subject: "antares|telescope|detector", object: "line", family: nest, what: "the telescope consists of 12 lines"}
+- {subject: "line|storey", object: "optical_module|om|module", family: any, what: "the lines hold optical modules"}
+- {subject: "om|optical", object: "support|plate", family: any, what: "each optical module sits on a support plate"}
+- {subject: "container|cylinder", object: "electronic|readout", family: nest, what: "the readout electronics is housed in a titanium container"}
+- {subject: "laser", object: "container", family: any, what: "the laser is housed in a titanium container"}
+- {subject: "container|cylinder", object: "cap", family: any, what: "the container is closed by two end caps"}

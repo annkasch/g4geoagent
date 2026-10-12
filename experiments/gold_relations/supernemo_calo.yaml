@@ -1,0 +1,9 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: SuperNEMO Demonstrator (calorimeter)
+- {subject: "pmt", object: "iron|shield", family: any, what: "the PMTs are protected by iron shields"}
+- {subject: "scintillator|block", object: "teflon|mylar|wrap", family: any, what: "the scintillator is wrapped in Teflon and mylar"}
+- {subject: "scintillator|block", object: "pmt", family: any, what: "each scintillator is in contact with a PMT"}
+- {subject: "foil|source", object: "track|chamber|demonstrator|detector", family: any, what: "the source foils sit in the tracker"}

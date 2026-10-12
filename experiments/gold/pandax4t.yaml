@@ -1,0 +1,13 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: PandaX-4T
+- {value: 10, key: "tank|water|steel", what: "water tank diameter (m)"}
+- {value: 13, key: "tank|water|steel", what: "water tank depth (m)"}
+- {value: 5.6, key: "xenon|lxe|cryostat", what: "total liquid xenon (t)"}
+- {value: 30, key: "overflow", what: "overflow chamber (litres)"}
+- {value: 1185, key: "cathode|gate|separation|drift", what: "cathode to gate separation (mm)"}
+- {value: 169, key: "pmt|top|photomult", what: "PMTs at the top"}
+- {value: 199, key: "pmt|bottom|photomult", what: "PMTs at the bottom"}
+- {value: 6, key: "mesh|screen", what: "screening mesh distance from the PMTs (mm)"}
+- {value: 3.5, key: "gas|gap", what: "gas gap (mm)"}

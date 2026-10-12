@@ -1,0 +1,9 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: CUORE cryostat
+- {subject: "ivc|vessel", object: "tsp|support|plate", family: any, what: "the tower support plate is in the inner vacuum chamber"}
+- {subject: "lead|shield", object: "cryostat", family: any, what: "an external lead shield surrounds the cryostat"}
+- {subject: "tsp|support|plate", object: "lead", family: any, what: "the tower support plate is below the top lead shielding"}
+- {subject: "tower|detector|crystal", object: "tsp|support|plate", family: any, what: "the detector is attached to the tower support plate"}

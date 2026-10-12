@@ -1,0 +1,11 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: XENONnT
+- {subject: "cryostat|vessel", object: "xenon|lxe", family: nest, what: "the cryostat contains the xenon"}
+- {subject: "cryostat|vessel", object: "tpc", family: nest, what: "the TPC sits inside the cryostat"}
+- {subject: "water", object: "cryostat", family: any, what: "the cryostat is submerged in water"}
+- {subject: "neutron|veto", object: "cryostat", family: any, what: "the neutron veto surrounds the cryostat"}
+- {subject: "bell", object: "pmt|array", family: any, what: "the top PMT array is inside a diving bell"}
+- {subject: "lxe|xenon", object: "tpc", family: any, what: "liquid xenon surrounds the TPC"}

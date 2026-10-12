@@ -1,0 +1,13 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: HAWC
+- {value: 7.3, key: "wcd|tank|steel|diameter", what: "tank diameter (m)"}
+- {value: 5.4, key: "wcd|tank|steel|height", what: "tank height (m)"}
+- {value: 180000, key: "liter|litre|water|bladder", what: "water per tank (litres)"}
+- {value: 0.5, key: "pmt|bottom", what: "PMT height above the bottom (m)"}
+- {value: 1.83, key: "pmt|central|inch", what: "distance from the outer PMTs to the central PMT (m)"}
+- {value: 0.4, key: "bladder", what: "bladder thickness (mm)"}
+- {value: 200, key: "layout|array|hawc", what: "array extent (m)"}
+- {value: 150, key: "layout|array|hawc", what: "array extent (m)"}
+- {value: 2.6, key: "aisle", what: "aisle width (m)"}

@@ -1,0 +1,12 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: KamLAND-Zen 800 inner balloon
+- {value: 135, key: "outer|balloon|film", what: "outer balloon film thickness (um)"}
+- {value: 1200, key: "ls|scintillator|volume", what: "KamLAND liquid scintillator volume (m3)"}
+- {value: 31.5, key: "ib|inner|balloon|volume", what: "inner balloon volume (m3)"}
+- {value: 750, alt: 745, key: "xenon|xe", what: "xenon (kg)"}
+- {value: 1920, alt: 1.9, key: "radius|balloon|ib", what: "balloon radius (mm)"}
+- {value: 677, key: "xe", what: "xenon-136 (kg)"}
+- {value: 6, key: "tube|corrugated", what: "corrugated tube length (m)"}
+- {value: 10, key: "tube|corrugated", what: "corrugated tube diameter (cm)"}

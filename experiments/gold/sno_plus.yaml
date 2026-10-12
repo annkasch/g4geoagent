@@ -1,0 +1,12 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: SNO+
+- {value: 12, key: "av|vessel|acrylic", what: "acrylic vessel diameter (m)"}
+- {value: 5.5, key: "av|vessel|shell|thick", what: "vessel shell thickness (cm)"}
+- {value: 9362, key: "pmt|photomult", what: "inward-facing PMTs"}
+- {value: 8.35, key: "pmt|psup|centre|center|face", what: "PMT front faces from the centre (m)"}
+- {value: 91, key: "pmt|outward", what: "outward-facing PMTs"}
+- {value: 7000, key: "water|upw", what: "ultra-pure water outside the vessel (t)"}
+- {value: 780, key: "scintillator", what: "liquid scintillator (t)"}
+- {value: 3.9, key: "tellurium|te", what: "natural tellurium (t)"}

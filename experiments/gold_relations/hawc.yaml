@@ -1,0 +1,9 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: HAWC
+- {subject: "wcd|tank|steel", object: "bladder", family: any, what: "the steel structure supports the bladder"}
+- {subject: "bladder", object: "water", family: nest, what: "the bladder contains the water"}
+- {subject: "pmt", object: "wcd|tank|bladder", family: any, what: "the PMTs are at the bottom of the tank"}
+- {subject: "hawc|array", object: "wcd|tank", family: any, what: "the array is made up of the tanks"}

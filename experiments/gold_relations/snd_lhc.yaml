@@ -1,0 +1,12 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: SND@LHC
+- {subject: "target|brick", object: "tungsten|plate", family: nest, what: "the target is made of tungsten plates"}
+- {subject: "target|brick", object: "emulsion|film", family: nest, what: "bricks hold emulsion films between the plates"}
+- {subject: "calorimeter|muon|hcal", object: "target", family: any, what: "the hadronic calorimeter and muon system are downstream of the target"}
+- {subject: "calorimeter|muon|hcal", object: "iron|slab|wall", family: nest, what: "the calorimeter consists of iron slabs with scintillator planes"}
+- {subject: "plane|station", object: "bar", family: nest, what: "a plane consists of scintillator bars"}
+- {subject: "bar", object: "sipm", family: any, what: "each bar end is read out by SiPMs"}
+- {subject: "frame", object: "bar|plane", family: any, what: "the bars are housed in an aluminium frame"}

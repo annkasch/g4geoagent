@@ -1,0 +1,16 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: SuperNEMO Demonstrator (calorimeter)
+- {value: 2034, key: "cell|wire|track", what: "tracker cells"}
+- {value: 6.11, key: "se|source|selen", what: "selenium-82 source (kg)"}
+- {value: 2.7, key: "foil|source", what: "source foil length (m)"}
+- {value: 135, key: "foil", what: "source foil width (mm)"}
+- {value: 300, key: "foil", what: "source foil thickness (um)"}
+- {value: 3.1, key: "track", what: "tracking volume height (m)"}
+- {value: 5.0, key: "track", what: "tracking volume width (m)"}
+- {value: 0.44, key: "track", what: "tracking volume depth (m)"}
+- {value: 15.4, key: "track|volume", what: "total tracking volume (m3)"}
+- {value: 20, key: "scintillator|depth", what: "scintillator depth (cm)"}
+- {value: 3, key: "iron|shield|plate", what: "iron shield plate thickness (mm)"}
+- {value: 6, key: "mylar", what: "mylar thickness (um)"}

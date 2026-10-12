@@ -1,0 +1,11 @@
+# Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
+# program, written before any reader ran on this paper; not checked by a detector expert).
+# family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
+#         any = any relation between the two, either way round; otherwise the named relation exactly.
+# detector: T2K fine-grained detectors (FGD)
+- {subject: "fgd|fine|dark|box", object: "module", family: nest, what: "the scintillator modules hang inside the FGD dark box"}
+- {subject: "module", object: "bar", family: nest, what: "an XY module is made of scintillator bars"}
+- {subject: "bar", object: "fib", family: any, what: "each bar holds a wavelength-shifting fibre"}
+- {subject: "fib|bar", object: "mppc|photosensor|sensor", family: any, what: "each fibre is read out by an MPPC"}
+- {subject: "fgd|module", object: "water|panel", family: any, what: "the second FGD alternates scintillator modules with water panels"}
+- {subject: "skin|g10", object: "module", family: any, what: "G10 skins are glued to the module surfaces"}

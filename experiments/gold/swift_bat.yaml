@@ -1,0 +1,14 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: Swift Burst Alert Telescope (BAT)
+- {value: 32768, key: "czt|cdznte|detector|element|piece", what: "CdZnTe detector elements"}
+- {value: 52000, key: "lead|mask|tile|piece", what: "lead tiles of the mask"}
+- {value: 4, key: "czt|cdznte", what: "CdZnTe element size (mm)"}
+- {value: 5, key: "mask|lead|tile|cell", what: "mask tile size (mm)"}
+- {value: 1, key: "separation|mask|behind|above", what: "mask to detector plane distance (m)"}
+- {value: 5200, key: "array|area|detector|czt", what: "detector area (cm2)"}
+- {value: 2.7, key: "mask", what: "mask area (m2)"}
+- {value: 2.4, key: "mask", what: "mask length (m)"}
+- {value: 1.2, key: "mask", what: "mask width (m)"}
+- {value: 24, key: "shield|mass", what: "fringe shield mass (kg)"}

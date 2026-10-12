@@ -1,0 +1,20 @@
+# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
+# reader ran on this paper; not checked by a detector expert).
+# value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
+# detector: SND@LHC
+- {value: 830, key: "target|tungsten", what: "target mass (kg)"}
+- {value: 8, key: "iron|slab|wall", what: "iron slabs"}
+- {value: 20, key: "iron|slab", what: "iron slab thickness (cm)"}
+- {value: 7, key: "bar|plane", what: "bars per veto plane"}
+- {value: 42, key: "bar", what: "veto bar length (cm)"}
+- {value: 40, key: "tracker|module|scifi|active", what: "tracker module active area (cm)"}
+- {value: 60, key: "emulsion|film|brick", what: "emulsion films per brick"}
+- {value: 192, key: "emulsion|film", what: "emulsion film size (mm)"}
+- {value: 59, key: "tungsten|plate", what: "tungsten plates per brick"}
+- {value: 78, key: "brick", what: "brick thickness (mm)"}
+- {value: 41.5, key: "brick", what: "brick mass (kg)"}
+- {value: 82.5, key: "bar", what: "horizontal bar length (cm)"}
+- {value: 63.5, key: "bar", what: "vertical bar length (cm)"}
+- {value: 750, key: "iron|wall", what: "iron wall weight (kg)"}
+- {value: 133, key: "mat|fib", what: "fibre mat width (mm)"}
+- {value: 399, key: "mat|fib", what: "fibre mat length (mm)"}
