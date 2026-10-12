@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: VERITAS (first telescope)
 - {value: 12, key: "reflector|aperture|diameter|focal", what: "reflector diameter and focal length (m)"}
@@ -10,3 +10,5 @@
 - {value: 24.0, key: "facet|curvature|radius", what: "facet radius of curvature (m)"}
 - {value: 2.86, key: "phototube|pmt|diameter", what: "phototube diameter (cm)"}
 - {value: 12, key: "oss|surface|radius", what: "radius of the support structure's front surface (m)"}
+- {value: 1.8, key: "box|focus", what: "focus box side length (m)"}
+- {value: 4, key: "telescope", what: "telescopes in the first stage of VERITAS"}

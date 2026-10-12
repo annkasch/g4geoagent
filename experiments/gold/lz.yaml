@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: LUX-ZEPLIN (LZ)
 - {value: 7, key: "lxe|xenon|tpc|active", what: "active liquid xenon in the TPC (t)"}
@@ -8,8 +8,17 @@
 - {value: 253, key: "top|array|pmt", what: "PMTs in the top array"}
 - {value: 145.6, key: "drift|cathode|gate|field", what: "drift region length and diameter (cm)"}
 - {value: 2, key: "skin", what: "xenon in the skin region (t)"}
-- {value: 120, key: "pmt|(?<![a-z])od(?![a-z])|outer", what: "outer-detector PMTs"}
+- {value: 120, key: "pmt|(?<![a-z])ods?(?![a-z])|outer", what: "outer-detector PMTs"}
 - {value: 494, key: "pmt", what: "TPC PMTs"}
 - {value: 131, key: "skin|pmt", what: "skin PMTs"}
 - {value: 8, key: "vapor|vapour|gas|layer", what: "vapour layer thickness (mm)"}
 - {value: 4, key: "skin", what: "skin xenon thickness at the top (cm)"}
+- {value: 3, key: "pmt", what: "TPC PMT diameter (inch)"}
+- {value: 58, key: "cage|ptfe|layer", what: "PTFE layers of the field cage"}
+- {value: 25, key: "layer|ptfe|cage", what: "height of a field cage layer (mm)"}
+- {value: 21, key: "ring|titanium|(?<![a-z])(ti)s?(?![a-z])", what: "height of a titanium ring (mm)"}
+- {value: 24, key: "ptfe|layer|segment", what: "azimuthal segments of a PTFE layer"}
+- {value: 13.7, key: "reverse|rfr|bottom|grid", what: "length of the reverse field region (cm)"}
+- {value: 5, key: "gate|surface", what: "gate depth below the liquid surface (mm)"}
+- {value: 13, key: "gap|gate|anode", what: "gate to anode gap (mm)"}
+- {value: 8, key: "skin", what: "skin xenon thickness at cathode level (cm)"}

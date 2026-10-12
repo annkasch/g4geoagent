@@ -1,12 +1,12 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: CTA Small-Sized Telescope
-- {value: 4.3, key: "primary|(?<![a-z])m1(?![a-z])|mirror", what: "primary mirror diameter (m)"}
+- {value: 4.3, key: "primary|(?<![a-z])m1s?(?![a-z])|mirror", what: "primary mirror diameter (m)"}
 - {value: 3, key: "primary|secondary|distance", what: "primary to secondary distance (m)"}
-- {value: 0.52, key: "camera|secondary|(?<![a-z])m2(?![a-z])", what: "camera to secondary distance (m)"}
-- {value: 19, key: "(?<![a-z])m2(?![a-z])|secondary|glass|shell", what: "secondary mirror thickness (mm)"}
-- {value: 1.8, key: "(?<![a-z])m2(?![a-z])|secondary", what: "secondary mirror diameter (m)"}
+- {value: 0.52, key: "camera|secondary|(?<![a-z])m2s?(?![a-z])", what: "camera to secondary distance (m)"}
+- {value: 19, key: "(?<![a-z])m2s?(?![a-z])|secondary|glass|shell", what: "secondary mirror thickness (mm)"}
+- {value: 1.8, key: "(?<![a-z])m2s?(?![a-z])|secondary", what: "secondary mirror diameter (m)"}
 - {value: 1060, key: "focal|plane|radius", what: "focal plane radius of curvature (mm)"}
 - {value: 2150, key: "focal", what: "equivalent focal length (mm)"}
 - {value: 64, key: "pixel|tile|sipm", what: "pixels per SiPM tile"}
@@ -14,3 +14,5 @@
 - {value: 2048, key: "pixel|camera", what: "pixels of the camera"}
 - {value: 32, key: "module|camera", what: "camera modules"}
 - {value: 18, key: "panel|primary|m1|segment", what: "panels of the primary mirror"}
+- {value: 16, key: "structure|telescope|weight", what: "weight of the telescope structure (t)"}
+- {value: 3, key: "ring|primary|m1", what: "concentric rings of the primary mirror"}

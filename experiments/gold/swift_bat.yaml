@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: Swift Burst Alert Telescope (BAT)
 - {value: 32768, key: "czt|cdznte|detector|element|piece", what: "CdZnTe detector elements"}
@@ -7,7 +7,6 @@
 - {value: 4, key: "czt|cdznte", what: "CdZnTe element size (mm)"}
 - {value: 5, key: "mask|lead|tile|cell", what: "mask tile size (mm)"}
 - {value: 1, key: "separation|mask|behind|above", what: "mask to detector plane distance (m)"}
-- {value: 5200, key: "array|area|detector|czt", what: "detector area (cm2)"}
 - {value: 2.7, key: "mask", what: "mask area (m2)"}
 - {value: 2.4, key: "mask", what: "mask length (m)"}
 - {value: 1.2, key: "mask", what: "mask width (m)"}
@@ -16,3 +15,11 @@
 - {value: 256, key: "module", what: "detector modules"}
 - {value: 128, key: "module|element", what: "elements per module"}
 - {value: 4.2, key: "pitch|pixel", what: "pixel pitch (mm)"}
+- {value: 256, key: "module|sub|array", what: "sub-arrays of 128 elements (table 2 calls them modules)"}
+- {value: 128, key: "module|element|sub|piece|(?<![a-z])(dm)s?(?![a-z])|(?<![a-z])(dms)s?(?![a-z])", what: "elements per sub-array; also the number of detector modules"}
+- {value: 16, key: "block", what: "blocks in the detector array plane"}
+- {value: 8, key: "block|module|(?<![a-z])(dm)s?(?![a-z])|(?<![a-z])(dms)s?(?![a-z])", what: "detector modules per block"}
+- {value: 1, key: "mask|tile|lead|cell", what: "mask tile thickness (mm)"}
+- {value: 5200, alt: 5240, key: "array|area|detector|czt", what: "detector area (cm2; 5200 in the text, 5240 in table 2)"}
+- {value: 5, key: "panel|honeycomb", what: "honeycomb panel thickness (cm)"}
+- {value: 4, key: "shield|layer", what: "material layers of the fringe shield"}

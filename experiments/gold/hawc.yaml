@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: HAWC
 - {value: 7.3, key: "wcd|tank|steel|diameter", what: "tank diameter (m)"}
@@ -15,3 +15,11 @@
 - {value: 4, key: "pmt|photomult", what: "PMTs per tank"}
 - {value: 4.5, key: "water|depth", what: "water depth (m)"}
 - {value: 60, key: "wcd|tank|separation", what: "minimum separation of tanks (cm)"}
+- {value: 22000, key: "area|wcd|array|cover", what: "area the tanks cover (m2)"}
+- {value: 900, key: "pmt", what: "eight-inch PMTs"}
+- {value: 300, key: "pmt|ten|10", what: "ten-inch PMTs"}
+- {value: 1200, key: "pmt|channel", what: "PMTs in the array"}
+- {value: 3, key: "pmt|eight|8", what: "eight-inch PMTs per tank"}
+- {value: 4, key: "pmt|depth|water", what: "depth of the PMTs in the water (m)"}
+- {value: 8, key: "pmt|inch", what: "size of the outer PMTs (inch)"}
+- {value: 10, key: "pmt|inch", what: "size of the central PMT (inch)"}

@@ -1,26 +1,40 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: ANTARES
 - {value: 12, key: "line", what: "detector lines"}
-- {value: 2475, key: "depth|seabed|(?<![a-z])sea(?![a-z])", what: "depth (m)"}
+- {value: 2475, key: "depth|seabed|(?<![a-z])seas?(?![a-z])", what: "depth (m)"}
 - {value: 600, key: "container|cylinder|housing", what: "electronics container length (mm)"}
 - {value: 179, key: "container|cylinder|housing", what: "electronics container outer diameter (mm)"}
 - {value: 22, key: "container|cylinder|wall", what: "electronics container wall thickness (mm)"}
 - {value: 30, key: "cap", what: "end cap thickness (mm)"}
 - {value: 68, key: "mesh|cage", what: "magnetic shield mesh size (mm)"}
 - {value: 1.08, key: "wire|mesh", what: "mesh wire diameter (mm)"}
-- {value: 280, key: "support|plate|(?<![a-z])om(?![a-z])", what: "optical module support plate diameter (mm)"}
+- {value: 280, key: "support|plate|(?<![a-z])oms?(?![a-z])", what: "optical module support plate diameter (mm)"}
 - {value: 705, key: "laser|container", what: "laser container length (mm)"}
 - {value: 170, key: "laser|container", what: "laser container diameter (mm)"}
 - {value: 1347, key: "buoy|foam", what: "buoy horizontal diameter (mm)"}
 - {value: 1530, key: "buoy|foam", what: "buoy height (mm)"}
 - {value: 480, key: "line|cable|length", what: "line length (m)"}
 - {value: 25, key: "storey|line|omf", what: "storeys per line"}
-- {value: 3, key: "(?<![a-z])om(?![a-z])|optical|storey", what: "optical modules per storey"}
+- {value: 3, key: "(?<![a-z])oms?(?![a-z])|optical|storey", what: "optical modules per storey"}
 - {value: 14.5, key: "storey|pitch|distance", what: "distance between storeys (m)"}
 - {value: 100, key: "storey|seabed", what: "height of the first storey above the seabed (m)"}
-- {value: 885, key: "(?<![a-z])om(?![a-z])|optical", what: "optical modules in the detector"}
+- {value: 885, key: "(?<![a-z])oms?(?![a-z])|optical", what: "optical modules in the detector"}
 - {value: 432, key: "sphere|glass", what: "glass sphere outer diameter (mm)"}
 - {value: 15, key: "sphere|glass|wall", what: "glass sphere wall thickness (mm)"}
 - {value: 7, key: "line", what: "mass of a line (t)"}
+- {value: 20, key: "storey|line", what: "storeys on the twelfth line"}
+- {value: 4, key: "wire|(?<![a-z])(om)s?(?![a-z])|support", what: "titanium wire diameter of the optical module support (mm)"}
+- {value: 50, key: "weight|plate|steel", what: "dead weight plate thickness (mm)"}
+- {value: 950, key: "weight|steel|bss", what: "side length of the steel weight (mm)"}
+- {value: 160, key: "weight|steel|bss", what: "thickness of the steel weight (mm)"}
+- {value: 1140, key: "weight|steel|bss", what: "mass of the steel weight (kg)"}
+- {value: 98, key: "cable|emc|section", what: "bottom cable section length (m)"}
+- {value: 12.5, key: "cable|emc|section", what: "length of the other cable sections (m)"}
+- {value: 782, key: "buoy", what: "mass of the equipped buoy (kg)"}
+- {value: 60, key: "line|spacing", what: "horizontal spacing of the lines (m)"}
+- {value: 210, key: "container|beacon|led", what: "LED beacon container outer diameter (mm)"}
+- {value: 443, key: "container|beacon|led|dimension|length", what: "LED beacon container length (mm)"}
+- {value: 36, key: "led", what: "LEDs of an LED beacon"}
+- {value: 5.5, key: "line|weight", what: "weight of a line in air without the dead weight (t)"}

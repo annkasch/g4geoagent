@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: SND@LHC
 - {value: 830, key: "target|tungsten", what: "target mass (kg)"}
@@ -24,3 +24,18 @@
 - {value: 1.35, key: "mat|fib", what: "fibre mat thickness (mm)"}
 - {value: 1200, key: "emulsion|film", what: "emulsion films in the detector"}
 - {value: 4, key: "frame|wall", what: "aluminium frame wall thickness (mm)"}
+- {value: 2, key: "veto|plane", what: "planes of the veto system"}
+- {value: 4.3, key: "veto|plane", what: "distance between the two veto planes (cm)"}
+- {value: 5, key: "scifi|fibre|plane|tracker", what: "scintillating fibre planes"}
+- {value: 5, key: "wall|target", what: "target walls"}
+- {value: 4, key: "brick|wall|cell", what: "bricks per wall"}
+- {value: 5, key: "upstream|(?<![a-z])(us)s?(?![a-z])|layer", what: "upstream layers of the muon system"}
+- {value: 3, key: "downstream|(?<![a-z])(ds)s?(?![a-z])|layer", what: "downstream layers of the muon system"}
+- {value: 10, key: "bar|layer", what: "bars per upstream layer"}
+- {value: 60, key: "bar|plane|station", what: "bars per plane of a downstream station"}
+- {value: 1, key: "tungsten|plate", what: "tungsten plate thickness (mm)"}
+- {value: 4, key: "polyethylene|shield|box", what: "borated polyethylene layer thickness (cm)"}
+- {value: 5, key: "acrylic|shield|box", what: "acrylic layer thickness (cm)"}
+- {value: 2, key: "frame", what: "frame thickness (mm)"}
+- {value: 3, key: "mat", what: "fibre mats per plane"}
+- {value: 6, key: "mat|fib|layer", what: "fibre layers in a mat"}

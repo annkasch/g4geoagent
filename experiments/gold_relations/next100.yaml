@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: NEXT-100
@@ -11,3 +11,10 @@
 - {subject: "pmt|photomult", object: "enclosure|copper", family: any, what: "the PMTs are sealed in copper enclosures"}
 - {subject: "sipm|tracking", object: "window|silica|gap", family: any, what: "the SiPMs are behind the fused-silica window"}
 - {subject: "vessel", object: "head", family: any, what: "the vessel has two torispherical heads"}
+- {subject: "hdpe|shell|cage|cylind", object: "ring", family: any, what: "copper rings are fixed to the inner surface of the HDPE shell"}
+- {subject: "ring", object: "ptfe|tile", family: any, what: "the rings are covered by PTFE tiles"}
+- {subject: "hdpe|shell|cage|cylind", object: "window|silica|anode", family: any, what: "a fused-silica window closes one end of the HDPE cylinder"}
+- {subject: "pmt|photomult|energy", object: "cathode", family: any, what: "the PMTs are behind the cathode"}
+- {subject: "lead|shield|castle", object: "vessel", family: nest, what: "the vessel is inside a lead shield"}
+- {subject: "vessel", object: "pedestal", family: any, what: "the vessel sits on a pedestal"}
+- {subject: "board", object: "sipm", family: any, what: "the SiPMs are mounted on circuit boards"}

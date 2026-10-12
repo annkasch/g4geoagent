@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: Project 8 phase II apparatus
@@ -8,3 +8,8 @@
 - {subject: "magnet", object: "insert|cylinder|coil", family: any, what: "the insert sits within the NMR magnet"}
 - {subject: "lead|shield", object: "source|zeolite|bead", family: any, what: "the krypton source is encased in lead shielding"}
 - {subject: "waveguide", object: "cell|cres", family: any, what: "a segment of circular waveguide is the CRES cell"}
+- {subject: "waveguide|cell|cres|torlon|support", object: "coil|trap", family: any, what: "five trap coils are wound around the waveguide on a Torlon support"}
+- {subject: "cell|cres|waveguide", object: "window|caf2", family: any, what: "two CaF2 windows are installed in the waveguide of the cell"}
+- {subject: "insert", object: "cell|cres", family: nest, what: "the cryogenic insert comprises the CRES cell, the RF section and the amplifier stage"}
+- {subject: "insert", object: "bar", family: any, what: "a copper bar is the backbone of the cryogenic insert"}
+- {subject: "magnet|bore", object: "solenoid", family: nest, what: "the field-shifting solenoid is inside the bore of the NMR magnet"}

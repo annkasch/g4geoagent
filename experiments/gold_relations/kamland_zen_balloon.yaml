@@ -1,10 +1,15 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: KamLAND-Zen 800 inner balloon
-- {subject: "(?<![a-z])ib(?![a-z])|inner|balloon", object: "(?<![a-z])ls(?![a-z])|scintillator|(?<![a-z])xe(?![a-z])", family: nest, what: "the inner balloon holds the xenon-loaded scintillator"}
-- {subject: "tube|corrugated", object: "(?<![a-z])ib(?![a-z])|inner|balloon|vessel", family: any, what: "a corrugated tube forms the top of the inner vessel"}
-- {subject: "kamland|outer|detector|(?<![a-z])ls(?![a-z])", object: "(?<![a-z])ib(?![a-z])|inner|balloon", family: nest, what: "the inner balloon hangs in the KamLAND scintillator"}
+- {subject: "(?<![a-z])ibs?(?![a-z])|inner|balloon", object: "(?<![a-z])lss?(?![a-z])|scintillator|(?<![a-z])xes?(?![a-z])", family: nest, what: "the inner balloon holds the xenon-loaded scintillator"}
+- {subject: "tube|corrugated", object: "(?<![a-z])ibs?(?![a-z])|inner|balloon|cylinder", family: any, what: "the inner balloon and the corrugated tube are connected by a cylinder"}
+- {subject: "kamland|outer|detector|(?<![a-z])lss?(?![a-z])", object: "(?<![a-z])ibs?(?![a-z])|inner|balloon", family: nest, what: "the inner balloon hangs in the KamLAND scintillator"}
 - {subject: "tank|steel|kamland|detector", object: "balloon|outer", family: any, what: "the outer balloon is inside the steel tank"}
-- {subject: "(?<![a-z])ib(?![a-z])|inner|balloon", object: "gore|sphere|tube|cone", family: any, what: "the inner balloon is made of a sphere of gores, a cone and a straight tube"}
+- {subject: "(?<![a-z])ibs?(?![a-z])|inner|balloon", object: "gore|sphere|tube|cone", family: any, what: "the inner balloon is made of a sphere of gores, a cone and a straight tube"}
+- {subject: "oil|buffer", object: "balloon|outer|vessel|tank|steel", family: any, what: "buffer oil lies between the outer balloon and the steel vessel"}
+- {subject: "belt", object: "(?<![a-z])(ib)s?(?![a-z])|inner|balloon", family: any, what: "the inner balloon is supported by twelve nylon belts"}
+- {subject: "belt", object: "string", family: any, what: "the belts are connected to Vectran strings"}
+- {subject: "tube|corrugated", object: "chimney|straight", family: any, what: "the corrugated tube connects the straight tube of the balloon to the chimney"}
+- {subject: "balloon|outer", object: "(?<![a-z])(ls)s?(?![a-z])|scintillator", family: nest, what: "the outer balloon is filled with liquid scintillator"}

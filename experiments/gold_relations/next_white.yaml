@@ -1,12 +1,21 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: NEXT-White (NEW)
-- {subject: "copper|ics|shell", object: "vessel|tpc|barrel", family: any, what: "a copper shell shields the barrel region"}
 - {subject: "tpc", object: "drift|buffer|region", family: nest, what: "the TPC has drift, buffer and electroluminescent regions"}
 - {subject: "tracking|plane|dice|board", object: "copper|plate", family: any, what: "the tracking plane is supported by a copper plate"}
 - {subject: "energy|pmt", object: "copper|plate", family: any, what: "the energy plane is supported by a copper plate"}
 - {subject: "anode", object: "plate|silica", family: any, what: "the anode is a coated fused-silica plate"}
 - {subject: "pmt|energy", object: "cathode", family: any, what: "the PMTs are 130 mm behind the cathode"}
-- {subject: "vessel", object: "tpc|cage|copper", family: nest, what: "the pressure vessel holds the copper shell and the TPC"}
+- {subject: "vessel", object: "detector|tpc", family: nest, what: "the detector operates inside a pressure vessel"}
+- {subject: "lead|shield|castle", object: "vessel", family: nest, what: "the pressure vessel is surrounded by a lead shield"}
+- {subject: "vessel", object: "table|seismic", family: any, what: "the pressure vessel sits on a seismic table"}
+- {subject: "cage|hdpe", object: "ring", family: any, what: "copper rings are inserted in grooves of the field cage body"}
+- {subject: "tpc", object: "cage|grid|anode|cathode|gate", family: nest, what: "the TPC consists of the field cage, cathode and gate grids and anode plate"}
+- {subject: "buffer", object: "cathode|energy|pmt", family: any, what: "the buffer region lies between the cathode and the energy plane"}
+- {subject: "tube|teflon", object: "tpc", family: any, what: "a light tube surrounds the TPC"}
+- {subject: "tube", object: "ring|teflon", family: nest, what: "the light tube is made of teflon rings"}
+- {subject: "pmt", object: "window|sapphire", family: any, what: "the PMTs are coupled to the gas through sapphire windows"}
+- {subject: "window|sapphire", object: "frame|copper", family: any, what: "the sapphire windows are welded to a copper frame"}
+- {subject: "tracking|plane|sipm", object: "anode|plate|quartz", family: any, what: "the tracking plane is 2 mm behind the anode plate"}

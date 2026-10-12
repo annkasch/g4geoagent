@@ -1,15 +1,21 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: ANTARES
 - {subject: "antares|telescope|detector", object: "line", family: nest, what: "the telescope consists of 12 lines"}
-- {subject: "line|storey", object: "optical_module|(?<![a-z])om(?![a-z])|module", family: any, what: "the lines hold optical modules"}
-- {subject: "(?<![a-z])om(?![a-z])|optical", object: "support|plate", family: any, what: "each optical module sits on a support plate"}
+- {subject: "line|storey", object: "optical_module|(?<![a-z])oms?(?![a-z])|module", family: any, what: "the lines hold optical modules"}
+- {subject: "(?<![a-z])oms?(?![a-z])|optical", object: "support|plate", family: any, what: "each optical module sits on a support plate"}
 - {subject: "container|cylinder", object: "electronic|readout", family: nest, what: "the readout electronics is housed in a titanium container"}
 - {subject: "container", object: "laser", family: nest, what: "the laser is housed in a titanium container"}
 - {subject: "container|cylinder", object: "cap", family: any, what: "the container is closed by two end caps"}
 - {subject: "line", object: "storey|omf", family: nest, what: "a line is a chain of 25 storeys"}
-- {subject: "storey|omf|frame", object: "(?<![a-z])om(?![a-z])|optical", family: any, what: "each storey supports three optical modules"}
-- {subject: "sphere|glass|(?<![a-z])om(?![a-z])|optical", object: "pmt|photomult", family: any, what: "a glass sphere houses each PMT"}
+- {subject: "storey|omf|frame", object: "(?<![a-z])oms?(?![a-z])|optical", family: any, what: "each storey supports three optical modules"}
+- {subject: "sphere|glass|(?<![a-z])oms?(?![a-z])|optical", object: "pmt|photomult", family: any, what: "a glass sphere houses each PMT"}
 - {subject: "buoy", object: "line", family: any, what: "a buoy tops each line"}
+- {subject: "storey|omf|frame", object: "lcm|container|control", family: any, what: "a storey holds the electronics container (LCM) beside its three optical modules"}
+- {subject: "bss|socket|anchor|seabed", object: "line", family: any, what: "each line is anchored on the seabed with the bottom string socket"}
+- {subject: "bss|socket", object: "weight", family: nest, what: "the bottom string socket is made of a dead weight and a recoverable part"}
+- {subject: "emc|cable", object: "storey|omf", family: any, what: "electro-mechanical cable segments link the storeys"}
+- {subject: "seabed", object: "line", family: any, what: "the lines are arranged on the seabed in an octagonal configuration"}
+- {subject: "(?<![a-z])(om)s?(?![a-z])|optical|sphere", object: "wire|plate|support", family: any, what: "titanium wires pull the optical module onto its support plate"}

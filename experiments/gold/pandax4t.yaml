@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: PandaX-4T
 - {value: 10, key: "tank|water|steel", what: "water tank diameter (m)"}
@@ -13,3 +13,7 @@
 - {value: 3.5, key: "gas|gap", what: "gas gap (mm)"}
 - {value: 24, key: "ptfe|panel", what: "PTFE wall panels"}
 - {value: 10, key: "gate|anode", what: "gate to anode separation (mm)"}
+- {value: 3.7, key: "target|xenon|sensitive", what: "sensitive liquid xenon target (t)"}
+- {value: 1185, key: "ptfe|panel|opposite", what: "distance between opposite PTFE panels (mm)"}
+- {value: 70, key: "cage|cryostat|wall", what: "field cage outside wall to inner cryostat (mm)"}
+- {value: 105, key: "pmt|veto|ring", what: "one-inch veto PMTs"}

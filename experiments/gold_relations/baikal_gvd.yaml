@@ -1,10 +1,13 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: Baikal-GVD
 - {subject: "cluster", object: "string", family: any, what: "a cluster has seven strings around a central one"}
-- {subject: "(?<![a-z])om(?![a-z])|optical", object: "string|section", family: any, what: "the optical modules are arranged along the strings"}
-- {subject: "(?<![a-z])om(?![a-z])|optical", object: "(?<![a-z])cm(?![a-z])|module|cable", family: any, what: "each optical module is connected to the control module by a cable"}
+- {subject: "(?<![a-z])oms?(?![a-z])|optical", object: "string|section", family: any, what: "the optical modules are arranged along the strings"}
+- {subject: "(?<![a-z])oms?(?![a-z])|optical", object: "(?<![a-z])cms?(?![a-z])|control|cable", family: any, what: "each optical module is connected to the control module by a cable"}
 - {subject: "string", object: "section", family: any, what: "a string has three sections"}
 - {subject: "string", object: "lakebed|anchor|bottom", family: any, what: "each string is anchored to the lakebed"}
+- {subject: "(?<![a-z])(om)s?(?![a-z])|optical|sphere", object: "pmt|photo", family: nest, what: "an optical module holds a PMT in a glass sphere"}
+- {subject: "string", object: "buoy", family: any, what: "each string is kept straight by buoys at the top"}
+- {subject: "section", object: "(?<![a-z])(cm)s?(?![a-z])|control", family: any, what: "a section consists of 12 optical modules and a control module"}

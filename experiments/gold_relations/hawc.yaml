@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: HAWC
@@ -8,3 +8,4 @@
 - {subject: "wcd|tank|bladder|water", object: "pmt", family: nest, what: "the PMTs are at the bottom of the tank"}
 - {subject: "hawc|array", object: "wcd|tank", family: any, what: "the array is made up of the tanks"}
 - {subject: "wcd|tank|detector", object: "pmt|photomult", family: any, what: "each tank has four PMTs"}
+- {subject: "pmt|central|ten", object: "pmt|eight|outer", family: any, what: "the central ten-inch PMT is surrounded by three eight-inch PMTs"}

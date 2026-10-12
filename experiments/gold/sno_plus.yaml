@@ -1,16 +1,23 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: SNO+
-- {value: 12, key: "(?<![a-z])av(?![a-z])|vessel|acrylic", what: "acrylic vessel diameter (m)"}
-- {value: 5.5, key: "(?<![a-z])av(?![a-z])|vessel|shell|thick", what: "vessel shell thickness (cm)"}
+- {value: 12, key: "(?<![a-z])avs?(?![a-z])|vessel|acrylic", what: "acrylic vessel diameter (m)"}
+- {value: 5.5, key: "(?<![a-z])avs?(?![a-z])|vessel|shell|thick", what: "vessel shell thickness (cm)"}
 - {value: 9362, key: "pmt|photomult", what: "inward-facing PMTs"}
 - {value: 8.35, key: "pmt|psup|centre|center|face", what: "PMT front faces from the centre (m)"}
 - {value: 91, key: "pmt|outward", what: "outward-facing PMTs"}
 - {value: 7000, key: "water|upw", what: "ultra-pure water outside the vessel (t)"}
 - {value: 780, key: "scintillator", what: "liquid scintillator (t)"}
-- {value: 3.9, key: "tellurium|(?<![a-z])te(?![a-z])", what: "natural tellurium (t)"}
+- {value: 3.9, key: "tellurium|(?<![a-z])tes?(?![a-z])", what: "natural tellurium (t)"}
 - {value: 7, key: "neck", what: "neck height (m)"}
 - {value: 1.85, key: "rope", what: "hold-up rope diameter (cm)"}
 - {value: 27, key: "concentrator", what: "light concentrator diameter (cm)"}
 - {value: 905, key: "water|upw", what: "water in the vessel in the water phase (t)"}
+- {value: 30, key: "cavity", what: "cavity height (m)"}
+- {value: 21, key: "cavity", what: "cavity width (m)"}
+- {value: 10, key: "rope|loop", what: "rope loops the vessel hangs from"}
+- {value: 92, key: "psup|support|geodesic|polygon", what: "sides of the geodesic support structure"}
+- {value: 5, key: "net|rope", what: "sub-nets of the hold-down rope-net"}
+- {value: 20, key: "rope", what: "rope ends anchored to the cavity floor"}
+- {value: 3.96, key: "rope", what: "hold-down rope diameter (cm)"}

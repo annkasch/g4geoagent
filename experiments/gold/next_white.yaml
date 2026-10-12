@@ -1,9 +1,8 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: NEXT-White (NEW)
 - {value: 664.5, key: "tpc|length", what: "TPC length (mm)"}
-- {value: 522, key: "tpc|diameter|anode|plate", what: "TPC diameter (mm)"}
 - {value: 60, key: "copper|ics|shell", what: "inner copper shell thickness (mm)"}
 - {value: 120, key: "copper|plate", what: "copper plate thickness (mm)"}
 - {value: 21, key: "cage|hdpe|shell", what: "field cage shell thickness (mm)"}
@@ -17,3 +16,12 @@
 - {value: 1792, key: "sipm|sensor", what: "SiPMs of the tracking plane"}
 - {value: 130, key: "pmt|cathode", what: "PMT distance behind the cathode (mm)"}
 - {value: 3, key: "plate|silica|anode", what: "anode plate thickness (mm)"}
+- {value: 6, key: "gap|(?<![a-z])(el)s?(?![a-z])|electrolum", what: "electroluminescence gap (mm)"}
+- {value: 530.3, key: "drift", what: "drift length (mm)"}
+- {value: 5, key: "xenon|mass|fiducial|(?<![a-z])(kg)s?(?![a-z])", what: "xenon in the fiducial volume at 15 bar (kg)"}
+- {value: 10, key: "ring", what: "copper ring cross-section, long side (mm)"}
+- {value: 522, alt: 454, key: "tpc|diameter|anode|plate", what: "TPC diameter (mm; 522 in the text and for the anode plate, 454 in table 1)"}
+- {value: 15, key: "ring|tube|teflon", what: "height of a teflon ring of the light tube (cm)"}
+- {value: 12, key: "window|sapphire", what: "sapphire windows"}
+- {value: 2, key: "tracking|plane|quartz|anode", what: "tracking plane distance behind the anode plate (mm)"}
+- {value: 1, key: "sipm|sensor|active", what: "SiPM active area size (mm)"}

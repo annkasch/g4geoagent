@@ -1,13 +1,13 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: XENONnT
 - {value: 5.9, key: "tpc|active|target", what: "active liquid xenon (t)"}
 - {value: 8.5, key: "cryostat|total|xenon", what: "total xenon in the cryostat (t)"}
 - {value: 1620, key: "cryostat|vessel|outer", what: "outer cryostat inner diameter (mm)"}
 - {value: 64, key: "lxe|surround|volume|xenon", what: "thickness of xenon around the TPC (mm)"}
-- {value: 1460, key: "vessel|(?<![a-z])iv(?![a-z])|inner", what: "inner vessel diameter (mm)"}
-- {value: 2666, key: "vessel|(?<![a-z])iv(?![a-z])|inner", what: "inner vessel height (mm)"}
+- {value: 1460, key: "vessel|(?<![a-z])ivs?(?![a-z])|inner", what: "inner vessel diameter (mm)"}
+- {value: 2666, key: "vessel|(?<![a-z])ivs?(?![a-z])|inner", what: "inner vessel height (mm)"}
 - {value: 700, key: "water", what: "water in the shield (t)"}
 - {value: 33, key: "neutron|veto", what: "neutron veto volume (m3)"}
 - {value: 4, key: "bell", what: "diving bell wall thickness (mm)"}
@@ -17,8 +17,22 @@
 - {value: 1486, key: "drift", what: "drift region length (mm)"}
 - {value: 10.2, key: "tank|water", what: "water tank height (m)"}
 - {value: 9.6, key: "tank|water", what: "water tank diameter (m)"}
-- {value: 3001, key: "vessel|outer|(?<![a-z])ov(?![a-z])", what: "outer vessel height (mm)"}
+- {value: 3001, key: "vessel|outer|(?<![a-z])ovs?(?![a-z])", what: "outer vessel height (mm)"}
 - {value: 253, key: "pmt|top|array", what: "PMTs at the top"}
 - {value: 241, key: "pmt|bottom|array", what: "PMTs at the bottom"}
 - {value: 3, key: "ptfe|panel", what: "PTFE panel thickness (mm)"}
 - {value: 20, key: "copper|disk|array", what: "copper support disk, top array (mm)"}
+- {value: 8, key: "ptfe|disk|pmt|array", what: "PTFE disk holding the PMTs of an array (mm)"}
+- {value: 55, key: "screen|electrode|cathode", what: "bottom screening electrode below the cathode (mm)"}
+- {value: 28, key: "screen|electrode|array", what: "top screening electrode below the top PMT array reflector (mm)"}
+- {value: 1.5, key: "screen|electrode|array", what: "bottom screening electrode above the bottom PMT array reflector (mm)"}
+- {value: 64, key: "ring|guard|electrode", what: "guard rings"}
+- {value: 15, key: "ring|guard", what: "guard ring cross-section height (mm)"}
+- {value: 21.6, key: "pitch|ring|wire|electrode", what: "pitch of the field-shaping electrodes (mm)"}
+- {value: 2, key: "wire|electrode", what: "wire of the wire field electrodes (mm)"}
+- {value: 5, key: "vessel|wall|cryostat", what: "cryostat vessel wall thickness (mm)"}
+- {value: 30, key: "superinsulation|layer", what: "layers of superinsulation"}
+- {value: 3, key: "rod|cryostat", what: "rods the cryostat hangs on"}
+- {value: 640, key: "ptfe|sheet", what: "height covered by the outer PTFE sheet (mm)"}
+- {value: 200, key: "lxe|xenon|region|cathode", what: "liquid xenon below the cathode (kg)"}
+- {value: 4, key: "level|meter", what: "capacitive level meters"}

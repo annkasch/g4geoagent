@@ -1,12 +1,16 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: CTA Small-Sized Telescope
-- {subject: "telescope|structure", object: "mirror|(?<![a-z])m1(?![a-z])|primary", family: nest, what: "the telescope has a primary mirror"}
+- {subject: "telescope|structure", object: "mirror|(?<![a-z])m1s?(?![a-z])|primary", family: nest, what: "the telescope has a primary mirror"}
 - {subject: "telescope|structure", object: "camera", family: any, what: "the telescope carries a camera"}
 - {subject: "module|camera", object: "sipm|tile", family: nest, what: "each camera module contains an SiPM tile"}
-- {subject: "(?<![a-z])m2(?![a-z])|secondary", object: "(?<![a-z])m1(?![a-z])|primary", family: any, what: "the secondary mirror is 3 m from the primary"}
-- {subject: "camera", object: "secondary|(?<![a-z])m2(?![a-z])", family: any, what: "the camera is 0.52 m from the secondary mirror"}
+- {subject: "(?<![a-z])m2s?(?![a-z])|secondary", object: "(?<![a-z])m1s?(?![a-z])|primary", family: any, what: "the secondary mirror is 3 m from the primary"}
+- {subject: "camera", object: "secondary|(?<![a-z])m2s?(?![a-z])", family: any, what: "the camera is 0.52 m from the secondary mirror"}
 - {subject: "camera", object: "module", family: nest, what: "the camera consists of 32 camera modules"}
 - {subject: "m1|primary", object: "panel|segment", family: nest, what: "eighteen panels make up the primary mirror"}
+- {subject: "mast", object: "secondary|(?<![a-z])(m2)s?(?![a-z])|camera", family: any, what: "the mast structure supports the secondary mirror and the camera"}
+- {subject: "mast", object: "dish", family: any, what: "the mast structure is fixed on the mirror dish"}
+- {subject: "dish", object: "fork", family: any, what: "the mirror dish is mounted on the azimuth fork"}
+- {subject: "module", object: "backplane|(?<![a-z])(bp)s?(?![a-z])", family: any, what: "the camera modules are connected to a backplane"}

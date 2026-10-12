@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: SND@LHC
@@ -12,3 +12,9 @@
 - {subject: "frame", object: "bar|plane", family: any, what: "the bars are housed in an aluminium frame"}
 - {subject: "wall|box", object: "brick", family: nest, what: "a wall holds four bricks in an aluminium box"}
 - {subject: "target", object: "scifi|fibre|tracker", family: any, what: "each wall is followed by a scintillating fibre plane"}
+- {subject: "box|polyethylene|acrylic|shield", object: "veto|target|tracker|emulsion", family: nest, what: "veto, emulsion target and target tracker are contained in a borated polyethylene and acrylic box"}
+- {subject: "veto", object: "target", family: any, what: "the veto system is upstream of the target region"}
+- {subject: "veto", object: "plane", family: nest, what: "the veto comprises two parallel planes of bars"}
+- {subject: "muon|calorimeter|hcal", object: "upstream|downstream|(?<![a-z])(us)s?(?![a-z])|(?<![a-z])(ds)s?(?![a-z])|layer|station", family: nest, what: "the muon system is divided into five upstream and three downstream layers"}
+- {subject: "profile|support", object: "wall|box", family: any, what: "the wall boxes are suspended to horizontal aluminium profiles"}
+- {subject: "mat|plane", object: "fib", family: nest, what: "a fibre mat is made of six layers of scintillating fibres"}

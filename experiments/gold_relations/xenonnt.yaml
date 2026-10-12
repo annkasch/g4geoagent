@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: XENONnT
@@ -11,3 +11,8 @@
 - {subject: "lxe|xenon", object: "tpc", family: any, what: "liquid xenon surrounds the TPC"}
 - {subject: "tank", object: "water", family: nest, what: "the water is kept inside a cylindrical tank"}
 - {subject: "tpc", object: "pmt|array", family: any, what: "PMT arrays are at the top and bottom of the TPC"}
+- {subject: "ring|electrode|field", object: "tpc|active|volume|ptfe|wall", family: any, what: "two sets of field-shaping electrodes surround the active volume outside the PTFE walls"}
+- {subject: "ptfe|disk", object: "pmt", family: any, what: "the PMT bodies of an array are fixed to a PTFE disk"}
+- {subject: "rod|support|structure", object: "cryostat", family: any, what: "the cryostat hangs on three rods from the support structure"}
+- {subject: "superinsulation", object: "vessel|(?<![a-z])(iv)s?(?![a-z])|inner", family: any, what: "superinsulation surrounds the inner vessel"}
+- {subject: "tpc", object: "panel|ptfe|reflector", family: any, what: "PTFE panels form the wall of the TPC"}

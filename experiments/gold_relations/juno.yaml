@@ -1,13 +1,14 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
-# detector: JUNO (with its satellite detectors TAO and OSIRIS)
-- {subject: "acrylic|vessel|(?<![a-z])av(?![a-z])", object: "(?<![a-z])ls(?![a-z])|scintillator", family: nest, what: "the acrylic vessel contains the liquid scintillator"}
-- {subject: "copper|shell", object: "acrylic|vessel", family: any, what: "a copper shell wraps the acrylic vessel"}
-- {subject: "tank|steel", object: "copper|shell", family: nest, what: "the copper shell is installed in a steel tank"}
-- {subject: "water", object: "(?<![a-z])cd(?![a-z])|central|detector", family: any, what: "the central detector is surrounded by water tanks"}
-- {subject: "tank|steel|water", object: "(?<![a-z])av(?![a-z])|acrylic|vessel", family: nest, what: "the acrylic vessel is mounted inside a water-filled steel tank"}
+# detector: JUNO (the main detector only; the paper's satellite detectors TAO and OSIRIS are not listed)
+- {subject: "acrylic|vessel|(?<![a-z])avs?(?![a-z])", object: "(?<![a-z])lss?(?![a-z])|scintillator", family: nest, what: "the acrylic vessel contains the liquid scintillator"}
 - {subject: "steel|structure|shell", object: "acrylic|vessel", family: any, what: "the steel structure supports the acrylic vessel through connecting bars"}
 - {subject: "steel|structure|shell", object: "pmt", family: any, what: "the PMTs are installed on the steel structure"}
-- {subject: "pool|water|wcd", object: "acrylic|vessel|central|detector|(?<![a-z])cd(?![a-z])", family: any, what: "the water pool surrounds the central detector"}
+- {subject: "pool|water|wcd", object: "acrylic|vessel|central|detector|(?<![a-z])cds?(?![a-z])", family: any, what: "the water pool surrounds the central detector"}
+- {subject: "acrylic|vessel", object: "chimney", family: any, what: "a chimney is connected to the top of the acrylic vessel"}
+- {subject: "pool|water", object: "tracker|(?<![a-z])(tt)s?(?![a-z])", family: any, what: "the Top Tracker is on top of the water pool"}
+- {subject: "structure|shell", object: "leg|bearing", family: any, what: "the shell structure sits on a bearing of supporting legs"}
+- {subject: "tracker|(?<![a-z])(tt)s?(?![a-z])", object: "wall", family: nest, what: "the Top Tracker is composed of 62 walls"}
+- {subject: "acrylic|vessel", object: "panel", family: nest, what: "the acrylic vessel is made of 265 acrylic panels"}

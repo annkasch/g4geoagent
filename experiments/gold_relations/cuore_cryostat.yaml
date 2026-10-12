@@ -1,11 +1,14 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: CUORE cryostat
 - {subject: "ivc|vessel", object: "tsp|support|plate", family: nest, what: "the tower support plate is in the inner vacuum chamber"}
-- {subject: "lead|shield", object: "cryostat", family: any, what: "an external lead shield surrounds the cryostat"}
+- {subject: "lead|shield", object: "cryostat", family: any, what: "an external lead shield stands outside the cryostat"}
 - {subject: "tsp|support|plate", object: "lead", family: any, what: "the tower support plate is below the top lead shielding"}
 - {subject: "tower|detector|crystal", object: "tsp|support|plate", family: any, what: "the detector is attached to the tower support plate"}
 - {subject: "cryostat", object: "vessel", family: nest, what: "the cryostat is composed of six coaxial vessels"}
 - {subject: "ivc|vessel", object: "lead|shield", family: nest, what: "the side lead shield is inside the inner vacuum chamber"}
+- {subject: "beam|bar|suspension", object: "tsp|support|plate", family: any, what: "the tower support plate is suspended from the Y-beam by three suspension bars"}
+- {subject: "600|still|plate", object: "lead|shield", family: any, what: "the Roman lead shield is suspended from the 600 mK plate"}
+- {subject: "beam", object: "msp|main|support|plate", family: any, what: "the Y-beam stands on the main support plate"}

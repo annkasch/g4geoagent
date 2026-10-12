@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: PandaX-4T
@@ -10,3 +10,5 @@
 - {subject: "tank", object: "water", family: nest, what: "the tank holds the water shield"}
 - {subject: "tpc", object: "ptfe|panel", family: any, what: "the TPC is confined by 24 PTFE wall panels"}
 - {subject: "tpc", object: "cathode|gate|anode", family: any, what: "cathode, gate and anode define the fields in the TPC"}
+- {subject: "cage|cryostat|gap", object: "pmt|veto|ring", family: any, what: "two rings of one-inch PMTs sit in the gap between field cage and inner cryostat"}
+- {subject: "cage", object: "cryostat", family: any, what: "the field cage wall is 70 mm from the inner cryostat"}

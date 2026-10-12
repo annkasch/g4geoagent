@@ -1,9 +1,9 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: COSINE-100
-- {value: 106, key: "array|crystal|(?<![a-z])nai(?![a-z])", what: "crystal array mass (kg)"}
-- {value: 8, key: "crystal|(?<![a-z])nai(?![a-z])", what: "crystals"}
+- {value: 106, key: "array|crystal|(?<![a-z])nais?(?![a-z])", what: "crystal array mass (kg)"}
+- {value: 8, key: "crystal|(?<![a-z])nais?(?![a-z])", what: "crystals"}
 - {value: 1.5, key: "copper|tube|wall", what: "copper tube wall thickness (mm)"}
 - {value: 12.0, key: "quartz|window", what: "quartz window thickness (mm)"}
 - {value: 250, key: "ptfe|reflect", what: "PTFE sheet thickness (um)"}
@@ -11,3 +11,6 @@
 - {value: 20, key: "lead", what: "lead shield thickness (cm)"}
 - {value: 3, key: "copper|box", what: "copper box thickness (cm)"}
 - {value: 3, key: "plastic|panel", what: "plastic scintillator panel thickness (cm)"}
+- {value: 1.5, key: "pad|optical", what: "optical pad thickness (mm)"}
+- {value: 3, key: "pmt|photomult", what: "PMT size (inch)"}
+- {value: 2, key: "layer|crystal", what: "layers the crystals are arranged in"}

@@ -1,13 +1,13 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: KamLAND-Zen 800 inner balloon
 - {value: 135, key: "outer|balloon|film", what: "outer balloon film thickness (um)"}
-- {value: 1200, key: "(?<![a-z])ls(?![a-z])|scintillator|volume", what: "KamLAND liquid scintillator volume (m3)"}
-- {value: 31.5, key: "(?<![a-z])ib(?![a-z])|inner|balloon|volume", what: "inner balloon volume (m3)"}
-- {value: 750, alt: 745, key: "xenon|(?<![a-z])xe(?![a-z])", what: "xenon (kg)"}
-- {value: 1920, alt: 1.9, key: "radius|balloon|(?<![a-z])ib(?![a-z])", what: "balloon radius (mm)"}
-- {value: 677, key: "(?<![a-z])xe(?![a-z])", what: "xenon-136 (kg)"}
+- {value: 1200, key: "(?<![a-z])lss?(?![a-z])|scintillator|volume", what: "KamLAND liquid scintillator volume (m3)"}
+- {value: 31.5, key: "(?<![a-z])ibs?(?![a-z])|inner|balloon|volume", what: "inner balloon volume (m3)"}
+- {value: 750, alt: 745, key: "xenon|(?<![a-z])xes?(?![a-z])", what: "xenon (kg)"}
+- {value: 1920, alt: 1.9, key: "radius|balloon|(?<![a-z])ibs?(?![a-z])", what: "balloon radius (mm)"}
+- {value: 677, key: "(?<![a-z])xes?(?![a-z])", what: "xenon-136 (kg)"}
 - {value: 6, key: "tube|corrugated", what: "corrugated tube length (m)"}
 - {value: 10, key: "tube|corrugated", what: "corrugated tube diameter (cm)"}
 - {value: 25, key: "film|nylon|balloon", what: "inner balloon film thickness (um)"}
@@ -16,3 +16,12 @@
 - {value: 554, key: "pmt", what: "20-inch PMTs"}
 - {value: 1500, key: "tube|straight", what: "straight tube length (mm)"}
 - {value: 24, key: "gore|sphere", what: "gores of the main sphere"}
+- {value: 745, key: "xenon|(?<![a-z])(xe)s?(?![a-z])", what: "xenon used in KamLAND-Zen 800 (kg)"}
+- {value: 1000, key: "(?<![a-z])(ls)s?(?![a-z])|scintillator", what: "KamLAND liquid scintillator (t)"}
+- {value: 12, key: "belt", what: "nylon belts supporting the inner balloon"}
+- {value: 30, key: "belt", what: "belt width (mm)"}
+- {value: 0.4, key: "string", what: "string diameter (mm)"}
+- {value: 6, key: "cone|segment", what: "film segments of the upper cone"}
+- {value: 1, key: "tube|corrugated", what: "corrugated tube wall thickness (mm)"}
+- {value: 50, key: "opening|access", what: "opening at the top of KamLAND (cm)"}
+- {value: 15, key: "seam|weld|overla|section", what: "overlap of the film sections at the seams (mm)"}

@@ -1,8 +1,8 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: NEXT-100
-- {value: 100, key: "xenon|(?<![a-z])xe(?![a-z])", what: "xenon gas (kg)"}
+- {value: 100, key: "xenon|(?<![a-z])xes?(?![a-z])", what: "xenon gas (kg)"}
 - {value: 1.15, key: "active|volume", what: "active volume (m3)"}
 - {value: 2.5, key: "hdpe|shell|cage", what: "field cage shell thickness (cm)"}
 - {value: 148, key: "hdpe|shell|cage|long", what: "field cage shell length (cm)"}
@@ -12,9 +12,14 @@
 - {value: 136, key: "vessel", what: "vessel inner diameter (cm)"}
 - {value: 12, key: "copper", what: "copper bar and plate thickness (cm)"}
 - {value: 5, key: "sapphire|window", what: "sapphire window thickness (mm)"}
-- {value: 91, key: "enrich|(?<![a-z])136(?![a-z])", what: "enrichment (percent)"}
+- {value: 91, key: "enrich|(?<![a-z])136s?(?![a-z])", what: "enrichment (percent)"}
 - {value: 7168, key: "sipm", what: "SiPMs of the tracking plane"}
 - {value: 35, key: "head", what: "vessel head height (cm)"}
 - {value: 1, key: "vessel|wall|shell|head", what: "vessel wall thickness (cm)"}
 - {value: 1, key: "window|silica", what: "fused-silica window thickness (cm)"}
 - {value: 0.5, key: "gate|anode", what: "gate distance from the anode (cm)"}
+- {value: 60, key: "pmt|photomult|energy", what: "PMTs of the energy plane"}
+- {value: 3, key: "pmt|photomult", what: "PMT size (inch)"}
+- {value: 1, key: "pitch|sipm", what: "SiPM pitch (cm)"}
+- {value: 64, key: "board|sipm|sensor", what: "SiPMs per board"}
+- {value: 20, key: "lead|shield", what: "lead shield thickness (cm)"}

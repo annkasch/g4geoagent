@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: T2K fine-grained detectors (FGD)
@@ -10,3 +10,10 @@
 - {subject: "fgd|module", object: "water|panel", family: any, what: "the second FGD alternates scintillator modules with water panels"}
 - {subject: "skin|g10", object: "module", family: any, what: "G10 skins are glued to the module surfaces"}
 - {subject: "fgd", object: "water|panel|module", family: nest, what: "FGD2 contains six water modules"}
+- {subject: "box|dark", object: "crossbar", family: any, what: "five steel crossbars attach to the inner top side of the dark box"}
+- {subject: "crossbar|strap", object: "module", family: any, what: "the modules hang from the crossbars by steel straps"}
+- {subject: "busboard", object: "mppc", family: any, what: "the MPPCs are mounted on busboards"}
+- {subject: "box|dark", object: "backplane|electronic|card", family: any, what: "backplanes and electronics cards are mounted around the four sides of the dark box"}
+- {subject: "panel|water", object: "polypropylene|sheet|skin", family: any, what: "polypropylene sheets are attached to each water panel"}
+- {subject: "box|dark", object: "cover|plate|frame", family: any, what: "the dark box is closed by side plates and cover plates on I-beam frames"}
+- {subject: "tpc", object: "fgd", family: any, what: "the two FGDs are located between three TPCs"}

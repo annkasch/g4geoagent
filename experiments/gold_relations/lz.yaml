@@ -1,5 +1,5 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: LUX-ZEPLIN (LZ)
@@ -10,3 +10,8 @@
 - {subject: "water", object: "cryostat|detector|tpc|lz", family: nest, what: "the detector sits in a water tank"}
 - {subject: "skin", object: "pmt", family: any, what: "PMTs view the xenon skin"}
 - {subject: "cryostat|icv|vessel", object: "tpc|xenon|lxe", family: nest, what: "the inner cryostat vessel holds the xenon and the TPC"}
+- {subject: "xenon detector|detector", object: "tpc|skin", family: nest, what: "the Xenon Detector is composed of the TPC and the xenon skin"}
+- {subject: "skin", object: "tpc", family: any, what: "the skin is around and underneath the TPC"}
+- {subject: "cage", object: "ring|titanium", family: any, what: "titanium rings are embedded in the field cage"}
+- {subject: "cage", object: "ptfe|layer", family: nest, what: "the field cage is built of 58 PTFE layers"}
+- {subject: "od|outer detector|acrylic|(?<![a-z])(av)s?(?![a-z])|(?<![a-z])(avs)s?(?![a-z])", object: "cryostat", family: any, what: "the acrylic vessels of the Outer Detector surround the cryostat"}

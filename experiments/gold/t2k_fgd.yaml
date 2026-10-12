@@ -1,5 +1,5 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: T2K fine-grained detectors (FGD)
 - {value: 230, alt: 2300, key: "fgd|dimension|width|outer", what: "FGD width (cm)"}
@@ -24,3 +24,15 @@
 - {value: 6, key: "water|panel|module", what: "water modules in FGD2"}
 - {value: 1.8, key: "hole|bar", what: "bar hole diameter (mm)"}
 - {value: 6.4, key: "cover|plate", what: "cover plate thickness at the edges (mm)"}
+- {value: 0.25, key: "skin|g10", what: "G10 skin thickness (mm)"}
+- {value: 30.0, key: "panel|water", what: "water panel total thickness with skins and spacers (mm)"}
+- {value: 0.8, key: "polypropylene|sheet|skin", what: "polypropylene sheet thickness (mm)"}
+- {value: 348.2, key: "plate|side", what: "side plate length along the beam (mm)"}
+- {value: 1.6, key: "cover|plate", what: "cover plate thickness in the central area (mm)"}
+- {value: 1856, key: "cover|plate|central", what: "side of the thin central area of the cover plates (mm)"}
+- {value: 5, key: "crossbar|bar|steel", what: "steel crossbars the modules hang from"}
+- {value: 5, key: "strap", what: "straps per module"}
+- {value: 0.025, key: "strap", what: "strap thickness (mm)"}
+- {value: 24, key: "backplane", what: "backplanes around the dark box"}
+- {value: 16, key: "busboard|mppc", what: "MPPCs per busboard"}
+- {value: 2, key: "fgd", what: "fine-grained detectors"}

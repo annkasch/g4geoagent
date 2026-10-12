@@ -1,9 +1,9 @@
-# Construction values listed by hand (Claude, 2026-10-12; from sentences picked by a program, written before any
-# reader ran on this paper; not checked by a detector expert).
+# Construction values listed by hand (Claude, 2026-10-12; written before any
+# reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: SuperNEMO Demonstrator (calorimeter)
 - {value: 2034, key: "cell|wire|track", what: "tracker cells"}
-- {value: 6.11, key: "(?<![a-z])se(?![a-z])|source|selen", what: "selenium-82 source (kg)"}
+- {value: 6.11, key: "(?<![a-z])ses?(?![a-z])|source|selen", what: "selenium-82 source (kg)"}
 - {value: 2.7, key: "foil|source", what: "source foil length (m)"}
 - {value: 135, key: "foil", what: "source foil width (mm)"}
 - {value: 300, key: "foil", what: "source foil thickness (um)"}
@@ -16,5 +16,19 @@
 - {value: 6, key: "mylar", what: "mylar thickness (um)"}
 - {value: 34, key: "foil|source", what: "source foils"}
 - {value: 712, key: "block|scintillator|calorimeter", what: "scintillator blocks of the calorimeter"}
-- {value: 260, key: "(?<![a-z])om(?![a-z])|optical|wall", what: "optical modules per main wall"}
-- {value: 25, key: "(?<![a-z])om(?![a-z])|optical|module", what: "weight of an optical module (kg)"}
+- {value: 260, key: "(?<![a-z])oms?(?![a-z])|optical|wall", what: "optical modules per main wall"}
+- {value: 25, key: "(?<![a-z])oms?(?![a-z])|optical|module", what: "weight of an optical module (kg)"}
+- {value: 25, key: "film|polyamide", what: "polyamide film between tracker and calorimeter (um)"}
+- {value: 18, key: "iron|shield", what: "iron shielding thickness (cm)"}
+- {value: 50, key: "water|shield", what: "water shielding thickness (cm)"}
+- {value: 24, key: "polyethylene|shield", what: "polyethylene shielding thickness (cm)"}
+- {value: 2, key: "wall|calorimeter", what: "main calorimeter walls"}
+- {value: 32, key: "x-wall|cross|wall", what: "cross-wall optical modules on each edge of a tracker"}
+- {value: 16, key: "veto|gamma", what: "gamma-veto optical modules on top and bottom of a tracker"}
+- {value: 8, key: "pmt|inch", what: "size of the large PMTs (inch)"}
+- {value: 5, key: "pmt|inch", what: "size of the small PMTs (inch)"}
+- {value: 31, key: "step|scintillator", what: "step of the main-wall scintillators (mm)"}
+- {value: 30, key: "iron|plate|beam", what: "iron plate thickness of the frame beams (mm)"}
+- {value: 4, key: "beam|frame", what: "beams of the calorimeter frame"}
+- {value: 6.5, key: "wall|weight|(?<![a-z])(om)s?(?![a-z])|(?<![a-z])(oms)s?(?![a-z])", what: "weight of the optical modules of one main wall (t)"}
+- {value: 2, key: "mylar|layer", what: "layers of mylar"}

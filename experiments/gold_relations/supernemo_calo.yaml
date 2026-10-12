@@ -1,11 +1,20 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: SuperNEMO Demonstrator (calorimeter)
 - {subject: "pmt", object: "iron|shield", family: any, what: "the PMTs are protected by iron shields"}
 - {subject: "scintillator|block", object: "teflon|mylar|wrap", family: any, what: "the scintillator is wrapped in Teflon and mylar"}
 - {subject: "scintillator|block", object: "pmt", family: any, what: "each scintillator is in contact with a PMT"}
-- {subject: "foil|source", object: "track|chamber|demonstrator|detector", family: any, what: "the source foils sit in the tracker"}
+- {subject: "track", object: "source|frame|foil", family: any, what: "two tracking detectors surround the source frame"}
 - {subject: "frame|source", object: "foil", family: nest, what: "the source frame contains 34 source foils"}
-- {subject: "calorimeter|wall", object: "block|scintillator|(?<![a-z])om(?![a-z])|optical", family: nest, what: "the calorimeter consists of scintillator blocks"}
+- {subject: "calorimeter|wall", object: "block|scintillator|(?<![a-z])oms?(?![a-z])|optical", family: nest, what: "the calorimeter consists of scintillator blocks"}
+- {subject: "wall|calorimeter", object: "track|detector", family: any, what: "two main calorimeter walls close the detector on each side of the tracker"}
+- {subject: "film|polyamide", object: "track|calorimeter", family: any, what: "a polyamide film separates tracker and calorimeter"}
+- {subject: "coil|magnet", object: "detector|demonstrator|supernemo", family: any, what: "a copper magnetic coil surrounds the whole detector"}
+- {subject: "shield|iron|water|polyethylene", object: "detector|demonstrator|supernemo", family: any, what: "two shielding layers enclose the detector"}
+- {subject: "(?<![a-z])(om)s?(?![a-z])|optical|module", object: "scintillator|pmt|block", family: nest, what: "an optical module is a scintillator glued to a PMT"}
+- {subject: "x-wall|cross", object: "track", family: any, what: "the cross-wall modules are on the small sides of the trackers"}
+- {subject: "veto|gamma", object: "track", family: any, what: "the gamma-veto modules are on the top and bottom of the trackers"}
+- {subject: "frame", object: "beam", family: nest, what: "the calorimeter frame is an assembly of four beams"}
+- {subject: "shield|mu-metal|mu_metal", object: "pmt|guide", family: any, what: "a mu-metal shield covers the PMT and its light guide"}

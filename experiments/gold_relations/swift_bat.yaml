@@ -1,10 +1,16 @@
 # Relations between parts that the paper states, listed by hand (Claude, 2026-10-12; from sentences picked by a
-# program, written before any reader ran on this paper; not checked by a detector expert).
+# program, written before any reader ran on this paper; every entry checked against its sentence in the paper on 2026-10-12; not checked by a detector expert).
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: Swift Burst Alert Telescope (BAT)
 - {subject: "plane|detector|array", object: "czt|cdznte|element", family: nest, what: "the detector plane consists of CdZnTe elements"}
 - {subject: "mask", object: "lead|tile|piece|element|cell", family: nest, what: "the mask consists of lead tiles"}
 - {subject: "mask", object: "plane|detector|array", family: any, what: "the mask is 1 m above the detector plane"}
-- {subject: "shield", object: "(?<![a-z])bat(?![a-z])|detector|plane", family: any, what: "a graded-Z fringe shield goes round the detector"}
-- {subject: "module", object: "czt|cdznte|element", family: nest, what: "a detector module has 128 elements"}
+- {subject: "shield", object: "(?<![a-z])bats?(?![a-z])|detector|plane", family: any, what: "a graded-Z fringe shield goes round the detector"}
+- {subject: "module|(?<![a-z])(dm)s?(?![a-z])", object: "czt|cdznte|piece|element|sub", family: nest, what: "a detector module is made of two sub-arrays of CZT pieces"}
+- {subject: "block", object: "module|(?<![a-z])(dm)s?(?![a-z])|(?<![a-z])(dms)s?(?![a-z])", family: nest, what: "eight detector modules are mounted in a block"}
+- {subject: "plane|array|(?<![a-z])(dap)s?(?![a-z])", object: "block", family: nest, what: "16 blocks are mounted in the detector array plane"}
+- {subject: "strut", object: "mask", family: any, what: "struts hold the mask above the detector plane"}
+- {subject: "panel|honeycomb|mask", object: "tile|lead", family: any, what: "the lead tiles are mounted on a honeycomb panel"}
+- {subject: "shield", object: "mask|plane|wall", family: any, what: "the fringe shield is on the side walls between mask and detector plane and under the plane"}
+- {subject: "plate|(?<![a-z])(dap)s?(?![a-z])|array", object: "block", family: any, what: "a block sits on the detector array plate"}
