@@ -11,6 +11,7 @@ import openai
 from pydantic import ValidationError
 
 CBORG_URL = "https://api.cborg.lbl.gov"
+FREE_PREFIX = "lbl/"
 DEFAULT_OPTIONS = {}      # sent with every call, e.g. {"seed": 1} to get a fresh answer instead of a cached one
 
 
@@ -29,12 +30,21 @@ def image_message(text, image_path):
     ]}
 
 
+class PaidModel(Exception):
+    pass
+
+
 def call_llm(model, messages, log=None, stage="", **options):
     """Send `messages` to `model`. Returns the answer with the model and cost.
 
     Keys: text, model, cost_usd, input_tokens, output_tokens, seconds.
     With `log` (a RunLog) the call is recorded under `stage`.
+
+    Only the free LBL-hosted models (names starting with "lbl/") are allowed. Any other model is refused
+    before a request is sent, unless the environment variable G4GEO_ALLOW_PAID is set to 1.
     """
+    if not model.startswith(FREE_PREFIX) and os.environ.get("G4GEO_ALLOW_PAID") != "1":
+        raise PaidModel(f"{model} is not a free LBL-hosted model. This project uses only models named '{FREE_PREFIX}...'.")
     options = {**DEFAULT_OPTIONS, **options}
     start = time.time()
     raw = _client().chat.completions.with_raw_response.create(

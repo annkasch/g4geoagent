@@ -14,12 +14,14 @@ from g4geoagent.agent.llm import call_llm, image_message
 
 OUT = Path(__file__).parent / "out"
 
-MODELS = [
+# Only the free LBL-hosted models. The paid models that the first run of this test (2026-10-08) also tried are
+# kept below for the record; call_llm refuses them unless G4GEO_ALLOW_PAID=1 is set.
+MODELS = ["lbl/cborg-vision", "lbl/cborg-chat", "lbl/gemma-4", "lbl/gpt-oss-120b"]
+PAID_MODELS_NOT_RUN = [
     "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-4-5",
     "gpt-5.5", "gpt-5.4-mini",
     "gemini-3.1-pro", "gemini-3.5-flash",
     "xai/grok-4.3", "google/qwen-3",
-    "lbl/cborg-vision", "lbl/cborg-chat", "lbl/gemma-4",
 ]
 
 QUESTION = ("This is a cross-section of a detector. List every labelled part with "
