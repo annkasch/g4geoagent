@@ -393,7 +393,7 @@ class Verdicts(BaseModel):
     verdicts: list[Verdict]
 
 
-def cross_check(readings, documents, detector, log=None, known=None, correct=False, votes=1):
+def cross_check(readings, documents, detector, log=None, known=None, correct=False, votes=1, trusted=()):
     """Every property and relation that only one reader has goes to the other reader, with the sentence it was
     taken from. Confirmed records count for both readers. Records judged wrong are taken out and returned as
     disputed. A property judged not to be construction is kept as not built; such a relation is taken out.
@@ -401,6 +401,9 @@ def cross_check(readings, documents, detector, log=None, known=None, correct=Fal
     instead of rejecting it.
     With `votes` above 1 the checker is asked that many times; an entry is taken out only if every answer
     rejects it, and it counts as confirmed if any answer confirms it.
+    `trusted` names readers whose records are not taken out on the other reader's word alone: a record of
+    theirs that the other rejects stays, and is returned among the disputed with "kept": True, so that it can
+    be marked as questioned. (Reader B's model reads more reliably than Reader A's, see experiments/notes.)
     `known` is a dict of earlier verdicts ({signature: verdict}) and is filled in, so that it can be kept on disk.
     Returns (readings, disputed)."""
     known = {} if known is None else known
@@ -467,9 +470,12 @@ def cross_check(readings, documents, detector, log=None, known=None, correct=Fal
                 for r in match:
                     r.built = False
             else:
-                disputed.append({"kind": kind, "reader": reader, "verdict": verdict, **{k: v for k, v in e.items() if k != "readers"}})
-                for r in match:
-                    records.remove(r)
+                kept = reader in trusted and verdict == "wrong"
+                disputed.append({"kind": kind, "reader": reader, "verdict": verdict, "kept": kept,
+                                 **{k: v for k, v in e.items() if k != "readers"}})
+                if not kept:
+                    for r in match:
+                        records.remove(r)
     return readings, disputed
 
 

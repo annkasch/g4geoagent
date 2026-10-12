@@ -119,6 +119,8 @@ def ledger(readings, dropped, disputed, documents, origin="starting document", j
     text_readers = sorted(r for r in readings if not r.startswith("figure"))
     for reader, extraction in readings.items():
         for fields in _records(extraction):
+            if fields["kind"] == "value" and fields.get("quantity") in G.NEEDED_QUANTITIES:
+                fields["built"] = True          # a size, mass, volume, count or material is construction, whatever a reader ticked
             key = (join_same_facts and not reader.startswith("figure") and _same_fact(fields, documents)) or _key(fields)
             entry = found.setdefault(key, {**fields, "found_by": []})
             if reader not in entry["found_by"]:
@@ -142,7 +144,13 @@ def ledger(readings, dropped, disputed, documents, origin="starting document", j
             both = all(r in fields["found_by"] for r in text_readers)
             add(fields, "accepted", ["quote is in the document", "found or confirmed by both readers" if both
                                      else "found by one reader, not rejected by the other"])
+    questioned = {(_squash(r.get("quote", "")), G.norm(r.get("of", r.get("subject", "")))) for r in disputed if r.get("kept")}
+    for claim in claims:
+        if (_squash(claim.quote), G.norm(claim.subject.split(" / ")[0])) in questioned:
+            claim.checks.append("questioned by the other reader; kept, because the reader who found it is the more reliable one")
     for record in disputed:
+        if record.get("kept"):
+            continue
         fields = {"kind": "value" if record["kind"] == "property" else "relation", "subject": record.get("of", record.get("subject", "")),
                   "quantity": record.get("quantity", ""), "value": record.get("value"), "unit": record.get("unit", ""),
                   "relation": record.get("relation", "") if record["kind"] == "relation" else "", "object": record.get("object", ""),
@@ -176,24 +184,34 @@ def load(folder):
     return [Claim.model_validate_json(line) for line in (Path(folder) / "claims.jsonl").read_text().splitlines()]
 
 
-def claim_step(folder, text_files, pdf=None, detector="detector", log=None, origin="starting document"):
-    """Read the documents into claims and save them. Returns the list of Claim."""
+def claim_step(folder, text_files, pdf=None, detector="detector", log=None, origin="starting document", raw=None, figures=None):
+    """Read the documents into claims and save them. Returns the list of Claim.
+
+    raw      the readers' answers if they exist already: {("A", 1): Extraction, ("A", 2): ..., ("B", 1): ..., ("B", 2): ...}
+    figures  the figures if they are cut out already: (list of {file, page, caption}, folder that holds the pictures)
+    """
     from g4geoagent.reviewer import look
     folder = Path(folder)
     documents = {Path(f).name: Path(f).read_text() for f in text_files}
-    jobs = [(reader, seed) for reader in "AB" for seed in (None, 2)]           # each reader reads twice
-    with ThreadPoolExecutor(4) as pool:
-        raw = list(pool.map(lambda job: G.read_text(documents, job[0], log, G.PROMPT_3, job[1]), jobs))
+    if raw is None:                                                       # each reader reads twice
+        jobs = [(reader, seed) for reader in "AB" for seed in (None, 2)]
+        with ThreadPoolExecutor(4) as pool:
+            answers = list(pool.map(lambda job: G.read_text(documents, job[0], log, G.PROMPT_3, job[1]), jobs))
+        raw = {(reader, 1 if seed is None else 2): e for (reader, seed), e in zip(jobs, answers)}
     readings, dropped = {}, []
-    for reader in "AB":
-        readings[reader], out = G.check(G.union(*(e for (r, _), e in zip(jobs, raw) if r == reader)), documents, tolerant=True)
+    for reader in "AB":                                                   # pooled, then every quote checked
+        readings[reader], out = G.check(G.union(*(e for (r, _), e in sorted(raw.items()) if r == reader)), documents, tolerant=True)
         dropped += [{"reader": reader, **d} for d in out]
+    # numbers that were left out: first those that no value anywhere covers, then sentence by sentence
     readings["A"].properties += G.coverage_pass(readings, documents, detector, log)
-    readings, disputed = G.cross_check(readings, documents, detector, log, correct=True, votes=2)
-    if pdf:
-        figures = look.extract_figures(pdf, folder / "figures")
-        for figure in look.construction_figures(figures[:12], folder / "figures", detector, log, most=3):
-            seen = G.read_figure(figure, folder / "figures", detector, log)
+    readings["A"].properties += G.coverage_pass(readings, documents, detector, log, per_sentence=True)
+    # what one reader has alone is checked by the other, twice. Reader B's records are not removed on A's word alone.
+    readings, disputed = G.cross_check(readings, documents, detector, log, correct=True, votes=2, trusted=("B",))
+    if figures is None and pdf:
+        figures = (look.extract_figures(pdf, folder / "figures"), folder / "figures")
+    if figures:
+        for figure in look.construction_figures(figures[0][:12], figures[1], detector, log, most=3):
+            seen = G.read_figure(figure, figures[1], detector, log)
             if seen:
                 readings[f"figure:{figure['file']}"] = seen
     claims = ledger(readings, dropped, disputed, documents, origin, join_same_facts=True)

@@ -27,7 +27,9 @@ from g4geoagent.agent import graph as G
 from g4geoagent.agent.compare import numbers_in
 from g4geoagent.agent.llm import call_llm_json
 
-MODEL, REVIEWER = "lbl/gpt-oss-120b", "lbl/gemma-4"
+# gemma-4 builds the graph: on LEGEND it used nearly all claims (7 set aside against 66), nested vessels and fillings
+# correctly and took a third of the time of gpt-oss-120b (experiments/notes/claims_graph.md, model test of 2026-10-12)
+MODEL, REVIEWER = "lbl/gemma-4", "lbl/gpt-oss-120b"
 REPAIRS = 3
 TIDY = False               # values once per part with the claim's wording; features and shapes taken from the cited claims
 KEEP_STATED = False        # a stated value stays in the graph even if the model derived another from it or found it contradicted
@@ -369,6 +371,15 @@ def _clean(graph, accepted, record):
                         add(by_id[i], p.of, "stated_added")
                         stated.add(i)
                         graph.set_aside = [x for x in graph.set_aside if x.claim != i]
+        # a construction value that the model set aside as "not geometry" goes back on the part its claim names
+        name_of = {G.norm(x): n.name for n in graph.nodes for x in (n.name, *n.also_called)}
+        for i, s in aside.items():
+            claim = by_id.get(i)
+            if claim and claim.kind == "value" and claim.built and s.reason == "not_geometry":
+                of = next((name_of[G.norm(x)] for x in claim.subject.split(" / ") if G.norm(x) in name_of), None)
+                if of:
+                    add(claim, of, "stated_added")
+                    graph.set_aside = [x for x in graph.set_aside if x.claim != i]
         home = {i: p.of for p in graph.properties for i in p.claims}
         for i, s in aside.items():
             claim = by_id.get(i)
@@ -623,15 +634,32 @@ def as_text(data):
     return "\n".join(lines)
 
 
-def graph_step(folder, detector, log=None):
-    """Build the graph from claims.jsonl in `folder`, in two stages (see experiments/notes/claims_graph.md).
-    Writes detector_graph.json and detector_graph.txt."""
+def graph_step(folder, detector, log=None, model=MODEL, name="detector_graph"):
+    """Build the graph from claims.jsonl in `folder`, with the set-up of round 11 in experiments/notes/claims_graph.md:
+    two stages, the tree follows stated relations, one root, values kept as stated. Writes <name>.json and <name>.txt."""
     folder = Path(folder)
     claims = C.load(folder)
-    graph, record = build_in_two(claims, detector, log, batch=40, strict=True, parallel=True, one_root=True, keep_stated=True)
+    graph, record = build_in_two(claims, detector, log, model=model, batch=40, strict=True, parallel=True, one_root=True,
+                                 keep_stated=True)
     data = to_dict(graph, [c for c in claims if c.status == "accepted"], detector, record)
-    (folder / "detector_graph.json").write_text(json.dumps(data, indent=1))
-    (folder / "detector_graph.txt").write_text(as_text(data) + "\n")
+    (folder / f"{name}.json").write_text(json.dumps(data, indent=1))
+    (folder / f"{name}.txt").write_text(as_text(data) + "\n")
+    return data
+
+
+def refinish(folder, detector, name="detector_graph"):
+    """Redo the program's finishing of a graph from what the model built (kept in the file), without a model call."""
+    global STRICT_TREE, TIDY, ONE_ROOT, KEEP_STATED
+    STRICT_TREE = TIDY = ONE_ROOT = KEEP_STATED = True
+    folder = Path(folder)
+    old = json.loads((folder / f"{name}.json").read_text())
+    accepted = [c for c in C.load(folder) if c.status == "accepted"]
+    record = {k: v for k, v in old["checks"].items() if k in ("rounds", "review", "as_built_by_the_model")}
+    record.update(removed=[], unaccounted=[])
+    graph, record = _clean(DetectorGraph.model_validate(old["checks"]["as_built_by_the_model"]), accepted, record)
+    data = to_dict(graph, accepted, detector, record)
+    (folder / f"{name}.json").write_text(json.dumps(data, indent=1))
+    (folder / f"{name}.txt").write_text(as_text(data) + "\n")
     return data
 
 
