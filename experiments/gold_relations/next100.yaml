@@ -9,3 +9,5 @@
 - {subject: "plane|sensor", object: "copper|plate", family: any, what: "the sensor planes are mounted to copper plates"}
 - {subject: "copper|plate", object: "vessel|head|flange", family: any, what: "the copper plates are attached to the vessel heads"}
 - {subject: "pmt|photomult", object: "enclosure|copper", family: any, what: "the PMTs are sealed in copper enclosures"}
+- {subject: "sipm|tracking", object: "window|silica|gap", family: any, what: "the SiPMs are behind the fused-silica window"}
+- {subject: "vessel", object: "head", family: any, what: "the vessel has two torispherical heads"}

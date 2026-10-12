@@ -12,3 +12,7 @@
 - {value: 2.4, key: "mask", what: "mask length (m)"}
 - {value: 1.2, key: "mask", what: "mask width (m)"}
 - {value: 24, key: "shield|mass", what: "fringe shield mass (kg)"}
+- {value: 2, key: "czt|cdznte", what: "CdZnTe element thickness (mm)"}
+- {value: 256, key: "module", what: "detector modules"}
+- {value: 128, key: "module|element", what: "elements per module"}
+- {value: 4.2, key: "pitch|pixel", what: "pixel pitch (mm)"}

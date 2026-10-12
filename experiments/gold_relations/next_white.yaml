@@ -8,3 +8,5 @@
 - {subject: "tracking|plane|dice|board", object: "copper|plate", family: any, what: "the tracking plane is supported by a copper plate"}
 - {subject: "energy|pmt", object: "copper|plate", family: any, what: "the energy plane is supported by a copper plate"}
 - {subject: "anode", object: "plate|silica", family: any, what: "the anode is a coated fused-silica plate"}
+- {subject: "pmt|energy", object: "cathode", family: any, what: "the PMTs are 130 mm behind the cathode"}
+- {subject: "vessel", object: "tpc|cage|copper", family: nest, what: "the pressure vessel holds the copper shell and the TPC"}

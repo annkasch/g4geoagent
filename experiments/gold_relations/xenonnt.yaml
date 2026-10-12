@@ -5,7 +5,9 @@
 # detector: XENONnT
 - {subject: "cryostat|vessel", object: "xenon|lxe", family: nest, what: "the cryostat contains the xenon"}
 - {subject: "cryostat|vessel", object: "tpc", family: nest, what: "the TPC sits inside the cryostat"}
-- {subject: "water", object: "cryostat", family: any, what: "the cryostat is submerged in water"}
+- {subject: "water|tank", object: "cryostat", family: nest, what: "the cryostat is submerged in water"}
 - {subject: "neutron|veto", object: "cryostat", family: any, what: "the neutron veto surrounds the cryostat"}
-- {subject: "bell", object: "pmt|array", family: any, what: "the top PMT array is inside a diving bell"}
+- {subject: "bell", object: "pmt|array", family: nest, what: "the top PMT array is inside a diving bell"}
 - {subject: "lxe|xenon", object: "tpc", family: any, what: "liquid xenon surrounds the TPC"}
+- {subject: "tank", object: "water", family: nest, what: "the water is kept inside a cylindrical tank"}
+- {subject: "tpc", object: "pmt|array", family: any, what: "PMT arrays are at the top and bottom of the TPC"}

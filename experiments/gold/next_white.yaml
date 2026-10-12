@@ -13,3 +13,7 @@
 - {value: 12, key: "vessel|wall", what: "vessel wall thickness (mm)"}
 - {value: 10, key: "sensor|pitch|sipm", what: "tracking sensor pitch (mm)"}
 - {value: 140, key: "vessel|volume", what: "pressure vessel volume (L)"}
+- {value: 12, key: "pmt", what: "PMTs of the energy plane"}
+- {value: 1792, key: "sipm|sensor", what: "SiPMs of the tracking plane"}
+- {value: 130, key: "pmt|cathode", what: "PMT distance behind the cathode (mm)"}
+- {value: 3, key: "plate|silica|anode", what: "anode plate thickness (mm)"}

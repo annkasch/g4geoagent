@@ -3,7 +3,9 @@
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: SNO+
-- {subject: "av|vessel|acrylic", object: "scintillator|target|medium", family: nest, what: "the acrylic vessel contains the target medium"}
+- {subject: "(?<![a-z])av(?![a-z])|vessel|acrylic", object: "scintillator|target|medium", family: nest, what: "the acrylic vessel contains the target medium"}
 - {subject: "pmt|photomult", object: "psup|support", family: attach, what: "the PMTs are mounted on the PMT support structure"}
-- {subject: "psup|support", object: "av|vessel|acrylic", family: any, what: "the support structure is concentric with the vessel"}
-- {subject: "water|upw", object: "av|vessel|acrylic", family: any, what: "the volume outside the vessel is filled with water"}
+- {subject: "psup|support", object: "(?<![a-z])av(?![a-z])|vessel|acrylic", family: any, what: "the support structure is concentric with the vessel"}
+- {subject: "water|upw", object: "(?<![a-z])av(?![a-z])|vessel|acrylic", family: any, what: "the volume outside the vessel is filled with water"}
+- {subject: "(?<![a-z])av(?![a-z])|vessel|acrylic", object: "neck", family: any, what: "the vessel has a neck that reaches the deck"}
+- {subject: "pmt|photomult", object: "concentrator", family: any, what: "each PMT has a light concentrator"}

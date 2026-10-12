@@ -10,3 +10,5 @@
 - {subject: "plane|station", object: "bar", family: nest, what: "a plane consists of scintillator bars"}
 - {subject: "bar", object: "sipm", family: any, what: "each bar end is read out by SiPMs"}
 - {subject: "frame", object: "bar|plane", family: any, what: "the bars are housed in an aluminium frame"}
+- {subject: "wall|box", object: "brick", family: nest, what: "a wall holds four bricks in an aluminium box"}
+- {subject: "target", object: "scifi|fibre|tracker", family: any, what: "each wall is followed by a scintillating fibre plane"}

@@ -18,3 +18,9 @@
 - {value: 750, key: "iron|wall", what: "iron wall weight (kg)"}
 - {value: 133, key: "mat|fib", what: "fibre mat width (mm)"}
 - {value: 399, key: "mat|fib", what: "fibre mat length (mm)"}
+- {value: 6, key: "bar|veto", what: "veto bar width (cm)"}
+- {value: 80, key: "iron|wall", what: "iron wall width (cm)"}
+- {value: 250, key: "fib", what: "scintillating fibre diameter (um)"}
+- {value: 1.35, key: "mat|fib", what: "fibre mat thickness (mm)"}
+- {value: 1200, key: "emulsion|film", what: "emulsion films in the detector"}
+- {value: 4, key: "frame|wall", what: "aluminium frame wall thickness (mm)"}

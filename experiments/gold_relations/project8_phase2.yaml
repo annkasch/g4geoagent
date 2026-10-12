@@ -7,3 +7,4 @@
 - {subject: "copper|cylinder|coil", object: "insert", family: any, what: "the cylinder fits around the cryogenic insert"}
 - {subject: "magnet", object: "insert|cylinder|coil", family: any, what: "the insert sits within the NMR magnet"}
 - {subject: "lead|shield", object: "source|zeolite|bead", family: any, what: "the krypton source is encased in lead shielding"}
+- {subject: "waveguide", object: "cell|cres", family: any, what: "a segment of circular waveguide is the CRES cell"}

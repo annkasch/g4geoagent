@@ -9,7 +9,8 @@ Writes into the folder:
     figures/all_figures.jsonl   file, page and caption of each figure
 
 Letters that PDF fonts damage are repaired: joined letters (fi, fl) are split, and mathematical letters
-that come out as unrelated symbols are put back (200 followed by a Korean sign becomes 200 μ).
+that come out as unrelated symbols are put back (200 followed by a Korean sign becomes 200 μ). The line
+numbers of a numbered preprint are taken out.
 """
 
 import json
@@ -35,6 +36,19 @@ def clean(text):
         out.append(ch)
     text = unicodedata.normalize("NFKC", "".join(out))      # ﬁ -> fi, mathematical letters -> plain letters
     return text.replace("­", "")                       # soft hyphens
+
+
+def drop_line_numbers(text, run=20):
+    """Take out the line numbers of a numbered preprint: lines that hold only a number and count up one by one."""
+    lines = text.split("\n")
+    bare = [i for i, line in enumerate(lines) if re.fullmatch(r"\s*\d{1,5}\s*", line)]
+    chains = {}                      # last number of a run: the lines of that run. Other bare numbers (page numbers,
+    for i in bare:                   # footnote marks) may stand in between without breaking a run.
+        value = int(lines[i])
+        if len(chains.get(value - 1, [])) + 1 > len(chains.get(value, [])):
+            chains[value] = chains.pop(value - 1, []) + [i]
+    drop = {i for chain in chains.values() if len(chain) >= run for i in chain}
+    return "\n".join(line for i, line in enumerate(lines) if i not in drop)
 
 
 def _clusters(page, tables):
@@ -129,7 +143,7 @@ def read_pdf(pdf_path, folder):
                 figures.append({"file": name, "page": number, "caption": (near[1] if near else "")[:600], "source": pdf_path.name,
                                 "size_points": [round(group.width), round(group.height)]})
         n_pages = len(document)
-    (folder / f"{pdf_path.stem}.txt").write_text("\n".join(pages) + "\n")
+    (folder / f"{pdf_path.stem}.txt").write_text(drop_line_numbers("\n".join(pages)) + "\n")
     with (folder / "figures" / "all_figures.jsonl").open("a") as f:
         f.writelines(json.dumps(figure) + "\n" for figure in figures)
     return {"text": f"{pdf_path.stem}.txt", "figures": figures, "tables": n_tables, "pages": n_pages}

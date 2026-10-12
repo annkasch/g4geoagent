@@ -3,16 +3,24 @@
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: ANTARES
 - {value: 12, key: "line", what: "detector lines"}
-- {value: 2475, key: "depth|seabed|sea", what: "depth (m)"}
+- {value: 2475, key: "depth|seabed|(?<![a-z])sea(?![a-z])", what: "depth (m)"}
 - {value: 600, key: "container|cylinder|housing", what: "electronics container length (mm)"}
 - {value: 179, key: "container|cylinder|housing", what: "electronics container outer diameter (mm)"}
 - {value: 22, key: "container|cylinder|wall", what: "electronics container wall thickness (mm)"}
 - {value: 30, key: "cap", what: "end cap thickness (mm)"}
 - {value: 68, key: "mesh|cage", what: "magnetic shield mesh size (mm)"}
 - {value: 1.08, key: "wire|mesh", what: "mesh wire diameter (mm)"}
-- {value: 280, key: "support|plate|om", what: "optical module support plate diameter (mm)"}
+- {value: 280, key: "support|plate|(?<![a-z])om(?![a-z])", what: "optical module support plate diameter (mm)"}
 - {value: 705, key: "laser|container", what: "laser container length (mm)"}
 - {value: 170, key: "laser|container", what: "laser container diameter (mm)"}
 - {value: 1347, key: "buoy|foam", what: "buoy horizontal diameter (mm)"}
 - {value: 1530, key: "buoy|foam", what: "buoy height (mm)"}
 - {value: 480, key: "line|cable|length", what: "line length (m)"}
+- {value: 25, key: "storey|line|omf", what: "storeys per line"}
+- {value: 3, key: "(?<![a-z])om(?![a-z])|optical|storey", what: "optical modules per storey"}
+- {value: 14.5, key: "storey|pitch|distance", what: "distance between storeys (m)"}
+- {value: 100, key: "storey|seabed", what: "height of the first storey above the seabed (m)"}
+- {value: 885, key: "(?<![a-z])om(?![a-z])|optical", what: "optical modules in the detector"}
+- {value: 432, key: "sphere|glass", what: "glass sphere outer diameter (mm)"}
+- {value: 15, key: "sphere|glass|wall", what: "glass sphere wall thickness (mm)"}
+- {value: 7, key: "line", what: "mass of a line (t)"}

@@ -11,3 +11,7 @@
 - {value: 200, key: "layout|array|hawc", what: "array extent (m)"}
 - {value: 150, key: "layout|array|hawc", what: "array extent (m)"}
 - {value: 2.6, key: "aisle", what: "aisle width (m)"}
+- {value: 300, key: "wcd|tank|detector", what: "water Cherenkov detectors"}
+- {value: 4, key: "pmt|photomult", what: "PMTs per tank"}
+- {value: 4.5, key: "water|depth", what: "water depth (m)"}
+- {value: 60, key: "wcd|tank|separation", what: "minimum separation of tanks (cm)"}

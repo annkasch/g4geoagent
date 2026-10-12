@@ -8,3 +8,4 @@
 - {subject: "camera", object: "pmt|phototube|pixel", family: nest, what: "the camera consists of 499 PMTs"}
 - {subject: "facet|mirror", object: "oss|structure|frame", family: any, what: "each facet is mounted on the optical support structure"}
 - {subject: "telescope|reflector", object: "camera", family: any, what: "the reflector is instrumented with a camera"}
+- {subject: "camera", object: "quadropod|quadrupod|arm", family: any, what: "the camera is supported on a quadropod"}

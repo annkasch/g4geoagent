@@ -4,5 +4,7 @@
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: Baikal-GVD
 - {subject: "cluster", object: "string", family: any, what: "a cluster has seven strings around a central one"}
-- {subject: "om|optical", object: "string|section", family: any, what: "the optical modules are arranged along the strings"}
-- {subject: "om|optical", object: "cm|module|cable", family: any, what: "each optical module is connected to the control module by a cable"}
+- {subject: "(?<![a-z])om(?![a-z])|optical", object: "string|section", family: any, what: "the optical modules are arranged along the strings"}
+- {subject: "(?<![a-z])om(?![a-z])|optical", object: "(?<![a-z])cm(?![a-z])|module|cable", family: any, what: "each optical module is connected to the control module by a cable"}
+- {subject: "string", object: "section", family: any, what: "a string has three sections"}
+- {subject: "string", object: "lakebed|anchor|bottom", family: any, what: "each string is anchored to the lakebed"}

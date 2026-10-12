@@ -6,9 +6,19 @@
 - {value: 8.5, key: "cryostat|total|xenon", what: "total xenon in the cryostat (t)"}
 - {value: 1620, key: "cryostat|vessel|outer", what: "outer cryostat inner diameter (mm)"}
 - {value: 64, key: "lxe|surround|volume|xenon", what: "thickness of xenon around the TPC (mm)"}
-- {value: 1460, key: "vessel|iv|inner", what: "inner vessel diameter (mm)"}
-- {value: 2666, key: "vessel|iv|inner", what: "inner vessel height (mm)"}
+- {value: 1460, key: "vessel|(?<![a-z])iv(?![a-z])|inner", what: "inner vessel diameter (mm)"}
+- {value: 2666, key: "vessel|(?<![a-z])iv(?![a-z])|inner", what: "inner vessel height (mm)"}
 - {value: 700, key: "water", what: "water in the shield (t)"}
 - {value: 33, key: "neutron|veto", what: "neutron veto volume (m3)"}
 - {value: 4, key: "bell", what: "diving bell wall thickness (mm)"}
 - {value: 25, key: "copper|disk|array", what: "copper support disk, bottom array (mm)"}
+- {value: 1613, key: "tpc|active|region", what: "active region height (mm)"}
+- {value: 1327, key: "tpc|active|region", what: "active region width (mm)"}
+- {value: 1486, key: "drift", what: "drift region length (mm)"}
+- {value: 10.2, key: "tank|water", what: "water tank height (m)"}
+- {value: 9.6, key: "tank|water", what: "water tank diameter (m)"}
+- {value: 3001, key: "vessel|outer|(?<![a-z])ov(?![a-z])", what: "outer vessel height (mm)"}
+- {value: 253, key: "pmt|top|array", what: "PMTs at the top"}
+- {value: 241, key: "pmt|bottom|array", what: "PMTs at the bottom"}
+- {value: 3, key: "ptfe|panel", what: "PTFE panel thickness (mm)"}
+- {value: 20, key: "copper|disk|array", what: "copper support disk, top array (mm)"}

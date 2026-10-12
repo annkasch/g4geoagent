@@ -9,3 +9,4 @@
 - {subject: "fib|bar", object: "mppc|photosensor|sensor", family: any, what: "each fibre is read out by an MPPC"}
 - {subject: "fgd|module", object: "water|panel", family: any, what: "the second FGD alternates scintillator modules with water panels"}
 - {subject: "skin|g10", object: "module", family: any, what: "G10 skins are glued to the module surfaces"}
+- {subject: "fgd", object: "water|panel|module", family: nest, what: "FGD2 contains six water modules"}

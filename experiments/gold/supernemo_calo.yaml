@@ -3,7 +3,7 @@
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: SuperNEMO Demonstrator (calorimeter)
 - {value: 2034, key: "cell|wire|track", what: "tracker cells"}
-- {value: 6.11, key: "se|source|selen", what: "selenium-82 source (kg)"}
+- {value: 6.11, key: "(?<![a-z])se(?![a-z])|source|selen", what: "selenium-82 source (kg)"}
 - {value: 2.7, key: "foil|source", what: "source foil length (m)"}
 - {value: 135, key: "foil", what: "source foil width (mm)"}
 - {value: 300, key: "foil", what: "source foil thickness (um)"}
@@ -14,3 +14,7 @@
 - {value: 20, key: "scintillator|depth", what: "scintillator depth (cm)"}
 - {value: 3, key: "iron|shield|plate", what: "iron shield plate thickness (mm)"}
 - {value: 6, key: "mylar", what: "mylar thickness (um)"}
+- {value: 34, key: "foil|source", what: "source foils"}
+- {value: 712, key: "block|scintillator|calorimeter", what: "scintillator blocks of the calorimeter"}
+- {value: 260, key: "(?<![a-z])om(?![a-z])|optical|wall", what: "optical modules per main wall"}
+- {value: 25, key: "(?<![a-z])om(?![a-z])|optical|module", what: "weight of an optical module (kg)"}

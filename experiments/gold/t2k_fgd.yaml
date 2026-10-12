@@ -18,3 +18,9 @@
 - {value: 2069, key: "box|internal|dark", what: "dark box internal dimension (mm)"}
 - {value: 352, key: "box|internal|dark", what: "dark box internal depth (mm)"}
 - {value: 11.2, key: "plate|alumin", what: "side plate thickness (mm)"}
+- {value: 192, key: "bar|layer|module", what: "bars per layer of an XY module"}
+- {value: 15, key: "module|fgd", what: "XY modules in FGD1"}
+- {value: 7, key: "module|fgd", what: "XY modules in FGD2"}
+- {value: 6, key: "water|panel|module", what: "water modules in FGD2"}
+- {value: 1.8, key: "hole|bar", what: "bar hole diameter (mm)"}
+- {value: 6.4, key: "cover|plate", what: "cover plate thickness at the edges (mm)"}

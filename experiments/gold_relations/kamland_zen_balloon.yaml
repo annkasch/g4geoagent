@@ -3,6 +3,8 @@
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: KamLAND-Zen 800 inner balloon
-- {subject: "ib|inner|balloon", object: "ls|scintillator|xe", family: nest, what: "the inner balloon holds the xenon-loaded scintillator"}
-- {subject: "tube|corrugated", object: "ib|inner|balloon|vessel", family: any, what: "a corrugated tube forms the top of the inner vessel"}
-- {subject: "kamland|outer|detector|ls", object: "ib|inner|balloon", family: any, what: "the inner balloon hangs in the KamLAND scintillator"}
+- {subject: "(?<![a-z])ib(?![a-z])|inner|balloon", object: "(?<![a-z])ls(?![a-z])|scintillator|(?<![a-z])xe(?![a-z])", family: nest, what: "the inner balloon holds the xenon-loaded scintillator"}
+- {subject: "tube|corrugated", object: "(?<![a-z])ib(?![a-z])|inner|balloon|vessel", family: any, what: "a corrugated tube forms the top of the inner vessel"}
+- {subject: "kamland|outer|detector|(?<![a-z])ls(?![a-z])", object: "(?<![a-z])ib(?![a-z])|inner|balloon", family: nest, what: "the inner balloon hangs in the KamLAND scintillator"}
+- {subject: "tank|steel|kamland|detector", object: "balloon|outer", family: any, what: "the outer balloon is inside the steel tank"}
+- {subject: "(?<![a-z])ib(?![a-z])|inner|balloon", object: "gore|sphere|tube|cone", family: any, what: "the inner balloon is made of a sphere of gores, a cone and a straight tube"}

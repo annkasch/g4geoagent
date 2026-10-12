@@ -7,4 +7,6 @@
 - {subject: "cage", object: "tpc|drift", family: any, what: "a field cage encloses the drift region"}
 - {subject: "skin", object: "cryostat|icv|vessel|cage", family: any, what: "the skin lies between the field cage and the inner cryostat vessel"}
 - {subject: "pmt|array", object: "tpc|xenon|lxe", family: any, what: "two PMT arrays view the TPC"}
-- {subject: "water", object: "cryostat|detector|tpc|lz", family: any, what: "the detector sits in a water tank"}
+- {subject: "water", object: "cryostat|detector|tpc|lz", family: nest, what: "the detector sits in a water tank"}
+- {subject: "skin", object: "pmt", family: any, what: "PMTs view the xenon skin"}
+- {subject: "cryostat|icv|vessel", object: "tpc|xenon|lxe", family: nest, what: "the inner cryostat vessel holds the xenon and the TPC"}

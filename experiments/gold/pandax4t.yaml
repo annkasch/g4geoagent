@@ -11,3 +11,5 @@
 - {value: 199, key: "pmt|bottom|photomult", what: "PMTs at the bottom"}
 - {value: 6, key: "mesh|screen", what: "screening mesh distance from the PMTs (mm)"}
 - {value: 3.5, key: "gas|gap", what: "gas gap (mm)"}
+- {value: 24, key: "ptfe|panel", what: "PTFE wall panels"}
+- {value: 10, key: "gate|anode", what: "gate to anode separation (mm)"}

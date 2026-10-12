@@ -6,7 +6,10 @@
 - {value: 64, key: "shield|radius|lead", what: "shield radius (cm)"}
 - {value: 178, key: "shield|height|lead", what: "shield height (cm)"}
 - {value: 30, key: "lead|top", what: "top lead thickness (cm)"}
-- {value: 1520, key: "mass|10 mk|cool|kg", what: "mass cooled below 10 mK (kg)"}
+- {value: 1520, key: "mass|10 mk|cool|(?<![a-z])kg(?![a-z])", what: "mass cooled below 10 mK (kg)"}
 - {value: 70, key: "lead|external|shield", what: "external lead shield (t)"}
 - {value: 25, key: "lead|external|shield", what: "external lead shield thickness (cm)"}
 - {value: 76.8, key: "tsp|plate|support", what: "tower support plate below the top lead (mm)"}
+- {value: 5, key: "lead|shield", what: "side lead shield weight (t)"}
+- {value: 988, key: "teo2|bolometer|crystal|detector", what: "TeO2 bolometers"}
+- {value: 6, key: "vessel|cryostat", what: "coaxial vessels of the cryostat"}

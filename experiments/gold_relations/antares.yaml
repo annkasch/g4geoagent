@@ -4,8 +4,12 @@
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: ANTARES
 - {subject: "antares|telescope|detector", object: "line", family: nest, what: "the telescope consists of 12 lines"}
-- {subject: "line|storey", object: "optical_module|om|module", family: any, what: "the lines hold optical modules"}
-- {subject: "om|optical", object: "support|plate", family: any, what: "each optical module sits on a support plate"}
+- {subject: "line|storey", object: "optical_module|(?<![a-z])om(?![a-z])|module", family: any, what: "the lines hold optical modules"}
+- {subject: "(?<![a-z])om(?![a-z])|optical", object: "support|plate", family: any, what: "each optical module sits on a support plate"}
 - {subject: "container|cylinder", object: "electronic|readout", family: nest, what: "the readout electronics is housed in a titanium container"}
-- {subject: "laser", object: "container", family: any, what: "the laser is housed in a titanium container"}
+- {subject: "container", object: "laser", family: nest, what: "the laser is housed in a titanium container"}
 - {subject: "container|cylinder", object: "cap", family: any, what: "the container is closed by two end caps"}
+- {subject: "line", object: "storey|omf", family: nest, what: "a line is a chain of 25 storeys"}
+- {subject: "storey|omf|frame", object: "(?<![a-z])om(?![a-z])|optical", family: any, what: "each storey supports three optical modules"}
+- {subject: "sphere|glass|(?<![a-z])om(?![a-z])|optical", object: "pmt|photomult", family: any, what: "a glass sphere houses each PMT"}
+- {subject: "buoy", object: "line", family: any, what: "a buoy tops each line"}

@@ -3,9 +3,12 @@
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: Baikal-GVD
 - {value: 1366, alt: 366, key: "depth|lakebed", what: "depth of the lakebed (m)"}
-- {value: 15, key: "om|spacing|vertical", what: "vertical spacing of optical modules (m)"}
+- {value: 15, key: "(?<![a-z])om(?![a-z])|spacing|vertical", what: "vertical spacing of optical modules (m)"}
 - {value: 525, key: "string|length", what: "active string length (m)"}
 - {value: 90, key: "lakebed|above", what: "start height above the lakebed (m)"}
 - {value: 92, key: "cable", what: "cable from an optical module to the control module (m)"}
 - {value: 60, key: "string|peripheral|distance", what: "distance of peripheral strings from the central one (m)"}
 - {value: 7, key: "string|peripheral", what: "peripheral strings per cluster"}
+- {value: 36, key: "(?<![a-z])om(?![a-z])|optical|string", what: "optical modules per string"}
+- {value: 12, key: "(?<![a-z])om(?![a-z])|optical|section", what: "optical modules per section"}
+- {value: 300, key: "cluster", what: "distance between cluster centres (m)"}

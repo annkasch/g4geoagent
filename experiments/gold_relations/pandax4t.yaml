@@ -3,8 +3,10 @@
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: PandaX-4T
-- {subject: "water|tank", object: "detector|cryostat", family: any, what: "the detector is at the centre of the water shield"}
+- {subject: "water|tank", object: "detector|cryostat", family: nest, what: "the detector is at the centre of the water shield"}
 - {subject: "cryostat", object: "xenon|lxe", family: nest, what: "the cryostat contains the liquid xenon"}
-- {subject: "overflow", object: "cryostat", family: any, what: "an overflow chamber is inside the cryostat"}
+- {subject: "cryostat", object: "overflow", family: nest, what: "an overflow chamber is inside the cryostat"}
 - {subject: "pmt|photomult", object: "tpc", family: any, what: "PMTs are at the top and bottom of the TPC"}
 - {subject: "tank", object: "water", family: nest, what: "the tank holds the water shield"}
+- {subject: "tpc", object: "ptfe|panel", family: any, what: "the TPC is confined by 24 PTFE wall panels"}
+- {subject: "tpc", object: "cathode|gate|anode", family: any, what: "cathode, gate and anode define the fields in the TPC"}

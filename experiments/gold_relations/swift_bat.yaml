@@ -6,4 +6,5 @@
 - {subject: "plane|detector|array", object: "czt|cdznte|element", family: nest, what: "the detector plane consists of CdZnTe elements"}
 - {subject: "mask", object: "lead|tile|piece|element|cell", family: nest, what: "the mask consists of lead tiles"}
 - {subject: "mask", object: "plane|detector|array", family: any, what: "the mask is 1 m above the detector plane"}
-- {subject: "shield", object: "bat|detector|plane", family: any, what: "a graded-Z fringe shield goes round the detector"}
+- {subject: "shield", object: "(?<![a-z])bat(?![a-z])|detector|plane", family: any, what: "a graded-Z fringe shield goes round the detector"}
+- {subject: "module", object: "czt|cdznte|element", family: nest, what: "a detector module has 128 elements"}

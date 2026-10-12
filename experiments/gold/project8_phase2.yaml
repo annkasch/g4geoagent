@@ -9,3 +9,5 @@
 - {value: 2.4, key: "caf2|window", what: "CaF2 window thickness (mm)"}
 - {value: 0.9, key: "waveguide", what: "waveguide length (m)"}
 - {value: 2, key: "zeolite|bead", what: "zeolite bead diameter (mm)"}
+- {value: 10, key: "waveguide|cell|cres", what: "circular waveguide inner diameter (mm)"}
+- {value: 152, key: "waveguide|steel", what: "steel waveguide section length (mm)"}

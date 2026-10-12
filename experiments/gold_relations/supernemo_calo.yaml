@@ -7,3 +7,5 @@
 - {subject: "scintillator|block", object: "teflon|mylar|wrap", family: any, what: "the scintillator is wrapped in Teflon and mylar"}
 - {subject: "scintillator|block", object: "pmt", family: any, what: "each scintillator is in contact with a PMT"}
 - {subject: "foil|source", object: "track|chamber|demonstrator|detector", family: any, what: "the source foils sit in the tracker"}
+- {subject: "frame|source", object: "foil", family: nest, what: "the source frame contains 34 source foils"}
+- {subject: "calorimeter|wall", object: "block|scintillator|(?<![a-z])om(?![a-z])|optical", family: nest, what: "the calorimeter consists of scintillator blocks"}

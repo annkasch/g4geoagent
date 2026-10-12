@@ -5,5 +5,6 @@
 # detector: HAWC
 - {subject: "wcd|tank|steel", object: "bladder", family: any, what: "the steel structure supports the bladder"}
 - {subject: "bladder", object: "water", family: nest, what: "the bladder contains the water"}
-- {subject: "pmt", object: "wcd|tank|bladder", family: any, what: "the PMTs are at the bottom of the tank"}
+- {subject: "wcd|tank|bladder|water", object: "pmt", family: nest, what: "the PMTs are at the bottom of the tank"}
 - {subject: "hawc|array", object: "wcd|tank", family: any, what: "the array is made up of the tanks"}
+- {subject: "wcd|tank|detector", object: "pmt|photomult", family: any, what: "each tank has four PMTs"}

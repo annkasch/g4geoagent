@@ -3,9 +3,9 @@
 # family: nest = the object is within the subject; attach = mounted on or attached to, either way round;
 #         any = any relation between the two, either way round; otherwise the named relation exactly.
 # detector: COSINE-100
-- {subject: "copper|tube|encapsul", object: "crystal|nai", family: nest, what: "the crystals are encased in copper tubes"}
-- {subject: "ptfe|reflect", object: "crystal|nai", family: any, what: "the crystals are wrapped in PTFE sheets"}
-- {subject: "quartz|window", object: "crystal|nai|tube", family: any, what: "quartz windows close each end of the crystal"}
+- {subject: "copper|tube|encapsul", object: "crystal|(?<![a-z])nai(?![a-z])", family: nest, what: "the crystals are encased in copper tubes"}
+- {subject: "ptfe|reflect", object: "crystal|(?<![a-z])nai(?![a-z])", family: any, what: "the crystals are wrapped in PTFE sheets"}
+- {subject: "quartz|window", object: "crystal|(?<![a-z])nai(?![a-z])|tube", family: any, what: "quartz windows close each end of the crystal"}
 - {subject: "lead", object: "copper|box", family: any, what: "the lead shield is outside the copper box"}
-- {subject: "copper|box", object: "scintillator|ls", family: any, what: "the copper box holds the liquid scintillator"}
+- {subject: "copper|box", object: "scintillator|(?<![a-z])ls(?![a-z])", family: nest, what: "the copper box holds the liquid scintillator"}
 - {subject: "plastic|panel", object: "lead|shield", family: any, what: "plastic scintillator panels are the outermost layer"}

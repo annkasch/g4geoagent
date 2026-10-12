@@ -8,4 +8,8 @@
 - {value: 253, key: "top|array|pmt", what: "PMTs in the top array"}
 - {value: 145.6, key: "drift|cathode|gate|field", what: "drift region length and diameter (cm)"}
 - {value: 2, key: "skin", what: "xenon in the skin region (t)"}
-- {value: 120, key: "pmt|od|outer", what: "outer-detector PMTs"}
+- {value: 120, key: "pmt|(?<![a-z])od(?![a-z])|outer", what: "outer-detector PMTs"}
+- {value: 494, key: "pmt", what: "TPC PMTs"}
+- {value: 131, key: "skin|pmt", what: "skin PMTs"}
+- {value: 8, key: "vapor|vapour|gas|layer", what: "vapour layer thickness (mm)"}
+- {value: 4, key: "skin", what: "skin xenon thickness at the top (cm)"}

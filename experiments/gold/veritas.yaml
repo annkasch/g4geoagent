@@ -9,3 +9,4 @@
 - {value: 110, key: "mirror|area", what: "total mirror area (m2)"}
 - {value: 24.0, key: "facet|curvature|radius", what: "facet radius of curvature (m)"}
 - {value: 2.86, key: "phototube|pmt|diameter", what: "phototube diameter (cm)"}
+- {value: 12, key: "oss|surface|radius", what: "radius of the support structure's front surface (m)"}

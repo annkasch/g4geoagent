@@ -4,92 +4,92 @@
   detector: T2K fine-grained detectors (FGD)
   pages: 47
   words: 26172
-  values: 16
-  relations: 6
+  values: 22
+  relations: 7
 - name: sno_plus
   arxiv: '2104.11687'
   detector: SNO+
   pages: 67
   words: 27850
-  values: 8
-  relations: 4
+  values: 12
+  relations: 6
 - name: snd_lhc
   arxiv: '2210.02784'
   detector: SND@LHC
   pages: 57
   words: 19416
-  values: 16
-  relations: 7
+  values: 22
+  relations: 9
 - name: lz
   arxiv: '1910.09124'
   detector: LUX-ZEPLIN (LZ)
   pages: 28
   words: 21511
-  values: 7
-  relations: 5
+  values: 11
+  relations: 7
 - name: xenonnt
   arxiv: '2402.10446'
   detector: XENONnT
   pages: 32
   words: 21485
-  values: 10
-  relations: 6
+  values: 20
+  relations: 8
 - name: cuore_cryostat
   arxiv: '1805.06209'
   detector: CUORE cryostat
   pages: 8
   words: 3338
-  values: 8
-  relations: 4
+  values: 11
+  relations: 6
 - name: kamland_zen_balloon
   arxiv: '2104.10452'
   detector: KamLAND-Zen 800 inner balloon
   pages: 25
   words: 9500
-  values: 8
-  relations: 3
+  values: 14
+  relations: 5
 - name: next_white
   arxiv: '1804.02409'
   detector: NEXT-White (NEW)
   pages: 30
   words: 9535
-  values: 11
-  relations: 5
+  values: 15
+  relations: 7
 - name: next100
   arxiv: '1511.09246'
   detector: NEXT-100
   pages: 30
   words: 11952
-  values: 11
-  relations: 6
+  values: 16
+  relations: 8
 - name: hawc
   arxiv: '2304.00730'
   detector: HAWC
   pages: 39
   words: 16188
-  values: 9
-  relations: 4
+  values: 13
+  relations: 5
 - name: swift_bat
   arxiv: astro-ph/0507410
   detector: Swift Burst Alert Telescope (BAT)
   pages: 18
   words: 7631
-  values: 10
-  relations: 4
+  values: 14
+  relations: 5
 - name: juno
   arxiv: '2104.02565'
   detector: JUNO (with its satellite detectors TAO and OSIRIS)
   pages: 78
   words: 41254
-  values: 10
-  relations: 5
+  values: 21
+  relations: 8
 - name: antares
   arxiv: '1104.1607'
   detector: ANTARES
   pages: 86
   words: 28835
-  values: 14
-  relations: 6
+  values: 22
+  relations: 10
 - name: cosine100
   arxiv: '1804.05167'
   detector: COSINE-100
@@ -102,40 +102,40 @@
   detector: PandaX-4T
   pages: 11
   words: 6658
-  values: 9
-  relations: 5
+  values: 11
+  relations: 7
 - name: project8_phase2
   arxiv: '2503.08807'
   detector: Project 8 phase II apparatus
   pages: 29
   words: 11036
-  values: 7
-  relations: 4
+  values: 9
+  relations: 5
 - name: baikal_gvd
   arxiv: '2309.16310'
   detector: Baikal-GVD
   pages: 8
   words: 3007
-  values: 7
-  relations: 3
+  values: 10
+  relations: 5
 - name: veritas
   arxiv: astro-ph/0604119
   detector: VERITAS (first telescope)
   pages: 24
   words: 7278
-  values: 7
-  relations: 5
+  values: 8
+  relations: 6
 - name: supernemo_calo
   arxiv: '2412.18021'
   detector: SuperNEMO Demonstrator (calorimeter)
   pages: 26
   words: 17728
-  values: 12
-  relations: 4
+  values: 16
+  relations: 6
 - name: cta_sst
   arxiv: '2110.14527'
   detector: CTA Small-Sized Telescope
   pages: 9
   words: 3351
-  values: 9
-  relations: 5
+  values: 12
+  relations: 7

@@ -3,10 +3,16 @@
 # value: the number (alt: another way it is written). key: a word that must appear in the claim. optional: fine to leave out.
 # detector: KamLAND-Zen 800 inner balloon
 - {value: 135, key: "outer|balloon|film", what: "outer balloon film thickness (um)"}
-- {value: 1200, key: "ls|scintillator|volume", what: "KamLAND liquid scintillator volume (m3)"}
-- {value: 31.5, key: "ib|inner|balloon|volume", what: "inner balloon volume (m3)"}
-- {value: 750, alt: 745, key: "xenon|xe", what: "xenon (kg)"}
-- {value: 1920, alt: 1.9, key: "radius|balloon|ib", what: "balloon radius (mm)"}
-- {value: 677, key: "xe", what: "xenon-136 (kg)"}
+- {value: 1200, key: "(?<![a-z])ls(?![a-z])|scintillator|volume", what: "KamLAND liquid scintillator volume (m3)"}
+- {value: 31.5, key: "(?<![a-z])ib(?![a-z])|inner|balloon|volume", what: "inner balloon volume (m3)"}
+- {value: 750, alt: 745, key: "xenon|(?<![a-z])xe(?![a-z])", what: "xenon (kg)"}
+- {value: 1920, alt: 1.9, key: "radius|balloon|(?<![a-z])ib(?![a-z])", what: "balloon radius (mm)"}
+- {value: 677, key: "(?<![a-z])xe(?![a-z])", what: "xenon-136 (kg)"}
 - {value: 6, key: "tube|corrugated", what: "corrugated tube length (m)"}
 - {value: 10, key: "tube|corrugated", what: "corrugated tube diameter (cm)"}
+- {value: 25, key: "film|nylon|balloon", what: "inner balloon film thickness (um)"}
+- {value: 13, key: "balloon|outer", what: "outer balloon diameter (m)"}
+- {value: 1325, key: "pmt", what: "17-inch PMTs"}
+- {value: 554, key: "pmt", what: "20-inch PMTs"}
+- {value: 1500, key: "tube|straight", what: "straight tube length (mm)"}
+- {value: 24, key: "gore|sphere", what: "gores of the main sphere"}
