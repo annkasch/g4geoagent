@@ -53,6 +53,9 @@ VARIANTS = {
     # 10: variant 9, and what a claim states stays in the graph as stated: where the model kept only a value it
     #     worked out, or dropped one of two values that disagree, the program puts the stated value back and notes it
     "c10_keep_stated": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True, "keep_stated": True}},
+    # 11: variant 10 with a mistake of the program put right: a place claim counts as "on an edge" only if an edge of
+    #     the same kind cites it (in round 10 an edge "contains" citing it was enough, so no edge was added)
+    "c11_place_edges_fixed": {"claims": "v3", "stages": 2, "options": {"strict": True, "parallel": True, "batch": 40, "one_root": True, "keep_stated": True}},
 }
 
 

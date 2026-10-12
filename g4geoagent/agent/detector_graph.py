@@ -364,12 +364,12 @@ def _clean(graph, accepted, record):
         # a claim that says where a part is (at the bottom of, attached to, next to ...) is an edge of the graph.
         # Where the model used such a claim only to decide what is inside what, the program adds the edge.
         name_of = {G.norm(x): n.name for n in graph.nodes for x in (n.name, *n.also_called)}
-        on_edges = {i for e in graph.edges for i in e.claims}
+        on_edges = {(i, e.relation) for e in graph.edges for i in e.claims}      # cited by an edge of the same kind
         aside = {s.claim for s in graph.set_aside}
         have = {(e.subject, e.relation, e.object) for e in graph.edges}
         record["edges_added"] = []
         for claim in accepted:
-            if claim.kind != "relation" or claim.relation in ("contains", "consists_of") or claim.id in on_edges or claim.id in aside:
+            if claim.kind != "relation" or claim.relation in ("contains", "consists_of") or (claim.id, claim.relation) in on_edges or claim.id in aside:
                 continue
             ends = [next((name_of[G.norm(x)] for x in side.split(" / ") if G.norm(x) in name_of), None)
                     for side in (claim.subject, claim.object)]
@@ -472,6 +472,7 @@ def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False
             graph.set_aside += values.set_aside
     if review:
         record["moved"] = review_values(graph, accepted, detector, log)
+    record["as_built_by_the_model"] = graph.model_dump()          # before the program's tidying, so that it can be redone
     return _clean(graph, accepted, record)
 
 
