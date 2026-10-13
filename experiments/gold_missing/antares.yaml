@@ -1,0 +1,137 @@
+# Facts the paper states that are missing from experiments/gold/antares.yaml and experiments/gold_relations/antares.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1 to 4 (pages 9 to 57) of the text in runs/papers20/antares/step1;
+# sections 5 and 6 (construction, operation) only scanned for sizes. Not merged into the hand lists. Not checked by a detector expert.
+# p: page of the PDF. Fields as in the hand lists; materials have no number, so they are a list of their own.
+# detector: ANTARES
+values:
+- {value: 40, key: "offshore|toulon|shore", what: "distance of the detector offshore from Toulon (km)", p: 9}
+- {value: 45, key: "(?<![a-z])oms?(?![a-z])|optical|downward", what: "angle below the horizontal at which the optical modules look down (deg)", p: 11}
+- {value: 13, key: "line", what: "lines in all: 12 detector lines and the instrumentation line", p: 47}
+- {value: 5, key: "sector", what: "sectors per line", p: 18}
+- {value: 5, key: "sector|storey", what: "storeys per sector (the master LCM sits on every fifth storey)", p: 18}
+- {value: 10, key: "pmt|photomult|tube", what: "PMT diameter (inch), Hamamatsu R7081-20, hemispherical", p: 19}
+- {value: 500, key: "photocathode", what: "photocathode area, lower limit (cm2)", p: 19}
+- {value: 2.23, key: "glass|sphere|density", what: "density of the sphere glass (g/cm3)", p: 21}
+- {value: 1.47, key: "glass|sphere|refractive", what: "refractive index of the sphere glass", p: 21}
+- {value: 20, key: "hole|penetrator", what: "diameter of the penetrator hole in the back hemisphere (mm)", p: 21}
+- {value: 5, key: "hole|vacuum|port", what: "diameter of the vacuum port hole in the back hemisphere (mm)", p: 21}
+- {value: 0.7, key: "air|pressure|sphere", what: "absolute air pressure inside the sphere (bar)", p: 21}
+- {value: 770, key: "sphere|centre|storey", what: "distance between the centres of the spheres of a storey (mm)", p: 22}
+- {value: 1.404, key: "gel", what: "refractive index of the optical gel", p: 22}
+- {value: 60, key: "gel|absorption", what: "absorption length of the optical gel (cm)", p: 22}
+- {value: 5, key: "pad|rubber", what: "rubber pads between the support and the optical module", p: 25}
+- {value: 2, key: "wire", what: "titanium wires pulling an optical module onto its plate (a pair)", p: 25}
+- {value: 2, key: "ring", what: "rings of the optical module frame, top and bottom", p: 26}
+- {value: 85, key: "ring", what: "inner diameter of the frame rings (mm)", p: 26}
+- {value: 3, key: "tube", what: "shaped tubes of the optical module frame", p: 26}
+- {value: 33.4, key: "tube", what: "outer diameter of the frame tubes (mm)", p: 26}
+- {value: 3.38, key: "tube", what: "wall thickness of the frame tubes (mm)", p: 26}
+- {value: 2.12, key: "height|frame|omf|tube", what: "overall height of the optical module frame (m)", p: 26}
+- {value: 2, key: "termination|emc", what: "distance between the cable terminations of a frame (m)", p: 26}
+- {value: 4, key: "spacer", what: "triangular spacers of the frame", p: 26}
+- {value: 12, key: "spacer|rod", what: "rod diameter of the spacers (mm)", p: 26}
+- {value: 80, key: "fixture|plate", what: "side of the OM fixture plates, 80 x 80 x 5 mm (mm)", p: 26}
+- {value: 5, key: "fixture|plate", what: "thickness of the OM fixture plates (mm)", p: 26}
+- {value: 195, key: "fixture|plate|axis", what: "distance of the OM fixture plates from the frame axis (mm)", p: 26}
+- {value: 2, key: "cap", what: "end caps of the LCM container", p: 27}
+- {value: 3, key: "rod|thread", what: "external threaded rods fixing the caps and the container", p: 28}
+- {value: 6, key: "rod|thread", what: "diameter of the threaded rods (mm)", p: 28}
+- {value: 3, key: "connector", what: "connectors in the bottom end cap, one per optical module", p: 27}
+- {value: 2, key: "penetrator", what: "cable penetrators in the top end cap", p: 27}
+- {value: 21, key: "fibre|fiber", what: "optical fibres in the EMC", p: 32}
+- {value: 3, key: "tube|fibre|fiber", what: "fibre tubes in the EMC, 7 fibres each", p: 33}
+- {value: 7, key: "fibre|fiber", what: "fibres per tube", p: 33}
+- {value: 9, key: "conductor", what: "copper conductors in the EMC", p: 32}
+- {value: 1, key: "conductor|section", what: "copper cross section of a conductor (mm2)", p: 32}
+- {value: 2.5, key: "conductor|insulation", what: "conductor diameter with insulation (mm)", p: 32}
+- {value: 30, key: "emc|cable|diameter", what: "external diameter of the EMC (mm)", p: 33}
+- {value: 300, key: "curvature|radius", what: "minimal radius of curvature of the EMC (mm)", p: 33}
+- {value: 25, key: "section", what: "12.5 m cable sections per line (26 sections with the 98 m one)", p: 34}
+- {value: 1.8, key: "weight|plate|square|side", what: "side of the square dead weight plate (m)", p: 36}
+- {value: 1.5, key: "weight|steel", what: "steel of the dead weight (t)", p: 36}
+- {value: 1270, key: "weight", what: "dead weight in water (kg)", p: 36}
+- {value: 4, key: "wing", what: "steel wings welded below the dead weight plate", p: 36}
+- {value: 9, key: "anode|plate", what: "sacrificial anode plates on the dead weight", p: 36}
+- {value: 68, key: "anode", what: "total mass of the dead weight anodes (kg)", p: 37}
+- {value: 2, key: "piston|cylinder|damping", what: "damping systems between the two parts of the BSS (pair of pistons and cylinders)", p: 37}
+- {value: 150, key: "piston", what: "piston diameter (mm)", p: 37}
+- {value: 670, key: "piston", what: "used height of the piston (mm)", p: 37}
+- {value: 0.8, key: "piston|gap", what: "gap between piston and cylinder (mm)", p: 37}
+- {value: 2, key: "transponder|release", what: "transponders with release on the BSS", p: 37}
+- {value: 1.8, key: "container|spm|scm", what: "length of the SPM/SCM container on the BSS (m)", p: 38}
+- {value: 2, key: "cylinder|spm|scm", what: "cylinders forming the SPM/SCM container", p: 38}
+- {value: 3.6, key: "rod|transceiver", what: "length of the glass-epoxy rod carrying the acoustic transceiver (m)", p: 38}
+- {value: 3, key: "anode", what: "anodes on the steel weight of the recoverable part", p: 38}
+- {value: 30, key: "anode", what: "total mass of those anodes (kg)", p: 38}
+- {value: 0.5, key: "foam|buoy|density", what: "density of the syntactic foam of the buoy (g/cm3)", p: 39}
+- {value: 2, key: "disk", what: "titanium disks holding the buoy on its rod", p: 40}
+- {value: 4, key: "beacon", what: "LED beacons per line, on storeys 2, 9, 15 and 21", p: 16}
+- {value: 6, key: "board|circuit", what: "circuit boards of an LED beacon, in a hexagon, 6 LEDs each", p: 42}
+- {value: 2, key: "laser", what: "lines with a laser beacon", p: 43}
+- {value: 1.54, key: "quartz", what: "refractive index of the quartz cylinder of the laser beacon", p: 43}
+- {value: 5, key: "hydrophone|rx", what: "receiving hydrophones per line, on storeys 1, 8, 14, 19 and 25", p: 44}
+- {value: 6, key: "storey|il07|instrument", what: "storeys of the instrumentation line", p: 45}
+- {value: 305, key: "storey|il07|height", what: "height of storey 6 of the instrumentation line above the seabed (m); the others: 290, 210, 195, 180, 100", p: 45}
+- {value: 6, key: "acoustic", what: "acoustic storeys (3 on the instrumentation line, 3 on line 12)", p: 46}
+- {value: 6, key: "sensor|hydrophone", what: "acoustic sensors per acoustic storey, about 1 m apart", p: 46}
+- {value: 380, key: "acoustic|line", what: "height of the lowest acoustic storey of line 12 (m); the others: 395, 410", p: 47}
+- {value: 240, key: "il07|line", what: "horizontal distance of line 12 from the instrumentation line (m)", p: 47}
+- {value: 1, key: "junction|sphere", what: "diameter of the junction box sphere (m)", p: 48}
+- {value: 16, key: "socket|output|junction", what: "sockets (outputs) of the junction box", p: 48}
+- {value: 10, key: "junction|jb|container", what: "distance of the Y-link splitting container from the junction box (m)", p: 48}
+- {value: 48, key: "fibre|fiber", what: "optical fibres in the main cable", p: 53}
+- {value: 21, key: "sheath|cable|polyethylene", what: "diameter of the main cable sheath on the deep seabed (mm)", p: 54}
+- {value: 41.3, key: "cable|meoc", what: "length of the main cable (km)", p: 54}
+- {value: 88, key: "cable|meoc", what: "weight of the main cable (t)", p: 54}
+- {value: 1.6, key: "electrode", what: "length of the sea electrode (m)", p: 54}
+- {value: 40, key: "electrode", what: "diameter of the sea electrode (mm)", p: 54}
+- {value: 4, key: "fibre|fiber", what: "optical fibres in an interlink cable (with 2 conductors)", p: 47}
+- {value: 1033, key: "water|sea", what: "density of deep sea water (kg/m3)", p: 41}
+materials:
+- {part: "optical module sphere", material: "borosilicate glass (Vitrovex)", p: 21}
+- {part: "back hemisphere of the sphere", material: "painted black on its inside", p: 22}
+- {part: "magnetic shield (cage)", material: "mu-metal wire", p: 23}
+- {part: "optical gel", material: "two-component silicone rubber (Wacker Silgel 612)", p: 22}
+- {part: "OM support plate and wires", material: "titanium grade 2", p: 25}
+- {part: "optical module frame", material: "titanium grade 2, welded", p: 26}
+- {part: "LCM container (cylinder and end caps)", material: "titanium grade 5", p: 27}
+- {part: "threaded rods of the LCM container", material: "titanium grade 2", p: 28}
+- {part: "electronics crate in the LCM", material: "aluminium", p: 28}
+- {part: "EMC layers, centre to outside", material: "fibre tubes, copper conductors, LDPE jacket, aramid braid, polyurethane sheath; silicone filling", p: 33}
+- {part: "bending limiters of the EMC terminations", material: "polyurethane", p: 34}
+- {part: "dead weight plate", material: "carbon steel", p: 36}
+- {part: "sacrificial anodes", material: "Al-Zn-In alloy", p: 36}
+- {part: "pistons and cylinders of the BSS", material: "LDPE and/or PETP", p: 37}
+- {part: "recoverable part of the BSS", material: "titanium grade 2 structure on a steel weight", p: 38}
+- {part: "acoustic transceiver rod", material: "glass-epoxy", p: 38}
+- {part: "top buoy", material: "syntactic foam; titanium rod and disks", p: 39}
+- {part: "LED beacon container", material: "glass cylinder with two hemispheres, titanium flanges", p: 41}
+- {part: "laser beacon container", material: "titanium; aluminium inner frame; quartz cylinder with a diffuser disk", p: 43}
+- {part: "junction box", material: "titanium sphere with a titanium belt, in a titanium frame; transformer in oil", p: 48}
+- {part: "medium around the detector", material: "sea water", p: 11}
+relations:
+- {subject: "storey", object: "frame|omf", family: nest, what: "a storey is the frame (OMF), three optical modules and the LCM container", p: 11}
+- {subject: "line", object: "sector", family: nest, what: "a line is divided into 5 sectors of 5 storeys", p: 18}
+- {subject: "hemisphere|sphere", object: "pmt|photomult", family: nest, what: "the front hemisphere houses the PMT and the magnetic shield, held by the optical gel", p: 22}
+- {subject: "shield|cage|grid", object: "pmt|bulb|photomult", family: surrounds, what: "a hemispherical mu-metal grid surrounds the PMT bulb, closed by a flat grid at the rear", p: 23}
+- {subject: "gel", object: "pmt|sphere|glass", family: any, what: "optical gel couples the PMT to the glass sphere", p: 22}
+- {subject: "led", object: "pmt|bulb", family: attach, what: "a blue LED is glued on the rear of the PMT bulb", p: 23}
+- {subject: "plate|support", object: "frame|omf|tube", family: attach, what: "the OM support plate is the interface to the frame; fixture plates are welded on each tube", p: 26}
+- {subject: "ring", object: "emc|cable|termination", family: any, what: "the cable terminations lock onto the top and bottom rings of the frame", p: 26}
+- {subject: "tube", object: "ring", family: any, what: "three tubes connect the two rings vertically", p: 26}
+- {subject: "spacer|triangle", object: "lcm|container", family: any, what: "the bottom spacer holds the LCM container on the vertical axis of the frame", p: 26}
+- {subject: "frame|omf|storey|spacer", object: "beacon", family: any, what: "the LED beacon sits at the top of the frame, held by the two top spacers", p: 27}
+- {subject: "cap", object: "penetrator|connector", family: any, what: "top end cap takes the two cable penetrators, bottom end cap the three OM connectors", p: 27}
+- {subject: "container|lcm", object: "crate", family: nest, what: "the container holds a crate of circular boards", p: 28}
+- {subject: "weight", object: "wing|anode", family: any, what: "wings are welded below the dead weight plate, anodes onto it", p: 36}
+- {subject: "recoverable|bss", object: "weight", family: any, what: "the recoverable part sits on top of the dead weight, joined by a release chain", p: 36}
+- {subject: "bss|recoverable", object: "container|spm|scm", family: any, what: "the SPM/SCM container is fixed vertically on the recoverable part", p: 38}
+- {subject: "bss|recoverable|anchor", object: "transceiver|rod|transponder", family: any, what: "the recoverable part holds the transponders and the transceiver on its rod", p: 38}
+- {subject: "bss", object: "laser", family: any, what: "the laser beacons sit on the BSS", p: 43}
+- {subject: "buoy|foam", object: "rod", family: any, what: "a titanium rod runs through the buoy; the last cable section is fixed to its lower end", p: 39}
+- {subject: "storey", object: "hydrophone", family: any, what: "hydrophones are fixed on storeys 1, 8, 14, 19 and 25", p: 44}
+- {subject: "junction|jb", object: "line", family: any, what: "interlink cables on the seabed join each line (at its BSS) to the junction box", p: 37}
+- {subject: "junction|jb", object: "cable|meoc", family: any, what: "the main cable joins the junction box to the shore", p: 12}
+- {subject: "junction|sphere", object: "hemisphere|belt", family: nest, what: "the junction box is two hemispheres separated by a cylindrical belt", p: 48}
+- {subject: "frame|jbf", object: "junction|sphere", family: any, what: "the sphere is supported in a rectangular frame", p: 49}
+- {subject: "hemisphere", object: "transformer", family: nest, what: "the lower hemisphere contains the transformer", p: 48}

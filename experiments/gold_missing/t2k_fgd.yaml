@@ -1,0 +1,61 @@
+# Facts the paper states that are missing from experiments/gold/t2k_fgd.yaml and experiments/gold_relations/t2k_fgd.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1.1, 2.1, 2.2, 3, 4 (start), 5 (start), 5.3, 6 to 6.1.2, 7 and 8.3
+# (pages 3 to 5, 8 to 10, 13 to 16, 17 to 21) of the text in runs/papers20/t2k_fgd/step1; the introduction, the test and
+# quality sections, the electronics, DAQ and performance sections (pages 1 to 2, 5 to 8, 11 to 13, 21 to 47) were not read.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: T2K fine-grained detectors (FGD)
+values:
+- {value: 9.1, key: "active|bar", what: "active width of a bar inside the coating (mm)", p: 5}
+- {value: 194, key: "bar|layer", what: "bars a layer holds after machining, with the two outermost at half height and without fibre (192 read out)", p: 8}
+- {value: 2, key: "layer", what: "layers of an XY module, one of horizontal and one of vertical bars", p: 3}
+- {value: 24, key: "busboard", what: "busboards per XY module, on its four sides", p: 8}
+- {value: 16, key: "led", what: "LEDs per busboard", p: 21}
+- {value: 15, key: "tio2|coating", what: "TiO2 share of the bar coating (%)", p: 5}
+- {value: 1, key: "ppo", what: "PPO share of the scintillator (%), with 0.03 % POPOP", p: 5}
+- {value: 1.59, key: "core|fibre|fiber", what: "refractive index of the fibre core; inner cladding 1.49, outer 1.42", p: 10}
+- {value: 8, key: "coupler|connector", what: "diameter of the fibre-MPPC coupler (mm); 17.5 mm long", p: 14}
+- {value: 0.2, key: "field|magnet", what: "magnetic field the photosensors work in (T)", p: 13}
+- {value: 1873, key: "panel|length|cut", what: "length of the water panels of the first production (mm); 1863 for the second", p: 15}
+- {value: 30, key: "spacer", what: "G10 spacers on each side of a water panel, 25.8 mm x 51.6 mm", p: 16}
+- {value: 2, key: "polypropylene|sheet", what: "polypropylene sheets per water panel, front and back", p: 16}
+- {value: 2297.2, key: "water|panel", what: "water in a full panel (mg/cm2), with 490 mg/cm2 of scintillator-like material", p: 16}
+- {value: 327, key: "dark box|weigh", what: "mass of a dark box without the electronics cards (kg)", p: 17}
+- {value: 8, key: "i.?beam", what: "aluminium I beams of the dark box frame, four upstream and four downstream", p: 17}
+- {value: 104.3, key: "i.?beam|bar", what: "height of the bar the I beams are machined from (mm); 50.15 wide", p: 17}
+- {value: 50.15, key: "i.?beam|bar", what: "width of the bar the I beams are machined from (mm)", p: 17}
+- {value: 4.15, key: "web", what: "web thickness of the I beams (mm)", p: 17}
+- {value: 4, key: "side plate", what: "side plates of the dark box: top, bottom, left, right", p: 17}
+- {value: 6, key: "cutout|backplane", what: "backplane cutouts per side plate, 166 mm x 258.5 mm", p: 18}
+- {value: 166, key: "cutout", what: "width of a backplane cutout (mm); 258.5 long", p: 18}
+- {value: 35, key: "feet|foot|i.?beam", what: "how far the vertical I beams reach below the bottom edge, as feet (mm)", p: 18}
+- {value: 1, key: "strap", what: "strap width (cm)", p: 19}
+- {value: 24, key: "minicrate", what: "electronics minicrates on the outside of the dark box", p: 4}
+- {value: 2, key: "loop|cooling", what: "cooling loops, one upstream and one downstream", p: 20}
+- {value: 9, key: "panel", what: "water panels built; six installed, three spare", p: 15, optional: true}
+- {value: 11900, key: "bar", what: "bars produced, about 3500 of them spare", p: 5, optional: true}
+materials:
+- {part: "scintillator bars", material: "extruded polystyrene with 1 % PPO and 0.03 % POPOP; square cross-section", p: 5}
+- {part: "bar coating", material: "polystyrene with 15 % TiO2, co-extruded", p: 5}
+- {part: "fibres", material: "Kuraray Y11 (200) S-35 J-type, double clad, one end mirrored with aluminium", p: 10}
+- {part: "module skins", material: "G10, glued with Plexus MA590", p: 9}
+- {part: "water panels", material: "hollow corrugated polycarbonate (Sunlite), ends sealed with polyurethane, brass fittings", p: 15}
+- {part: "sheets on the water panels", material: "polypropylene, glued with epoxy; G10 spacers", p: 16}
+- {part: "dark box frame, side plates, cover plates", material: "aluminium", p: 17}
+- {part: "crossbars and straps", material: "steel crossbars, stainless steel straps, aluminium pads", p: 19}
+- {part: "photosensors", material: "Hamamatsu MPPC S10362-13-050C", p: 13}
+- {part: "between bar and fibre", material: "air gap", p: 3}
+- {part: "target in the panels", material: "water, kept below atmospheric pressure", p: 3}
+relations:
+- {subject: "layer", object: "layer|bar", family: any, what: "a layer of horizontal bars is glued to a layer of vertical bars; bars are perpendicular to the beam", p: 3}
+- {subject: "module|xy", object: "busboard", family: attach, what: "the busboards are screwed onto the four edges of the XY module", p: 3}
+- {subject: "fibre|fiber", object: "end|mirror|bar", family: any, what: "neighbouring fibres of a layer are read out from alternate ends; the other end is mirrored", p: 3}
+- {subject: "fibre|fiber", object: "coupler|ferrule|connector", family: any, what: "a ferrule glued to each fibre latches into a coupler in front of the MPPC", p: 9}
+- {subject: "strap", object: "module|pad|bottom", family: any, what: "each strap loops under the module around a pad at its bottom", p: 19}
+- {subject: "crossbar", object: "rod|crossbeam", family: any, what: "each crossbar hangs by a threaded rod through the top of the dark box from a crossbeam outside", p: 20}
+- {subject: "minicrate", object: "dark box|side", family: attach, what: "24 minicrates attach to the outside of the four sides of the dark box", p: 4}
+- {subject: "busboard", object: "backplane", family: any, what: "ribbon cables join the busboards to the backplanes", p: 21}
+- {subject: "side plate", object: "i.?beam|frame", family: attach, what: "the side plates bolt to the inside of the upstream and downstream I beam frames", p: 17}
+- {subject: "fgd|feet|foot", object: "basket", family: any, what: "the feet of each FGD rest on a steel bar bolted to the detector basket; a bracket holds the top", p: 20}
+- {subject: "i.?beam", object: "extrusion|cooling", family: any, what: "hollow aluminium extrusions carrying cooling water are mounted on the inside of each I beam", p: 20}
+- {subject: "bracket", object: "module|dark box", family: any, what: "corner brackets in the dark box stop the modules moving sideways", p: 19}
+- {subject: "panel", object: "spacer", family: any, what: "spacers on each side of a water panel keep it apart from its neighbours", p: 16}

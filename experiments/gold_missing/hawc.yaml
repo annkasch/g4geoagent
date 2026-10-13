@@ -1,0 +1,39 @@
+# Facts the paper states that are missing from experiments/gold/hawc.yaml and experiments/gold_relations/hawc.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 2 to 3.3, 3.8, 3.9 and 7 (pages 5 to 13, 25) of the text in
+# runs/papers20/hawc/step1; sections 1, 3.4 to 3.7 and 4 to 6 (water quality, grounding, electronics, calibration,
+# operations) were not read. Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: HAWC
+values:
+- {value: 4100, key: "altitude|m\\.a\\.s\\.l|site", what: "altitude of the site (m above sea level)", p: 5}
+- {value: 637, key: "atmospher|depth|overburden", what: "vertical atmospheric depth (g/cm2), 17.4 radiation lengths", p: 5, optional: true}
+- {value: 1.0, key: "slope|platform", what: "slope of the platform (%), down towards 15.8 deg west of north; its normal is 0.7 deg off the zenith", p: 5}
+- {value: 15.8, key: "slope|north|column", what: "direction of the tank columns and of the slope, west of north (deg)", p: 5}
+- {value: 4.3, key: "road|avenue", what: "width of the diagonal access road (m)", p: 6}
+- {value: 0.6, key: "trench", what: "depth of the trench each tank stands in (m)", p: 7}
+- {value: 2, key: "layer|bladder|film", what: "layers of film of the bladder material", p: 8}
+- {value: 0.16, key: "position|pmt|survey", what: "accuracy of the PMT positions (cm)", p: 8, optional: true}
+- {value: 530, key: "photocathode|r7081|area", what: "photocathode area of the ten-inch PMT (cm2); 340 for the eight-inch one", p: 13}
+- {value: 6.15, key: "cable", what: "outer diameter of the signal cables (mm)", p: 11, optional: true}
+- {value: 1, key: "cable|underground|buried", what: "depth at which the cables are buried, about (m)", p: 11, optional: true}
+- {value: 2, key: "pair|wcd|tank", what: "tanks stand in pairs: one fibre distribution box and one HV channel per pair of neighbouring tanks", p: 12, optional: true}
+materials:
+- {part: "tank wall", material: "corrugated, hot-dipped galvanized steel panels, bolted; cylindrical", p: 7}
+- {part: "tank roof", material: "dome of vinyl polyester fabric", p: 7}
+- {part: "bladder", material: "flexible low-density polyethylene, two layers of three-substrate film; black film on top; PVC hatch", p: 8}
+- {part: "floor under the bladder", material: "sand, with geo-textile felt on the ground and the walls", p: 7}
+- {part: "tank filling", material: "purified water", p: 6}
+- {part: "PMTs", material: "Hamamatsu R5912 (eight inch) and R7081 (ten inch), facing up", p: 6}
+- {part: "PMT string loop", material: "Kevlar", p: 8}
+- {part: "around the foot of the tank", material: "rammed earth", p: 7}
+relations:
+- {subject: "tank|wcd", object: "roof|dome", family: any, what: "each tank is covered by a dome-shaped fabric roof", p: 7}
+- {subject: "bladder", object: "hatch", family: any, what: "each bladder has a hatch on top", p: 8}
+- {subject: "bladder", object: "mount|fixture|pmt", family: any, what: "the bottom of the bladder has a mounting fixture for each PMT", p: 8}
+- {subject: "mount|fixture", object: "stake|ground", family: attach, what: "each mount is attached to a stake in the ground", p: 8}
+- {subject: "pmt|photomult", object: "up|bottom", family: any, what: "the PMTs face upward; the eight-inch ones form an equilateral triangle, midway between the centre and the wall", p: 6}
+- {subject: "tank|wcd", object: "trench|earth|ground", family: any, what: "each tank is lowered into a 0.6 m trench and back-filled", p: 7}
+- {subject: "tank|wcd", object: "sensor|depth", family: any, what: "a water depth sensor sits at the bottom of the tank", p: 12}
+- {subject: "tank|wcd", object: "diffuser|fibre|fiber", family: any, what: "an optical fibre leads to a diffuser ball in each tank", p: 12}
+- {subject: "array", object: "counting|(?<![a-z])ch(?![a-z])|house", family: any, what: "the counting house is at the centre of the array", p: 11}
+- {subject: "array", object: "outrigger", family: any, what: "an outrigger array was added around the main array (2016 to 2018)", p: 25}
+- {subject: "aisle", object: "column", family: any, what: "a 2.6 m aisle runs between each pair of tank columns", p: 6}

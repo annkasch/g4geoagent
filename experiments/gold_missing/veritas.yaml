@@ -1,0 +1,25 @@
+# Facts the paper states that are missing from experiments/gold/veritas.yaml and experiments/gold_relations/veritas.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1 to 4 (pages 3 to 10) of the text in runs/papers20/veritas/step1;
+# the simulation and results sections (pages 10 to 24) were not read. Not merged into the hand lists. Not checked by a detector expert.
+# p: page of the PDF.
+# detector: VERITAS (first telescope)
+values:
+- {value: 1275, key: "altitude|site|camp", what: "altitude of the site (m)", p: 3}
+- {value: 3, key: "screw", what: "adjustment screws per mirror facet", p: 4}
+- {value: 0.15, key: "pixel|spacing", what: "angular pixel spacing (deg)", p: 5}
+- {value: 3.5, key: "field|fov", what: "field of view, diameter (deg)", p: 5}
+- {value: 50, key: "cable", what: "signal cable from the camera to the electronics, about (m)", p: 5}
+- {value: 4, key: "diffuser", what: "distance of the opal glass diffuser in front of the camera, about (m)", p: 7}
+- {value: 24, key: "laser|alignment", what: "distance of the alignment laser from the reflector centre, twice the focal length (m)", p: 4, optional: true}
+materials:
+- {part: "mirror facets", material: "glass, slumped and polished, aluminized and anodized; hexagonal", p: 4}
+- {part: "optical support structure", material: "tubular steel space frame, spherical front surface", p: 4}
+- {part: "camera pixels", material: "Photonis XP2970/02 PMTs, UV sensitive; no light cones yet", p: 5}
+- {part: "calibration diffuser", material: "opal glass", p: 7}
+relations:
+- {subject: "facet|mirror", object: "frame|triang|screw", family: any, what: "each facet sits on a triangular frame with three adjustment screws", p: 4}
+- {subject: "box|focus", object: "camera|pmt|pixel", family: any, what: "the focus box holds the camera of 499 PMTs", p: 5}
+- {subject: "quadropod|arm", object: "counterweight", family: any, what: "a bypass of the upper quadropod arm passes the camera load to the counterweight support", p: 4}
+- {subject: "positioner", object: "altitude|azimuth", family: any, what: "the positioner is an altitude-over-azimuth mount", p: 4}
+- {subject: "optic|reflector|telescope", object: "davies", family: any, what: "the optics follow the Davies-Cotton design", p: 4}
+- {subject: "diffuser", object: "camera", family: any, what: "a diffuser stands about 4 m in front of the camera", p: 7}

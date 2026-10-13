@@ -1,0 +1,31 @@
+# Facts the paper states that are missing from experiments/gold/cta_sst.yaml and experiments/gold_relations/cta_sst.yaml.
+# Cross-check by Claude, 2026-10-12, from reading the whole text (pages 1 to 7) in runs/papers20/cta_sst/step1.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: CTA Small-Sized Telescope
+values:
+- {value: 70, key: "sst|telescope", what: "telescopes on the southern site, up to", p: 1}
+- {value: 2, key: "reflector|mirror", what: "reflectors of the optical system (dual-reflector, Schwarzschild-Couder)", p: 2}
+- {value: 270, key: "azimuth", what: "rotation range about the azimuth axis, plus and minus (deg)", p: 3}
+- {value: 90, key: "elevation", what: "upper end of the elevation range, from -1 to +90 (deg)", p: 3}
+- {value: 37.5, key: "plate", what: "plate scale (mm per deg)", p: 3}
+- {value: 0.19, key: "pixel", what: "angular pixel size (deg); the caption of figure 3 gives 0.16", p: 3}
+- {value: 10.5, key: "fov|field", what: "field of view, diameter, up to (deg); the abstract says about 9, CTA requires 8", p: 3}
+- {value: 6, key: "area", what: "mean effective area of the optics (m2)", p: 3}
+- {value: 10, key: "density|panel", what: "area density of a primary panel, as printed: about 10 kg/cm2", p: 3, optional: true}
+- {value: 4, key: "ctc|asic|sampl", what: "16-channel sampling ASICs (CTC) per front-end module; 4 more (CT5TEA) for triggering", p: 4}
+- {value: 1, key: "backplane|(?<![a-z])bp(?![a-z])", what: "backplane of the camera", p: 4, optional: true}
+- {value: 1, key: "led|flasher", what: "LED of the calibration flasher (ten in the prototype)", p: 5, optional: true}
+materials:
+- {part: "secondary mirror (M2)", material: "monolithic glass shell, bent to shape", p: 3}
+- {part: "primary mirror panels", material: "hexagonal panels, aspherical", p: 3}
+- {part: "photosensors", material: "silicon photomultipliers (SiPM)", p: 2}
+- {part: "entrance window of the camera", material: "flat, coated", p: 5}
+relations:
+- {subject: "telescope|sst|optic|system", object: "secondary|m2|reflector", family: nest, what: "the optical system consists of two reflectors", p: 2}
+- {subject: "tile|sipm", object: "fee|front|electronic", family: any, what: "each SiPM tile is connected to a front-end electronics module", p: 4}
+- {subject: "camera", object: "pixel", family: nest, what: "the camera contains 2048 pixels tiled in the curved focal plane", p: 4}
+- {subject: "camera", object: "window|door", family: any, what: "an entrance window and an outer door protect the camera; the window extends past the SiPM array", p: 5}
+- {subject: "camera", object: "led|flasher|illumination", family: any, what: "the camera includes an LED illumination system for calibration", p: 5}
+- {subject: "camera", object: "plate|focal|chiller", family: any, what: "chilled liquid runs through the focal plane plate of the camera", p: 5}
+- {subject: "structure|telescope", object: "azimuth|altitude", family: any, what: "the structure is an altitude-azimuth mount", p: 3}
+- {subject: "ring", object: "segment|panel|mirror", family: any, what: "each of the three rings is built from segments of its own profile", p: 3}

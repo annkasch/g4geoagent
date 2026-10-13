@@ -1,0 +1,23 @@
+# Facts the paper states that are missing from experiments/gold/baikal_gvd.yaml and experiments/gold_relations/baikal_gvd.yaml.
+# Cross-check by Claude, 2026-10-12, from reading the detector section (pages 2 to 4) of the text in runs/papers20/baikal_gvd/step1.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: Baikal-GVD
+values:
+- {value: 3.6, key: "offshore|shore", what: "distance of the telescope offshore (km)", p: 2}
+- {value: 8, key: "string|cluster", what: "strings per cluster: seven around a central one (the paper gives 7 and 1, not the sum)", p: 3, optional: true}
+- {value: 288, key: "cluster|(?<![a-z])oms?(?![a-z])|optical", what: "optical modules of the first cluster (2016)", p: 3}
+- {value: 3, key: "inter|ics", what: "inter-cluster strings installed (one in 2022, two in 2023), each with 36 optical modules in 3 sections", p: 4}
+- {value: 2, key: "temperature", what: "temperature sensors in an optical module", p: 2, optional: true}
+materials:
+- {part: "optical module housing", material: "pressure-resistant glass sphere", p: 2}
+- {part: "PMT", material: "Hamamatsu R7081-100, 10 inch, photocathode facing down", p: 2}
+- {part: "medium around the detector", material: "lake water (absorption length about 24 m at 488 nm)", p: 3}
+relations:
+- {subject: "(?<![a-z])oms?(?![a-z])|optical|pmt|photocathode", object: "down", family: any, what: "the PMT photocathodes are oriented downwards", p: 2}
+- {subject: "(?<![a-z])oms?(?![a-z])|optical|sphere", object: "electronic|voltage|led|sensor", family: nest, what: "the sphere also encloses the high voltage unit, front-end electronics, LEDs and sensors", p: 2}
+- {subject: "string", object: "beacon", family: any, what: "a string also holds acoustic beacons and LED beacons", p: 3}
+- {subject: "string", object: "(?<![a-z])sm(?![a-z])|string_control", family: any, what: "a string control module controls the sections of a string", p: 3}
+- {subject: "cluster", object: "lakebed|hexagon", family: any, what: "the clusters are arranged on the lakebed in a hexagonal pattern", p: 3}
+- {subject: "cluster", object: "shore|cable", family: any, what: "each cluster is connected to the shore station by its own electro-optical cable", p: 3}
+- {subject: "inter|ics", object: "cluster", family: any, what: "inter-cluster strings stand in the geometric centre of each three clusters, each as a ninth string of one cluster", p: 4}
+- {subject: "inter|ics|string", object: "laser", family: any, what: "special strings and the inter-cluster strings carry lasers", p: 4}

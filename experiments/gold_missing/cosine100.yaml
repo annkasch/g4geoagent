@@ -1,0 +1,38 @@
+# Facts the paper states that are missing from experiments/gold/cosine100.yaml and experiments/gold_relations/cosine100.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1, 2 and 3.2 with table 1 and figure 1 (pages 1 to 3) of the text in
+# runs/papers20/cosine100/step1; sections 3.3 to 6 (background model) only scanned for sizes and materials.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: COSINE-100
+values:
+- {value: 4, key: "shield|layer", what: "shielding layers around the crystals", p: 2}
+- {value: 2, key: "pmt|photomult|end|window", what: "PMTs per crystal, one at each end", p: 2}
+- {value: 8.3, key: "crystal", what: "mass of crystal 1 (kg), 5.0 x 7.0 inch (diameter x length)", p: 3}
+- {value: 9.2, key: "crystal", what: "mass of crystals 2 and 3 (kg), 4.2 x 11.0 inch", p: 3}
+- {value: 18.0, key: "crystal", what: "mass of crystal 4 (kg), 5.0 x 15.3 inch", p: 3}
+- {value: 18.3, key: "crystal", what: "mass of crystals 5 and 8 (kg), 5.0 x 15.5 inch", p: 3}
+- {value: 12.5, key: "crystal", what: "mass of crystals 6 and 7 (kg), 4.8 x 11.8 inch", p: 3}
+- {value: 5.0, key: "crystal|diameter", what: "diameter of crystals 1, 4, 5 and 8 (inch)", p: 3}
+- {value: 4.2, key: "crystal|diameter", what: "diameter of crystals 2 and 3 (inch)", p: 3}
+- {value: 4.8, key: "crystal|diameter", what: "diameter of crystals 6 and 7 (inch)", p: 3}
+- {value: 7.0, key: "crystal|length", what: "length of crystal 1 (inch)", p: 3}
+- {value: 11.0, key: "crystal|length", what: "length of crystals 2 and 3 (inch)", p: 3}
+- {value: 15.3, key: "crystal|length", what: "length of crystal 4 (inch)", p: 3}
+- {value: 15.5, key: "crystal|length", what: "length of crystals 5 and 8 (inch)", p: 3}
+- {value: 11.8, key: "crystal|length", what: "length of crystals 6 and 7 (inch)", p: 3}
+materials:
+- {part: "crystals", material: "NaI(Tl), cylindrical", p: 2}
+- {part: "crystal tubes", material: "OFE copper", p: 2}
+- {part: "end windows", material: "quartz", p: 2}
+- {part: "reflector around the crystal sides", material: "PTFE sheets", p: 2}
+- {part: "PMT housing", material: "copper and PTFE", p: 2}
+- {part: "PMTs", material: "Hamamatsu R12669SEL, 3 inch, coupled with optical gel", p: 2}
+- {part: "shield layers, from outside inwards", material: "plastic scintillator, lead bricks, copper, liquid scintillator", p: 2}
+- {part: "crystal supports", material: "acrylic", p: 4}
+- {part: "support of the lead castle", material: "steel", p: 4}
+- {part: "gas inside the copper shield", material: "nitrogen", p: 4}
+relations:
+- {subject: "liquid|scintillat|(?<![a-z])ls(?![a-z])", object: "table|support", family: any, what: "the support table of the crystals is immersed in the liquid with them", p: 2}
+- {subject: "tank|container", object: "liquid|scintillat|(?<![a-z])ls(?![a-z])", family: nest, what: "the liquid scintillator is held in a tank", p: 1}
+- {subject: "shield|structure", object: "crystal", family: any, what: "the crystals are in the middle of the four-layer shield", p: 2}
+- {subject: "pad", object: "crystal|window", family: any, what: "the quartz windows are coupled to each end of the crystal by optical pads", p: 2}
+- {subject: "lead", object: "steel", family: any, what: "steel supports the lead block housing", p: 4}

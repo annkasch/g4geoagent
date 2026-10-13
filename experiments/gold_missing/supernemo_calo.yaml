@@ -1,0 +1,56 @@
+# Facts the paper states that are missing from experiments/gold/supernemo_calo.yaml and experiments/gold_relations/supernemo_calo.yaml.
+# Cross-check by Claude, 2026-10-12, from reading the introduction and section 1 (pages 4 to 13) of the text in
+# runs/papers20/supernemo_calo/step1; sections 2 to 4 (tests, calibration; pages 13 to 26) were not read.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: SuperNEMO Demonstrator (calorimeter)
+values:
+- {value: 440, key: "pmt|8", what: "8-inch PMTs of the calorimeter (figure 1)", p: 4}
+- {value: 272, key: "pmt|5", what: "5-inch PMTs of the calorimeter (figure 1)", p: 4}
+- {value: 6.2, key: "module|detector|demonstrator|length|width", what: "length of the module as drawn in figure 1 (m)", p: 4}
+- {value: 4.1, key: "module|detector|demonstrator|height", what: "height of the module as drawn in figure 1 (m)", p: 4}
+- {value: 12, key: "mylar|film|foil", what: "thickness of the two mylar films carrying a source foil (um)", p: 4}
+- {value: 2, key: "strip|copper", what: "copper strips, one at each end of the plane of source foils", p: 4}
+- {value: 2, key: "track", what: "tracking detectors, one on each side of the source frame", p: 4}
+- {value: 95, key: "helium|gas", what: "helium share of the tracker gas (%), with 1 % argon and 4 % ethanol", p: 4}
+- {value: 42, key: "source|bi|calibration", what: "207Bi calibration sources, lowered from six vessels at the top of the source frame", p: 5}
+- {value: 5, key: "reference", what: "reference calorimeter blocks", p: 5, optional: true}
+- {value: 25, key: "field|gauss|magnet", what: "magnetic field (G)", p: 5}
+- {value: 20, key: "column|wall", what: "columns of a main wall (20 x 13 optical modules)", p: 6}
+- {value: 13, key: "row|wall", what: "rows of a main wall", p: 6}
+- {value: 8, key: "pvt|polyvinyl", what: "scintillator blocks made of PVT", p: 6}
+- {value: 4, key: "type", what: "types of optical module", p: 7}
+- {value: 25, key: "separation|adjacent|pitch", what: "distance between neighbouring optical modules, both directions (cm)", p: 10}
+- {value: 5, key: "area|active|frame", what: "active area of a main wall, about 5 x 3 m2 (m)", p: 8}
+- {value: 8, alt: 4, key: "calobrick", what: "optical modules per calobrick, 4 x 2 or 4 x 1", p: 8}
+- {value: 650, key: "glass|pmt", what: "glass of a PMT (g)", p: 8, optional: true}
+- {value: 3, key: "electron|contain|depth", what: "scintillator depth that would contain the electrons, less than (cm)", p: 7, optional: true}
+materials:
+- {part: "scintillator blocks", material: "polystyrene with 0.05 % POPOP and 1.5 % pTP; eight blocks of polyvinyltoluene", p: 6}
+- {part: "scintillator wrapping", material: "Teflon on the four sides, two layers of aluminized mylar on all faces but the PMT one", p: 6}
+- {part: "glue between scintillator and PMT", material: "RTV-615", p: 6}
+- {part: "PMTs", material: "Hamamatsu R5912-MOD (8 inch) and R6594 (5 inch)", p: 7}
+- {part: "light guides of the cross-wall and gamma-veto modules", material: "PMMA", p: 7}
+- {part: "magnetic shields of the main-wall modules", material: "ARMCO pure iron plates, brass bolts, PMMA spacers", p: 9}
+- {part: "magnetic shields of the cross-wall and gamma-veto PMTs", material: "mu-metal, cylindrical", p: 7}
+- {part: "calorimeter frame beams", material: "pure iron plates", p: 8}
+- {part: "source foils", material: "selenium powder (82Se) in polyvinyl alcohol glue between two mylar films", p: 4}
+- {part: "control strips", material: "pure copper", p: 4}
+- {part: "tracker gas", material: "95 % helium, 1 % argon, 4 % ethanol", p: 4}
+- {part: "film between tracker and calorimeter", material: "polyamide", p: 5}
+- {part: "coil", material: "copper, with iron return field plates", p: 5}
+- {part: "shielding", material: "iron; water or polyethylene", p: 5}
+- {part: "screws holding the modules to the shield plate", material: "nylon", p: 9}
+relations:
+- {subject: "source|frame|foil", object: "strip|copper", family: any, what: "a copper strip stands at each end of the plane of source foils", p: 4}
+- {subject: "foil|source|selenium", object: "mylar|film", family: any, what: "each foil is carried by two mylar films", p: 4}
+- {subject: "track", object: "cell", family: nest, what: "the tracking detectors are made of 2034 vertical drift cells", p: 4}
+- {subject: "wall|calorimeter", object: "source|frame|foil", family: any, what: "the main walls are parallel to the source frame", p: 5}
+- {subject: "tent", object: "detector|calorimeter", family: any, what: "an anti-radon tent encloses the detector; the electronics are outside it", p: 5}
+- {subject: "frame|source", object: "vessel|deployment|calibration", family: any, what: "the source deployment system sits at the top of the source frame", p: 5}
+- {subject: "coil", object: "plate|return|iron", family: any, what: "the coil has iron return field plates", p: 5}
+- {subject: "pmt|photomult", object: "guide", family: any, what: "cross-wall and gamma-veto PMTs are coupled through a PMMA light guide; main-wall PMTs are glued on directly", p: 7}
+- {subject: "calobrick", object: "(?<![a-z])oms?(?![a-z])|optical|module", family: nest, what: "the optical modules are packed into calobricks of 4 x 2 or 4 x 1", p: 8}
+- {subject: "shield|plate", object: "(?<![a-z])oms?(?![a-z])|optical|module", family: attach, what: "the modules are screwed to the transverse plate of the magnetic shield", p: 9}
+- {subject: "frame|beam", object: "(?<![a-z])oms?(?![a-z])|optical|module|calobrick", family: any, what: "the frame carries the 260 modules of a main wall", p: 8}
+- {subject: "bar|frame", object: "cable", family: any, what: "the cables are fastened to vertical copper bars on the frame", p: 10}
+- {subject: "detector|electronic", object: "brass|plate", family: any, what: "the detector stands on brass plates that ground it", p: 12}

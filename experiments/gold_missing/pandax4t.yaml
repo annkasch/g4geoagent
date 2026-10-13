@@ -1,0 +1,31 @@
+# Facts the paper states that are missing from experiments/gold/pandax4t.yaml and experiments/gold_relations/pandax4t.yaml.
+# Cross-check by Claude, 2026-10-12, from reading pages 1 to 4 (detector, calibration, selection) of the text in
+# runs/papers20/pandax4t/step1; pages 5 to 11 (backgrounds, results) only scanned for sizes.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: PandaX-4T
+values:
+- {value: 2, key: "vessel|cryostat", what: "vessels of the cryostat (double-vessel)", p: 2}
+- {value: 3, key: "cold head", what: "cold heads of the cryogenic system", p: 2}
+- {value: 2, key: "getter|loop", what: "getters, each in its own circulation loop", p: 2}
+- {value: 2, key: "heat exchanger", what: "heat exchangers close to the detector", p: 2}
+- {value: 3, key: "pmt|photomult|inch", what: "size of the TPC PMTs (inch), Hamamatsu R11410-23", p: 2}
+- {value: 2, key: "ring", what: "rings of veto PMTs, one facing up and one facing down", p: 2}
+- {value: 0.4, key: "gate|anode|distortion", what: "largest distortion between gate and anode (mm)", p: 2, optional: true}
+- {value: 4, key: "led|diode", what: "external blue LEDs for the gain calibration", p: 2}
+- {value: 3, key: "tube", what: "horizontal tubes outside the inner cryostat for the AmBe source, at three heights", p: 3}
+- {value: 2.67, key: "fiducial|(?<![a-z])fv(?![a-z])", what: "fiducial mass (t)", p: 4}
+materials:
+- {part: "water tank", material: "stainless steel", p: 2}
+- {part: "cryostat (both vessels)", material: "low-background stainless steel", p: 2}
+- {part: "shield in the tank", material: "ultrapure water", p: 1}
+- {part: "TPC wall panels", material: "PTFE, highly reflective", p: 2}
+- {part: "target", material: "liquid xenon with a gas layer on top (dual phase), cylindrical", p: 2}
+- {part: "electrodes, bottom to top", material: "cathode grid, gate mesh, anode mesh", p: 2}
+- {part: "veto PMTs", material: "Hamamatsu R8520, one inch", p: 2}
+relations:
+- {subject: "cathode", object: "gate", family: any, what: "from bottom to top: cathode, gate (1185 mm above), anode (10 mm above the gate)", p: 2}
+- {subject: "liquid|level|surface", object: "gate|anode", family: any, what: "the liquid level lies between the gate and the anode", p: 2}
+- {subject: "pmt|photomult", object: "mesh|screen", family: any, what: "grounded screening meshes stand 6 mm in front of the PMT surfaces", p: 2}
+- {subject: "tube", object: "cryostat", family: any, what: "three source tubes run outside the inner cryostat", p: 3}
+- {subject: "pipe|beam", object: "tank|water|tpc", family: any, what: "a beam pipe for D-D neutrons enters the water tank and points at the centre of the TPC", p: 3}
+- {subject: "overflow", object: "liquid|level|tube", family: any, what: "the top opening of the overflow tube sets the liquid level", p: 2}

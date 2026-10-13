@@ -1,0 +1,39 @@
+# Facts the paper states that are missing from experiments/gold/sno_plus.yaml and experiments/gold_relations/sno_plus.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1.2, 2.1, the start of 2.2 and section 3 (pages 10 to 12, 14 to 15,
+# 22 to 27) of the text in runs/papers20/sno_plus/step1; the process systems (2.2.1 to 2.3), electronics, DAQ and calibration
+# sections (pages 16 to 21, 28 to 67) were not read. Not merged into the hand lists. Not checked by a detector expert.
+# p: page of the PDF.
+# detector: SNO+
+values:
+- {value: 2070, key: "overburden|rock|depth", what: "rock overburden (m); 6010 m water equivalent", p: 10}
+- {value: 9453, key: "pmt|photomult", what: "working PMTs on the support structure at the start (9362 inward and 91 outward)", p: 26}
+- {value: 54, key: "coverage|photocathode|concentrator", what: "effective photocathode coverage with the concentrators (%)", p: 25}
+- {value: 0.86, key: "density|scintillat", what: "density of the liquid scintillator at 12 C (g/cm3)", p: 23}
+- {value: 2, key: "ppo", what: "PPO concentration of the scintillator (g/L)", p: 14}
+- {value: 0.5, key: "tellurium|loading|concentration", what: "tellurium loading by mass (%)", p: 15}
+- {value: 2, key: "pair|rope|sub.?net", what: "rope pairs per sub-net of the hold-down net", p: 24}
+- {value: 1.8, key: "bolt|anchor|floor", what: "depth of the anchor bolts in the cavern floor, at least (m)", p: 24}
+- {value: 12, key: "temperature|water|cavity", what: "temperature of the cavity water (C)", p: 25, optional: true}
+- {value: 16, alt: 9, key: "panel|group", what: "PMTs per panel, 9 to 16", p: 25}
+- {value: 4, key: "r5912|high quantum|hqe", what: "high quantum efficiency PMTs added", p: 26, optional: true}
+- {value: 3, key: "bag", what: "cover gas bags on the neck, 360 L together; three U-traps", p: 26, optional: true}
+- {value: 2, key: "cover gas", what: "cover gas systems, one above the cavity water and one in the neck", p: 26, optional: true}
+materials:
+- {part: "vessel", material: "acrylic, spherical, with a neck", p: 10}
+- {part: "target in the scintillator phase", material: "linear alkylbenzene (LAB) with 2 g/L PPO; later loaded with 0.5 % tellurium as a butanediol complex", p: 14}
+- {part: "target in the water phase and the shield outside the vessel", material: "ultra-pure water", p: 10}
+- {part: "hold-down and hold-up ropes", material: "Tensylon (ultra-high-molecular-weight polyethylene)", p: 24}
+- {part: "PMTs", material: "Hamamatsu R1408 in ABS plastic housings, with concentrators of aluminium-coated petals", p: 25}
+- {part: "cavity liner", material: "Urylon", p: 22}
+- {part: "cover gas", material: "nitrogen", p: 26}
+- {part: "PMT support structure", material: "geodesic, 92-sided", p: 22}
+relations:
+- {subject: "rope", object: "groove|panel|equator", family: any, what: "the hold-up rope loops pass through grooves in acrylic panels at the equator of the vessel", p: 22}
+- {subject: "deck", object: "cavity|wall", family: attach, what: "the deck is mounted to the cavity walls", p: 22}
+- {subject: "net|sub.?net", object: "rope|pair", family: any, what: "each of the five sub-nets is two rope pairs", p: 24}
+- {subject: "pmt|photomult", object: "panel", family: any, what: "the PMTs sit in groups of 9 to 16 on panels of the support structure", p: 25}
+- {subject: "pmt|photomult", object: "out|exterior", family: any, what: "91 PMTs face outwards from the support structure", p: 10}
+- {subject: "rope|anchor|bolt", object: "load cell", family: any, what: "each rope end has a load cell", p: 24}
+- {subject: "neck", object: "gas|bag|interface", family: any, what: "the neck holds the cover gas above the scintillator, with bags on the universal interface", p: 26}
+- {subject: "cavity|floor", object: "liner|urylon", family: any, what: "a Urylon liner covers the cavity floor and the anchors", p: 24}
+- {subject: "hold.?down|net", object: "psup|support|pmt", family: any, what: "the hold-down ropes pass through the PMT support structure to the cavity floor", p: 25}

@@ -1,0 +1,60 @@
+# Facts the paper states that are missing from experiments/gold/snd_lhc.yaml and experiments/gold_relations/snd_lhc.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1.3, 2, 3.1 to 3.3, 4 and 5 (pages 8 to 15, 16 to 24) of the text in
+# runs/papers20/snd_lhc/step1; the physics case, online system, software, commissioning and installation sections
+# (pages 5 to 7, 24 to 57) only searched for sizes. Not merged into the hand lists. Not checked by a detector expert.
+# p: page of the PDF.
+# detector: SND@LHC
+values:
+- {value: 480, key: "ip1|atlas|downstream|interaction point", what: "distance from the ATLAS interaction point (m)", p: 5}
+- {value: 7.2, key: "rapidity|eta", what: "lower end of the pseudo-rapidity range covered; upper end 8.4", p: 5}
+- {value: 3.6, key: "slope|floor|tunnel", what: "slope of the tunnel floor at the detector (%); the test beam floor was inclined by 4 deg", p: 49}
+- {value: 2.9, key: "floor|tunnel|wide", what: "width of the tunnel floor (m)", p: 49, optional: true}
+- {value: 60, key: "iron|wall|block|slab", what: "height of an iron wall, 80 x 60 x 20 cm3 (cm)", p: 50}
+- {value: 9.5, key: "interaction length|lambda|iron", what: "interaction lengths of the eight iron slabs; 11 with the target", p: 9}
+- {value: 85, key: "x0|radiation", what: "radiation lengths of the target region; about 17 per wall", p: 8}
+- {value: 1, key: "bar|scintillat|thick", what: "thickness of the scintillator bars of veto, upstream and downstream planes (cm)", p: 9}
+- {value: 8, key: "sipm", what: "SiPMs per bar end in the veto; in the upstream layers six large and two small", p: 10}
+- {value: 224, key: "channel", what: "channels of the veto system, 56 per PCB", p: 11}
+- {value: 2, key: "shift|frame|veto", what: "vertical shift between the two veto frames (cm)", p: 11}
+- {value: 4, key: "flange", what: "width of the flanges of the bar frames (cm)", p: 11}
+- {value: 384, key: "wall|transverse|target", what: "sensitive transverse size of a target wall (mm)", p: 16}
+- {value: 300, key: "film|emulsion", what: "thickness of an emulsion film, about (um): two 70 um layers on a 170 um base", p: 16}
+- {value: 70, key: "layer|emulsion|sensitive", what: "thickness of each sensitive emulsion layer (um)", p: 16}
+- {value: 170, key: "base|plastic", what: "thickness of the plastic base of a film (um)", p: 16}
+- {value: 44, key: "emulsion|film|surface", what: "emulsion film surface in all (m2)", p: 17, optional: true}
+- {value: 5, key: "profile", what: "horizontal aluminium profiles, one per target wall", p: 18}
+- {value: 3, key: "point|feet|foot|support", what: "points on which the target structure is supported", p: 18}
+- {value: 30, key: "borat|boron|polyethylene", what: "boron share of the polyethylene of the shield (%)", p: 8}
+- {value: 15, key: "temperature|target|cold", what: "temperature kept in the cold box (C)", p: 19, optional: true}
+- {value: 6, key: "bar|upstream|us", what: "width of an upstream bar, 1 x 6 x 82.5 cm3 (cm)", p: 20}
+- {value: 800, key: "channel", what: "channels of the upstream layers, 80 per PCB", p: 20}
+- {value: 2, key: "plane|station|downstream|ds", what: "bar planes per downstream station, one horizontal and one vertical; the third station has one more vertical plane", p: 21}
+- {value: 1, key: "bar|downstream|ds", what: "side of a downstream bar, 1 x 1 cm2 (cm)", p: 21}
+- {value: 1.1, key: "sipm|interval|pitch", what: "spacing of the SiPMs on a downstream PCB (cm)", p: 22}
+- {value: 600, key: "channel", what: "channels of the downstream part", p: 22}
+- {value: 0.25, key: "sipm|channel|array", what: "width of a SiPM array channel of the fibre tracker, 0.25 x 1.625 mm2 (mm)", p: 14, optional: true}
+materials:
+- {part: "target plates", material: "tungsten", p: 8}
+- {part: "tracking films", material: "nuclear emulsion on a plastic base", p: 16}
+- {part: "wall boxes, support plate and profiles, bar frames, fibre module frames", material: "aluminium", p: 17}
+- {part: "veto, upstream and downstream bars", material: "EJ-200 scintillator, wrapped in aluminized Mylar", p: 10}
+- {part: "scintillating fibres", material: "polystyrene, double clad (Kuraray SCSF-78MJ), glued with TiO2-loaded epoxy", p: 13}
+- {part: "fibre mat end pieces", material: "polycarbonate", p: 13}
+- {part: "light seal of a fibre module", material: "Tedlar sheet on both sides, Kapton flex", p: 14}
+- {part: "calorimeter absorber", material: "iron", p: 9}
+- {part: "neutron shield and cold box", material: "30 % borated polyethylene and acrylic", p: 19}
+- {part: "between SiPMs and bars", material: "silicone epoxy gel, about 1 mm", p: 11}
+- {part: "SiPMs", material: "Hamamatsu S14160-6050HS (6 mm), S14160-3010PS (3 mm), S13552 arrays for the fibres", p: 10}
+relations:
+- {subject: "wall", object: "brick", family: nest, what: "a wall is 2 x 2 bricks", p: 16}
+- {subject: "film|emulsion", object: "layer|base", family: any, what: "a film is two emulsion layers on the two sides of a plastic base", p: 16}
+- {subject: "scifi|fibre|fiber|plane", object: "wall|box", family: attach, what: "each fibre plane is fixed to the wall box upstream of it by three pins", p: 18}
+- {subject: "plate", object: "wall|box|profile", family: any, what: "a vertical aluminium plate aligns the walls; each wall box is screwed to it", p: 18}
+- {subject: "veto", object: "target|support", family: attach, what: "the veto frames are held together and attached to the support of the target region", p: 11}
+- {subject: "pcb|sipm", object: "frame|flange|bar", family: any, what: "PCBs with the SiPMs close both ends of a bar frame", p: 11}
+- {subject: "slab|iron|block", object: "plane|bar|frame", family: any, what: "each iron slab is followed by one or two planes of bars; the frames sit in the gaps between the iron blocks", p: 9}
+- {subject: "station|ds|downstream", object: "plane|bar", family: nest, what: "a downstream station is a plane of 60 horizontal and a plane of 60 vertical bars", p: 21}
+- {subject: "bar", object: "sipm", family: any, what: "horizontal downstream bars have a SiPM at each end, vertical ones only at the top", p: 21}
+- {subject: "frame|support", object: "iron|block", family: attach, what: "the frame supports are mounted on the iron blocks", p: 24}
+- {subject: "mat", object: "plane|module|scifi", family: any, what: "the fibre mats are joined into planes; a module has x and y planes, 40 cm x 40 cm", p: 12}
+- {subject: "detector|snd", object: "tunnel|ti18|floor", family: any, what: "the detector stands on the sloping floor of the TI18 tunnel, off the collision axis", p: 9}

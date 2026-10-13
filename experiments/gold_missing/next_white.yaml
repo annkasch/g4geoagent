@@ -1,0 +1,48 @@
+# Facts the paper states that are missing from experiments/gold/next_white.yaml and experiments/gold_relations/next_white.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 3 to 8.3 (pages 5 to 23) of the text in runs/papers20/next_white/step1;
+# sections 1, 2 and 8.4 to 10 only scanned for sizes. Not merged into the hand lists. Not checked by a detector expert.
+# p: page of the PDF.
+# detector: NEXT-White (NEW)
+values:
+- {value: 15, key: "pressure|bar", what: "nominal xenon pressure (bar); the vessel is certified for 20", p: 6}
+- {value: 31, key: "coverage|pmt|photocathode", what: "photocathode coverage of the energy plane (%)", p: 5}
+- {value: 3, key: "ring|rectang|copper", what: "short side of the copper ring cross-section, 10 mm x 3 mm (mm)", p: 6}
+- {value: 0.5, key: "ring|edge|radius", what: "edge radius of the copper ring cross-section (mm)", p: 6}
+- {value: 1.8, key: "ring|pitch", what: "pitch of the copper rings as printed (mm); smaller than the 3 mm ring, so likely the gap or a misprint", p: 6, optional: true}
+- {value: 3, key: "pmt|cent", what: "PMTs in the centre, the other 9 in a ring around them", p: 10}
+- {value: 8, key: "tracking|sipm|el|centre|center", what: "distance of the tracking plane from the centre of the electroluminescence region (mm)", p: 14}
+- {value: 28, key: "board|dice", what: "SiPM boards (DICE boards)", p: 15}
+- {value: 64, alt: 8, key: "board|dice|sipm|pixel", what: "SiPMs per board, 8 x 8", p: 15}
+- {value: 6, key: "feedthrough|fr4|pcb", what: "thickness of the FR4 feedthrough board (mm), 3 copper layers", p: 15}
+- {value: 2, key: "feedthrough|hvft", what: "high voltage feedthroughs, one for the cathode and one for the gate", p: 9}
+- {value: 225, key: "volume|pressure system", what: "volume of the pressure system (L): vessel 140, gas loop 45, compressor 45", p: 20}
+- {value: 3, key: "getter", what: "getters in the gas loop: two cold, one hot", p: 21}
+- {value: 2, key: "bottle", what: "cryo-recovery bottles (69 L and 61 L)", p: 22}
+- {value: 2.3, key: "tank|expansion", what: "volume of the expansion tank (m3)", p: 23}
+- {value: 20, key: "wall|uniform|radial", what: "the field is uniform up to this distance from the walls (mm)", p: 7, optional: true}
+materials:
+- {part: "pressure vessel", material: "stainless steel 316Ti (TP316Ti)", p: 20}
+- {part: "inner shield shell and the plates carrying both planes", material: "ultra-pure copper", p: 5}
+- {part: "field cage body", material: "high density polyethylene (HDPE), cylindrical shell, grooved", p: 6}
+- {part: "field rings", material: "radiopure copper", p: 6}
+- {part: "cathode and gate", material: "transparent steel grids on radiopure steel frames", p: 6}
+- {part: "anode", material: "fused silica plate coated with ITO, with TPB on top", p: 8}
+- {part: "light tube", material: "teflon rings coated with TPB", p: 10}
+- {part: "PMT windows in the copper plate", material: "sapphire, coated with PEDOT and TPB, in a copper frame", p: 10}
+- {part: "PMTs", material: "Hamamatsu R11410-10, kept in nitrogen at 1 bar behind the copper plate", p: 10}
+- {part: "SiPMs and their boards", material: "SensL C series (MicroFC-10035) on kapton boards; PTFE masks added", p: 15}
+- {part: "high voltage feedthroughs", material: "HDPE in a radiopure stainless steel piece", p: 10}
+- {part: "shield around the vessel", material: "lead (the lead castle)", p: 6}
+- {part: "gas", material: "xenon at high pressure", p: 5}
+relations:
+- {subject: "vessel", object: "shell|ics|copper", family: nest, what: "the copper shell lines the barrel of the vessel as a shield", p: 5}
+- {subject: "ring", object: "resistor", family: any, what: "neighbouring rings are joined by a pair of 1 GOhm resistors", p: 6}
+- {subject: "cathode|gate|grid", object: "frame", family: attach, what: "the grids are mounted on steel frames", p: 6}
+- {subject: "tracking", object: "el|anode|region|plate", family: any, what: "the electroluminescence region is mounted on top of the tracking plane", p: 8}
+- {subject: "plate|copper", object: "pmt|photomult", family: any, what: "a 120 mm copper plate separates the PMTs from the gas", p: 10}
+- {subject: "frame", object: "plate|copper", family: any, what: "the window frames seal against the copper plate", p: 10}
+- {subject: "plate|copper", object: "dice|board|sipm", family: attach, what: "the SiPM boards are mounted on the 120 mm copper plate", p: 15}
+- {subject: "energy", object: "pmt|photomult", family: nest, what: "the energy plane holds 12 PMTs, 3 in the centre and a ring around", p: 10}
+- {subject: "tracking", object: "sipm|board|dice", family: nest, what: "the tracking plane holds 1792 SiPMs on 28 boards", p: 15}
+- {subject: "platform|tramex", object: "setup|detector|vessel|table", family: any, what: "the whole setup stands on a raised platform in Hall A", p: 6}
+- {subject: "hat|cap", object: "pmt|photomult", family: any, what: "copper hats cover the PMTs", p: 11}

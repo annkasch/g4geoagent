@@ -1,0 +1,69 @@
+# Facts the paper states that are missing from experiments/gold/lz.yaml and experiments/gold_relations/lz.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1 to 3.1 and 4 to 4.1 (pages 2 to 10, 12 to 14) of the text in
+# runs/papers20/lz/step1; sections 3.2, 3.3, 5 and 7 only scanned for sizes; sections 6, 8 and 9 (electronics, screening,
+# computing) were not read. Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: LUX-ZEPLIN (LZ)
+values:
+- {value: 5.6, key: "fiducial", what: "fiducial liquid xenon (t)", p: 2}
+- {value: 10, key: "xenon|inventory", what: "whole xenon inventory (t)", p: 11}
+- {value: 3, key: "ocv|outer|segment", what: "flanged segments of the outer cryostat vessel", p: 3}
+- {value: 3, key: "leg", what: "legs carrying the outer cryostat vessel", p: 9}
+- {value: 10, key: "acrylic|vessel|(?<![a-z])avs?(?![a-z])", what: "acrylic vessels of the Outer Detector: 4 side, 3 bottom, 2 top and a plug", p: 13}
+- {value: 4, key: "side", what: "side acrylic vessels", p: 13}
+- {value: 1, key: "acrylic|wall", what: "wall thickness of the side acrylic vessels (inch); 0.5 inch for the side and domed walls of the top and bottom vessels", p: 13}
+- {value: 22, key: "gdls|scintillat", what: "gadolinium-loaded scintillator (t)", p: 14}
+- {value: 0.1, key: "gadolinium|gd", what: "gadolinium loading by mass (%)", p: 13}
+- {value: 115, key: "tyvek|curtain|pmt", what: "distance of the PMT curtain from the outer acrylic wall (cm)", p: 14}
+- {value: 20, key: "ladder", what: "PMT ladders around the water tank, 6 PMTs each", p: 14}
+- {value: 6, key: "ladder|pmt", what: "PMTs per ladder", p: 14}
+- {value: 8, key: "pmt|inch|outer", what: "size of the outer-detector PMTs (inch), Hamamatsu R5912", p: 13}
+- {value: 93, key: "skin|pmt|1", what: "one-inch skin PMTs at the top of the side skin, looking down", p: 6}
+- {value: 20, key: "skin|pmt|2", what: "two-inch skin PMTs in a ring at the bottom of the side skin, looking up", p: 6}
+- {value: 18, key: "dome|pmt", what: "two-inch PMTs in the dome skin, 12 looking outward and 6 inward", p: 6}
+- {value: 8, key: "anode|gas", what: "height of the anode above the liquid surface (mm)", p: 7}
+- {value: 8, key: "layer|reverse|rfr", what: "field cage layers of the reverse field region", p: 8}
+- {value: 4, key: "grid|electrode", what: "electrode grids: anode, gate, cathode, bottom", p: 8}
+- {value: 2.5, key: "anode|pitch", what: "wire pitch of the anode mesh (mm); 5.0 for gate, cathode and bottom", p: 8}
+- {value: 100, key: "wire|anode|cathode", what: "wire diameter of anode and cathode (um); 75 for gate and bottom", p: 8}
+- {value: 1169, key: "anode|wire", what: "wires of the anode; gate 583, cathode 579, bottom 565", p: 8}
+- {value: 1.8, key: "pressure|bar", what: "operating pressure (bar absolute)", p: 7}
+- {value: 3, key: "weir", what: "weirs setting the liquid level, 23.3 cm in circumference each", p: 9}
+- {value: 7, key: "tube|ptfe|supply", what: "PTFE tubes feeding liquid xenon through the lower PMT array", p: 9}
+- {value: 6, key: "coldhead", what: "copper coldheads on the inner vessel, fed by three thermosyphon lines", p: 10}
+- {value: 6, key: "port|anchor", what: "ports in the dished end through which the TPC is anchored to the inner vessel", p: 9}
+- {value: 5, key: "block", what: "plastic blocks on the tapered wall of the inner vessel against swinging", p: 10}
+- {value: 3, key: "tube|calibration|source", what: "vertical tubes for calibration sources in the vacuum space between the vessels", p: 9}
+- {value: 140, key: "tungsten", what: "mass of the tungsten shield block of the neutron source (kg)", p: 16, optional: true}
+- {value: 5, key: "titanium|slab", what: "titanium slab from which the cryostat was made (t)", p: 10, optional: true}
+materials:
+- {part: "inner and outer cryostat vessels", material: "low-radioactivity titanium, Grade 1", p: 10}
+- {part: "field cage", material: "PTFE layers (Technetics 8764) with embedded titanium rings", p: 7}
+- {part: "electrode grids", material: "304 stainless steel wire, woven at 90 degrees, glued to holder rings", p: 8}
+- {part: "PMT array structures", material: "titanium plate and trusses, covered with PTFE; PMTs held by Kovar belts and PEEK rods", p: 5}
+- {part: "TPC PMTs", material: "Hamamatsu R11410-22, 3 inch", p: 4}
+- {part: "skin PMTs", material: "Hamamatsu R8520-406 (1 inch) and R8778 (2 inch)", p: 6}
+- {part: "lining of the inner vessel in the skin", material: "PTFE tiles held by titanium buttons", p: 6}
+- {part: "wall in the gas phase", material: "Kapton foil, absorbing", p: 6}
+- {part: "Outer Detector vessels", material: "UV-transmitting acrylic", p: 13}
+- {part: "Outer Detector liquid", material: "linear alkyl benzene with 0.1 % gadolinium, PPO and bis-MSB", p: 13}
+- {part: "around the cryostat and behind the outer PMTs", material: "Tyvek", p: 13}
+- {part: "coldheads", material: "copper, bolted to titanium fins", p: 10}
+- {part: "cathode high voltage cable", material: "polyethylene, no metal", p: 7}
+- {part: "shield", material: "water in the Davis Campus tank", p: 3}
+relations:
+- {subject: "ocv|outer", object: "icv|inner", family: nest, what: "the inner vessel hangs inside the outer vessel, from its top head, with vacuum between", p: 3}
+- {subject: "ocv|outer|cryostat", object: "leg", family: any, what: "the outer vessel stands on three legs", p: 9}
+- {subject: "icv|inner", object: "head|flange", family: any, what: "the inner vessel is a top head and a bottom vessel joined by a large flange; it tapers", p: 9}
+- {subject: "bottom|array", object: "liquid|xenon", family: any, what: "the bottom PMT array looks up from the liquid, the top array looks down from the gas", p: 5}
+- {subject: "gate", object: "anode|surface|liquid", family: any, what: "the gate is 5 mm below the liquid surface, the anode 8 mm above it", p: 7}
+- {subject: "cathode", object: "bottom|grid|reverse", family: any, what: "the reverse field region runs 13.7 cm from the cathode down to the bottom grid", p: 8}
+- {subject: "skin|pmt", object: "cage|ptfe", family: attach, what: "the one-inch skin PMTs are held in PTFE structures on the outside of the field cage", p: 6}
+- {subject: "ring|vessel|icv", object: "skin|pmt", family: any, what: "a ring on the vessel carries the 20 two-inch skin PMTs", p: 6}
+- {subject: "dome|array", object: "pmt", family: any, what: "the dome PMTs are mounted horizontally below the bottom array", p: 6}
+- {subject: "weir", object: "gate|ring", family: attach, what: "the weirs are mounted on the gate grid ring", p: 9}
+- {subject: "cathode", object: "cable|conduit|port", family: any, what: "the cathode high voltage comes in from the side, at the level of the cathode", p: 7}
+- {subject: "tank|water", object: "pmt|ladder|photomult", family: any, what: "120 PMTs stand in the water on 20 ladders and view the Outer Detector", p: 14}
+- {subject: "tpc", object: "icv|inner|bottom", family: attach, what: "the TPC is anchored to the bottom of the inner vessel", p: 9}
+- {subject: "coldhead|thermosyphon", object: "icv|inner", family: attach, what: "the coldheads are bolted to fins on the outside of the inner vessel, just below the liquid level", p: 10}
+- {subject: "hexapod", object: "array|lid", family: any, what: "a hexapod connects the top PMT array to the lid of the inner vessel", p: 9}
+- {subject: "ocv|outer|head", object: "acrylic|(?<![a-z])avs?(?![a-z])", family: any, what: "the top acrylic vessels rest on the head of the outer vessel; the bottom ones on shelves of the legs", p: 10}

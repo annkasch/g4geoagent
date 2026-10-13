@@ -1,0 +1,41 @@
+# Facts the paper states that are missing from experiments/gold/swift_bat.yaml and experiments/gold_relations/swift_bat.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1 to 2.1.4 (pages 1 to 11) of the text in runs/papers20/swift_bat/step1;
+# sections 2.1.5 to 3 (image processor, burst detection, data products; pages 11 to 18) were not read.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: Swift Burst Alert Telescope (BAT)
+values:
+- {value: 8, key: "sub.?array|piece|czt", what: "short side of a sub-array of 8 x 16 CZT pieces", p: 5}
+- {value: 16, key: "sub.?array|piece|czt", what: "long side of a sub-array of 8 x 16 CZT pieces", p: 5}
+- {value: 2, key: "sub.?array|module|(?<![a-z])dms?(?![a-z])", what: "sub-arrays per detector module", p: 5}
+- {value: 2, key: "block|configuration", what: "blocks are laid out 2 by 8", p: 5}
+- {value: 3, key: "gap|pitch", what: "gaps between modules and blocks are 2 or 3 pixel pitches", p: 5}
+- {value: 1.2, key: "instrument|dimension|height", what: "third dimension of the instrument, 2.4 x 1.2 x 1.2 m (m)", p: 4}
+- {value: 50, key: "open|mask|pattern", what: "open fraction of the mask, random pattern (%)", p: 9}
+- {value: 100, key: "fov|field", what: "half-coded field of view, 100 by 60 deg (deg)", p: 9}
+- {value: 1.4, key: "fov|field|sr", what: "half-coded field of view (sr); 2.3 sr partially coded", p: 4}
+- {value: 1.4, key: "radiator", what: "area of the thermal radiator (m2)", p: 10}
+- {value: 10, key: "heat pipe|cchp", what: "constant capacity heat pipes embedded in the detector array plate", p: 11}
+- {value: 2, key: "loop|vclhp", what: "loop heat pipes from the plate edges to the radiator", p: 11}
+- {value: 4, key: "heater|foil", what: "pairs of heater foils on the module side walls of each block", p: 11}
+- {value: 2, key: "am|source|tagged", what: "Am-241 tagged sources for calibration", p: 6}
+- {value: 2, key: "image processor|(?<![a-z])ips?(?![a-z])", what: "image processors", p: 3}
+- {value: 600, key: "orbit", what: "orbit height, circular (km)", p: 4, optional: true}
+- {value: 1270, key: "mass|spacecraft|mission", what: "total mass of the spacecraft (kg)", p: 4, optional: true}
+materials:
+- {part: "detector elements", material: "CdZnTe (CZT), planar electrodes", p: 5}
+- {part: "mask tiles", material: "lead", p: 9}
+- {part: "mask panel", material: "low-mass composite honeycomb", p: 9}
+- {part: "mask struts", material: "composite fibre", p: 9}
+- {part: "fringe shield", material: "graded-Z layers of Pb, Ta, Sn and Cu; thicker near the detector plane, thinner towards the mask", p: 9}
+- {part: "cover of a detector module", material: "aluminized mylar (EMI cover); Ultem cover over the ASIC", p: 8}
+- {part: "detector array plate", material: "honeycomb plate with embedded heat pipes", p: 10}
+- {part: "mask shape", material: "D-shaped: 2.4 m by 1.2 m with the corners cut off", p: 3}
+relations:
+- {subject: "sub.?array|czt|piece", object: "asic|xa1", family: attach, what: "each sub-array of 8 x 16 CZT pieces is attached to one XA1 ASIC", p: 5}
+- {subject: "(?<![a-z])dms?(?![a-z])|module", object: "czt|sub.?array", family: any, what: "the two sub-arrays tile the top of a module; the electronics boards are stacked under the CZT layer", p: 8}
+- {subject: "block", object: "bcdh|controller|regulator|interface", family: any, what: "a block also holds its interface card, voltage regulator and controller", p: 8}
+- {subject: "shield|wall|panel", object: "strut", family: attach, what: "the side wall panels of the fringe shield are mounted from the mask struts", p: 10}
+- {subject: "plate|dap", object: "heat|pipe", family: any, what: "heat pipes are embedded in the honeycomb plate under the blocks", p: 10}
+- {subject: "radiator", object: "instrument|bat|front", family: any, what: "the radiator is mounted on the front side of the instrument", p: 10}
+- {subject: "bat|instrument", object: "radiator|processor|power", family: nest, what: "BAT is the detector array, the mask, the radiator, two image processors and the power control box", p: 3}
+- {subject: "swift|spacecraft", object: "bat|xrt|uvot", family: any, what: "the spacecraft carries BAT, XRT and UVOT", p: 1}

@@ -1,0 +1,41 @@
+# Facts the paper states that are missing from experiments/gold/project8_phase2.yaml and experiments/gold_relations/project8_phase2.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1 to 3.5 (pages 3 to 11) of the text in runs/papers20/project8_phase2/step1;
+# sections 4 to 7 (receiver, gas system, operation; pages 12 to 29) only scanned for sizes and materials.
+# The positions along the insert drawn in figure 4 came out garbled in the text and were not used.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: Project 8 phase II apparatus
+values:
+- {value: 0.959, key: "field|magnet", what: "magnetic field of the NMR magnet (T), pointing upwards", p: 4}
+- {value: 7, key: "shim", what: "working shim coils of the magnet", p: 5, optional: true}
+- {value: 2, key: "layer|wire|solenoid", what: "layers of AWG26 copper wire on the field-shifting solenoid", p: 6}
+- {value: 5, key: "tub|round|cooling", what: "rounds of copper cooling tube below the solenoid flange", p: 6}
+- {value: 1, key: "bar", what: "thickness of the copper bar, 2.5 cm x 1 cm (cm)", p: 6}
+- {value: 85, key: "cell|temperature", what: "temperature of the CRES cell (K); the amplifiers are at about 30 K", p: 6}
+- {value: 2, key: "amplifier", what: "cryogenic low-noise amplifiers", p: 4}
+- {value: 20, key: "graphite|terminator", what: "graphite share of the terminator, by weight (%)", p: 11}
+- {value: 2, key: "getter", what: "non-evaporable getters in the manifold", p: 16, optional: true}
+- {value: 2, key: "rb|source|krypton", what: "83Rb sources (8 mCi and 6 mCi)", p: 15, optional: true}
+materials:
+- {part: "magnet", material: "superconducting NbTi NMR magnet, warm bore (Bruker-Spectrospin 200 MHz)", p: 5}
+- {part: "field-shifting solenoid", material: "AWG26 copper wire in varnish on a copper cylinder; not superconducting", p: 6}
+- {part: "CRES cell (circular waveguide)", material: "copper", p: 10}
+- {part: "cell windows", material: "CaF2, sealed with indium gaskets; titanium and aluminium bolts", p: 7}
+- {part: "trap coils", material: "AWG26 copper wire potted in GE varnish, on a Torlon support", p: 8}
+- {part: "terminator", material: "cone of Stycast 1266 epoxy with 20 % graphite powder", p: 11}
+- {part: "long waveguide", material: "copper WR-42, 0.9 m", p: 10}
+- {part: "thermal break waveguide", material: "gold-coated stainless steel WR-42, 152 mm", p: 10}
+- {part: "backbone of the insert", material: "copper bar, joined to the cryocooler by copper braids", p: 6}
+- {part: "position blocks of the cell", material: "machined aluminium", p: 5}
+- {part: "krypton source", material: "83RbCl on zeolite beads, in lead shielding", p: 15}
+- {part: "tritium storage cylinder", material: "stainless steel", p: 15}
+relations:
+- {subject: "insert", object: "magnet|bore|field", family: any, what: "the insert places the CRES cell at the maximum of the magnetic field", p: 5}
+- {subject: "insert", object: "solenoid", family: any, what: "the insert hangs inside the field-shifting solenoid", p: 4}
+- {subject: "solenoid|coil|form", object: "flange|magnet", family: attach, what: "the coil form is brazed to a flange bolted to the bottom of the NMR magnet", p: 6}
+- {subject: "bar|amplifier", object: "cryocooler", family: any, what: "the copper bar and the amplifiers are connected to the cryocooler by copper braids", p: 6}
+- {subject: "cell|waveguide", object: "terminator", family: any, what: "a cone-shaped terminator closes the lower end of the cell", p: 11}
+- {subject: "cell|waveguide", object: "port|gas", family: any, what: "the gas enters the cell through a port with a grid of small holes", p: 10}
+- {subject: "cell|waveguide", object: "plate|quarter", family: any, what: "after the cell come a quarter-wave plate, a circular-to-rectangular adapter and the 0.9 m waveguide", p: 10}
+- {subject: "waveguide", object: "steel|break|isolator|amplifier", family: any, what: "the steel section follows the long copper waveguide; then the isolator and the two amplifiers", p: 10}
+- {subject: "support|torlon", object: "coil|trap|cell", family: any, what: "the Torlon support joins the trap coils to the cell", p: 7}
+- {subject: "cell|vacuum", object: "bore|piston", family: any, what: "the outer vacuum of the cell joins the magnet bore by a sliding piston seal and can be raised and lowered", p: 5}

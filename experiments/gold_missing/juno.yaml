@@ -1,0 +1,57 @@
+# Facts the paper states that are missing from experiments/gold/juno.yaml and experiments/gold_relations/juno.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 3.1 to 3.3 and the start of 3.4 (pages 27 to 35) and the site
+# paragraph (page 6) of the text in runs/papers20/juno/step1. As in the hand list, only the main detector: TAO and OSIRIS
+# are left out. Not read: the physics sections (pages 5 to 27), purification, PMT testing and electronics, the calibration
+# system (3.9), and everything after it. Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: JUNO (the main detector only)
+values:
+- {value: 693.35, key: "overburden", what: "vertical overburden above the detector centre (m); 1800 m water equivalent", p: 6}
+- {value: -452.75, alt: 452.75, key: "centre|center|detector", what: "elevation of the detector centre (m); hall dome at -403.5, hall floor at -430.5", p: 6}
+- {value: 75.2, key: "coverage|photocathode", what: "photocathode coverage of the 20-inch PMTs (%); 2.7 for the 3-inch ones", p: 28}
+- {value: 15000, key: "mcp", what: "MCP PMTs among the 20-inch ones; 5000 dynode PMTs", p: 1}
+- {value: 2.5, key: "ppo", what: "PPO in the scintillator (g/L), with 3 mg/L bis-MSB", p: 28}
+- {value: 30, key: "longitud|h-beam", what: "longitudinal H-beams of the Main Structure", p: 30}
+- {value: 5, key: "in-plane|support", what: "in-plane supports along the longitudinal direction", p: 30}
+- {value: 60, key: "base|plate", what: "base plates under the supporting legs", p: 30}
+- {value: 220, key: "connecting|bar|spring", what: "connecting bars with disc springs, in latitudinal layers 1 to 9; the other 370, in layers 10 to 23, are rigid", p: 30}
+- {value: 3000, key: "buoyan", what: "buoyancy on the acrylic vessel (t)", p: 30, optional: true}
+- {value: 3, key: "tank|overflow|storage", what: "tanks of the filling system, one storage and two overflow, 50 m3 each", p: 30, optional: true}
+- {value: 5, key: "hdpe|liner|film", what: "thickness of the HDPE liner on the pool walls (mm)", p: 32}
+- {value: 1, key: "cover|rubber|surface", what: "height of the pool cover above the water surface (m)", p: 32}
+- {value: 1045, key: "upper|hemisphere", what: "veto PMTs on the upper hemisphere; 1355 on the lower", p: 32}
+- {value: 1355, key: "lower|hemisphere", what: "veto PMTs on the lower hemisphere", p: 32}
+- {value: 32, key: "coil", what: "circular coils compensating the Earth's magnetic field", p: 32}
+- {value: 3, key: "layer|tracker|(?<![a-z])tt(?![a-z])", what: "horizontal layers of the Top Tracker, 1.5 m apart, on a 3 x 7 grid", p: 33}
+- {value: 1.5, key: "layer|separat", what: "vertical distance between Top Tracker layers (m); 23 cm for the three central, raised walls", p: 33}
+- {value: 15, key: "overlap", what: "overlap between neighbouring walls of a layer (cm)", p: 33}
+- {value: 512, key: "strip", what: "scintillator strips per Top Tracker wall", p: 33}
+- {value: 64, key: "strip|module", what: "strips per Top Tracker module", p: 33}
+- {value: 2.6, key: "strip", what: "strip width (cm); strips are 6.7 m x 2.6 cm x 1.1 cm", p: 33}
+- {value: 1.1, key: "strip", what: "strip thickness (cm)", p: 33}
+- {value: 4, key: "module|plane", what: "modules per Top Tracker plane; two crossed planes make a wall", p: 33}
+- {value: 20, key: "tracker|(?<![a-z])tt(?![a-z])", what: "extent of the Top Tracker as drawn in figure 13: 20 m by 47 m, 3 m high", p: 33, optional: true}
+- {value: 25, key: "tracker|(?<![a-z])tt(?![a-z])|area|pool", what: "share of the pool's top surface the Top Tracker covers, more than (%)", p: 28, optional: true}
+materials:
+- {part: "vessel", material: "acrylic, spherical, bonded from panels", p: 29}
+- {part: "Main Structure (shell, legs, connecting bars)", material: "stainless steel; shell of H-beams, legs of truss structures", p: 28}
+- {part: "scintillator", material: "linear alkylbenzene (LAB) with 2.5 g/L PPO and 3 mg/L bis-MSB, no gadolinium", p: 28}
+- {part: "pool filling and buffer", material: "ultrapure water", p: 30}
+- {part: "pool wall liner", material: "HDPE film", p: 32}
+- {part: "coating of the pool walls and the support structure", material: "Tyvek reflective foil", p: 30}
+- {part: "pool cover", material: "black rubber sheet with gas-tight zippers, nitrogen below it", p: 32}
+- {part: "Top Tracker strips", material: "plastic scintillator with a TiO2 coat and a wavelength-shifting fibre, read by 64-channel multi-anode PMTs at both ends", p: 33}
+- {part: "veto PMTs", material: "20-inch MCP PMTs", p: 30}
+- {part: "rock around the hall", material: "granite", p: 6}
+- {part: "pool floor", material: "concrete", p: 28}
+relations:
+- {subject: "pool|water", object: "pmt|photomult", family: any, what: "2400 PMTs on the outside of the shell structure point outward into the pool", p: 29}
+- {subject: "structure|shell", object: "pmt|photomult", family: any, what: "the 20-inch and 3-inch PMTs on the inside of the structure point inward", p: 28}
+- {subject: "buffer|water", object: "vessel|pmt", family: any, what: "a 1.42 m water buffer lies between the vessel and the PMTs, optically separated from the outer water", p: 28}
+- {subject: "leg", object: "floor|pool|concrete", family: any, what: "the supporting legs stand on base plates on the concrete floor of the pool", p: 28}
+- {subject: "structure|main", object: "coil", family: any, what: "the compensation coils are carried by the Main Structure and surround the detector", p: 28}
+- {subject: "pool", object: "liner|hdpe|tyvek", family: any, what: "the pool walls are lined with HDPE film and Tyvek", p: 32}
+- {subject: "pool", object: "cover|rubber", family: any, what: "a cover in two half circles closes the pool 1 m above the water", p: 32}
+- {subject: "wall", object: "plane|module|strip", family: nest, what: "a Top Tracker wall is two crossed planes of four modules of 64 strips", p: 33}
+- {subject: "strip", object: "fibre|fiber", family: nest, what: "each strip holds a wavelength-shifting fibre", p: 33}
+- {subject: "tracker|(?<![a-z])tt(?![a-z])|wall", object: "chimney|calibration", family: any, what: "the three central walls are raised to clear the chimney and the calibration house", p: 33}
+- {subject: "detector|pool", object: "pit|hall", family: any, what: "the detector sits in a cylindrical pit below the experimental hall", p: 6}

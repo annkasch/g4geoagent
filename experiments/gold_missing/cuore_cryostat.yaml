@@ -1,0 +1,55 @@
+# Facts the paper states that are missing from experiments/gold/cuore_cryostat.yaml and experiments/gold_relations/cuore_cryostat.yaml.
+# Cross-check by Claude, 2026-10-12, from reading the whole text (pages 1 to 8) in runs/papers20/cuore_cryostat/step1.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: CUORE cryostat
+values:
+- {value: 2, key: "vacuum|chamber", what: "vacuum chambers (outer and inner), made by the 300 K and 4 K vessels", p: 2}
+- {value: 40, key: "vessel|shield|plate|stage", what: "temperature of the second vessel (K); the six: 300 K, 40 K, 4 K, 600 mK, 50 mK, 10 mK", p: 2}
+- {value: 600, key: "still|vessel|plate", what: "temperature of the Still vessel (mK)", p: 2}
+- {value: 50, key: "hex|exchanger|vessel|lead", what: "temperature of the heat exchanger vessel and of the top lead (mK)", p: 2}
+- {value: 10, key: "mixing|(?<![a-z])mc(?![a-z])|vessel", what: "temperature of the mixing chamber vessel (mK)", p: 2}
+- {value: 4, key: "roman|lead|shield", what: "temperature at which the Roman lead shield is held (K)", p: 4}
+- {value: 1, key: "volume|experimental", what: "experimental volume (m3)", p: 2}
+- {value: 1, key: "detector|array|mass", what: "mass of the detector array, about (t)", p: 2}
+- {value: 6, key: "bar|suspension|steel", what: "smallest diameter of a steel suspension bar (mm)", p: 3}
+- {value: 2, key: "kevlar|rope", what: "Kevlar ropes per suspension bar (three couples in all)", p: 3}
+- {value: 0.98, key: "40", what: "mass held at 40 K (t)", p: 4}
+- {value: 7.4, key: "4 k|4k", what: "mass held at 4 K (t)", p: 4}
+- {value: 4.5, key: "50", what: "mass cooled below 50 mK (t)", p: 4}
+- {value: 100, key: "ribbon|cable", what: "ribbon cables of the wiring", p: 4}
+- {value: 13, key: "pair|ribbon", what: "twisted pairs per ribbon cable", p: 4}
+- {value: 2600, key: "wire", what: "wires in all", p: 5}
+- {value: 100, key: "wire|nbti", what: "wire diameter (um), with 5 um of CuNi coating", p: 4}
+- {value: 3, key: "gifford|cold head", what: "Gifford-McMahon cold heads of the fast cooling system", p: 5}
+- {value: 4, key: "column", what: "sand-filled columns carrying the main support plate", p: 6}
+- {value: 4, key: "elastomer", what: "seismic elastomers under the concrete structure", p: 6}
+- {value: 4, key: "jack", what: "screw jacks raising the external lead shield", p: 6}
+- {value: 12, key: "string|calibration", what: "Kevlar calibration strings (6 internal, 6 external)", p: 6}
+- {value: 25, key: "capsule", what: "source capsules per calibration string", p: 6}
+materials:
+- {part: "40 K, 4 K, Still and heat exchanger vessels", material: "oxygen-free copper (OFHC, C10100)", p: 3}
+- {part: "mixing chamber flange and plate, tower support plate, last part of the suspension, detector frames", material: "ETP1 copper (NOSV)", p: 3}
+- {part: "suspension bars from the Y-beam to the Still stage", material: "stainless steel 316LN", p: 3}
+- {part: "ropes from the Still stage to the tower support plate", material: "Kevlar K49", p: 3}
+- {part: "last segment of each suspension bar", material: "high purity copper rod", p: 3}
+- {part: "copper connectors of the tower support plate", material: "a few tens of thin NOSV copper sheets each", p: 3}
+- {part: "side and bottom cold shield", material: "ancient Roman lead, depleted in 210Pb", p: 3}
+- {part: "top cold shield", material: "modern lead", p: 4}
+- {part: "detector", material: "TeO2 crystals", p: 2}
+- {part: "40 K and 4 K vessels and plates", material: "covered with aluminised multilayer superinsulation", p: 4}
+- {part: "signal wires", material: "NbTi with CuNi coating", p: 4}
+- {part: "external shield, from outside inwards", material: "lead, polyethylene, boric acid panels", p: 6}
+- {part: "calibration sources", material: "thoriated tungsten capsules on Kevlar strings", p: 6}
+- {part: "support under the main support plate", material: "sand-filled columns on a concrete structure", p: 6}
+relations:
+- {subject: "10|mixing|(?<![a-z])mc(?![a-z])", object: "tsp|tower", family: nest, what: "the tower support plate is inside the 10 mK vessel", p: 3}
+- {subject: "roman|lead|shield", object: "detector", family: any, what: "the Roman lead shields the detector at the side and the bottom, the modern lead from above", p: 3}
+- {subject: "ivc|inner", object: "top|modern", family: nest, what: "the top (modern) lead shield is inside the inner vacuum chamber", p: 4}
+- {subject: "tsp|tower", object: "connector|10|vessel", family: any, what: "four copper connectors join the tower support plate to the 10 mK vessel", p: 3}
+- {subject: "y.?beam", object: "minus|insulator", family: any, what: "the Y-beam is anchored to three Minus-K insulators", p: 3}
+- {subject: "cryostat", object: "msp|main", family: any, what: "the cryostat hangs from the main support plate at room temperature", p: 6}
+- {subject: "msp|main", object: "column|concrete", family: any, what: "the main support plate stands on a concrete structure on four sand-filled columns", p: 6}
+- {subject: "lead|shield", object: "polyethylene|boric", family: any, what: "the external lead is lined with polyethylene and boric acid panels", p: 6}
+- {subject: "shield|lead", object: "platform", family: any, what: "the external shield stands on a movable platform", p: 6}
+- {subject: "string|calibration", object: "tower|cryostat|50", family: any, what: "6 calibration strings go among the towers, 6 outside the 50 mK vessel", p: 6}
+- {subject: "cryostat|plate|300", object: "pulse|(?<![a-z])pts?(?![a-z])", family: any, what: "five pulse tubes sit on the 300 K plate of the cryostat", p: 5}

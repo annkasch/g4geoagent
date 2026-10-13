@@ -1,0 +1,44 @@
+# Facts the paper states that are missing from experiments/gold/next100.yaml and experiments/gold_relations/next100.yaml.
+# Cross-check by Claude, 2026-10-12, from reading section 4 (pages 8 to 10) and table 3 (page 13) of the text in
+# runs/papers20/next100/step1; the other sections (physics, backgrounds, sensitivity) only scanned for sizes.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: NEXT-100
+values:
+- {value: 15, key: "bar|pressure", what: "xenon pressure (bar)", p: 8}
+- {value: 30, key: "cover|pmt|area", what: "share of the cathode area covered by the PMTs (%)", p: 9}
+- {value: 1, key: "sipm|active|area", what: "active area of a SiPM (mm2)", p: 10}
+- {value: 2, key: "head", what: "torispherical heads of the vessel", p: 10}
+- {value: 1310, key: "vessel|steel", what: "mass of the pressure vessel (kg)", p: 13}
+- {value: 4.3, key: "enclosure", what: "mass of one PMT enclosure (kg); 60 of them", p: 13}
+- {value: 0.14, key: "window|sapphire", what: "mass of one enclosure window (kg)", p: 13}
+- {value: 107, key: "board", what: "SiPM boards in table 3 (107 x 64 = 6848 SiPMs; the text says 7168, which is 112 boards)", p: 13}
+- {value: 128, key: "barrel|polyethylene|cage", what: "mass of the field cage barrel (kg)", p: 13}
+- {value: 120, key: "ring", what: "field shaping rings, 3 kg each", p: 13}
+- {value: 2, key: "electrode|ring", what: "electrode rings, 5 kg each", p: 13}
+- {value: 9.5, key: "anode|silica|plate", what: "mass of the anode plate (kg)", p: 13}
+- {value: 240, key: "resistor", what: "resistors of the resistor chain, 1 GOhm each", p: 13}
+- {value: 9620, key: "copper|inner|shield", what: "mass of the inner copper shield (kg)", p: 13}
+- {value: 60700, key: "lead|outer|shield", what: "mass of the outer lead shield (kg)", p: 13}
+materials:
+- {part: "pressure vessel", material: "stainless steel 316Ti", p: 10}
+- {part: "field cage shell", material: "high-density polyethylene (HDPE), open-ended cylinder", p: 8}
+- {part: "field shaping rings, PMT enclosures, inner shield bars and plates", material: "copper (CuA1)", p: 13}
+- {part: "tiles over the rings", material: "PTFE coated with TPB", p: 9}
+- {part: "anode window", material: "fused silica coated with ITO and TPB", p: 9}
+- {part: "gate and cathode", material: "stainless steel wire mesh stretched over circular frames", p: 9}
+- {part: "PMT enclosure windows", material: "sapphire, coated with TPB on the outside", p: 10}
+- {part: "PMTs", material: "Hamamatsu R11410-10, 3 inch, synthetic silica window, kept in vacuum", p: 10}
+- {part: "SiPM boards", material: "Kapton and copper, flexible", p: 10}
+- {part: "outer shield", material: "staggered lead bricks in a stainless-steel frame", p: 10}
+- {part: "gas", material: "xenon enriched in 136Xe, at 15 bar", p: 8}
+relations:
+- {subject: "ring", object: "active|volume|xenon", family: surrounds, what: "the copper rings surround the active volume", p: 8}
+- {subject: "gate|cathode", object: "anode", family: any, what: "gate 0.5 cm and cathode 106.5 cm from the anode", p: 9}
+- {subject: "enclosure", object: "window|sapphire", family: any, what: "each enclosure is closed by a sapphire window", p: 10}
+- {subject: "enclosure", object: "manifold|conduit|tub", family: any, what: "the enclosures are connected by tubes to a central manifold", p: 10}
+- {subject: "energy", object: "pmt|photomult", family: nest, what: "the energy plane is made of 60 PMTs", p: 9}
+- {subject: "tracking", object: "sipm", family: nest, what: "the tracking plane is an array of 7168 SiPMs", p: 10}
+- {subject: "energy|tracking|plane", object: "end|opposite|chamber", family: any, what: "the two sensor planes are at opposite ends of the chamber", p: 9}
+- {subject: "plate|copper", object: "slit|tail|board", family: any, what: "the board tails pass through zigzag slits in the copper plates", p: 10}
+- {subject: "frame", object: "lead|brick", family: any, what: "a stainless-steel frame holds the lead bricks", p: 10}
+- {subject: "bar", object: "axis|tpc|parallel", family: any, what: "the copper bars run parallel to the axis of the TPC", p: 10}

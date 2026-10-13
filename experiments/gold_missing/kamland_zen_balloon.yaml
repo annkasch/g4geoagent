@@ -1,0 +1,47 @@
+# Facts the paper states that are missing from experiments/gold/kamland_zen_balloon.yaml and experiments/gold_relations/kamland_zen_balloon.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 1 to 6.4 (pages 4 to 19) of the text in runs/papers20/kamland_zen_balloon/step1;
+# sections 6.5 to 8 (installation steps, contamination; pages 19 to 25) were not read.
+# Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: KamLAND-Zen 800 inner balloon
+values:
+- {value: 2700, key: "overburden|m\\.w\\.e|rock", what: "rock overburden (m water equivalent)", p: 4}
+- {value: 34, key: "pmt|cover|surface", what: "share of the inner surface covered by the PMTs (%)", p: 5}
+- {value: 5, key: "layer|outer|film", what: "layers of the outer balloon film", p: 4}
+- {value: 91, alt: 90.9, key: "136|abundance|enrich", what: "isotopic abundance of xenon-136 (%)", p: 5}
+- {value: 3.0, key: "solub|wt|weight", what: "xenon loading of the scintillator the design assumes (% by weight); soluble up to 3.1", p: 6}
+- {value: 1, key: "cap", what: "lower polar cap of the main sphere", p: 6, optional: true}
+- {value: 12, key: "string|vectran", what: "Vectran strings, led through the string guide", p: 6}
+- {value: 1.5, key: "ratchet|string|step", what: "step in which the ratchet sets the string length (mm)", p: 6, optional: true}
+- {value: 0.77728, key: "density|ls|scintillat", what: "density of the KamLAND scintillator at 15 C (kg/L)", p: 6}
+- {value: 20, key: "pseudocumene", what: "pseudocumene share of the KamLAND scintillator (%), with 80 % dodecane and 1.36 g/L PPO", p: 6}
+- {value: 18, key: "pseudocumene", what: "pseudocumene share of the xenon-loaded scintillator (%), with 82 % decane and 2.38 g/L PPO", p: 6}
+- {value: 3, key: "section|corrugated", what: "sections of the corrugated tube", p: 8}
+- {value: 32, key: "rectangle|film", what: "film rectangles of 7.5 m x 1 m cut for the balloon", p: 13}
+- {value: 4, key: "layer|weld|seam", what: "film layers in a welded seam, 100 um together", p: 13}
+- {value: 2, key: "layer|belt", what: "film layers of a belt", p: 17}
+- {value: 2, key: "o-ring", what: "O-rings per corrugated tube connection", p: 19}
+- {value: 2, key: "camera", what: "monitoring cameras", p: 19, optional: true}
+materials:
+- {part: "inner balloon film, belts, polar harness, guide tubes", material: "Nylon-6, single layer, made without filler", p: 9}
+- {part: "outer balloon film", material: "five-layer nylon/EVOH", p: 4}
+- {part: "KamLAND tank", material: "stainless steel, spherical", p: 4}
+- {part: "corrugated tube", material: "hard nylon (PMA CYLG-95B)", p: 7}
+- {part: "connection cylinders, film holders, string guide", material: "PEEK", p: 8}
+- {part: "O-rings of the tube connections", material: "fluoro-rubber", p: 8}
+- {part: "strings", material: "Vectran", p: 6}
+- {part: "KamLAND scintillator", material: "20 % pseudocumene, 80 % dodecane, 1.36 g/L PPO", p: 6}
+- {part: "xenon-loaded scintillator", material: "18 % pseudocumene, 82 % decane, 2.38 g/L PPO, with xenon enriched to 90.9 % in 136Xe", p: 6}
+- {part: "between outer balloon and tank", material: "buffer oil", p: 4}
+- {part: "inner balloon shape", material: "teardrop", p: 6}
+relations:
+- {subject: "balloon|(?<![a-z])ib(?![a-z])|sphere", object: "cap", family: nest, what: "the balloon has a lower polar cap below the gores", p: 6}
+- {subject: "harness", object: "balloon|(?<![a-z])ib(?![a-z])|cap", family: any, what: "the bottom of the balloon rests on the polar harness", p: 17}
+- {subject: "harness", object: "belt", family: any, what: "the polar harness is connected to the 12 belts", p: 17}
+- {subject: "string", object: "ratchet|load cell", family: any, what: "the top ends of the strings go to a rotary ratchet hung on a load cell", p: 6}
+- {subject: "guide", object: "string", family: any, what: "a string guide leads the strings into the chimney", p: 6}
+- {subject: "guide", object: "corrugated|tube|chimney", family: any, what: "the string guide is connected to the corrugated tube, at the bottom of the chimney", p: 19}
+- {subject: "balloon|(?<![a-z])ib(?![a-z])", object: "chimney", family: any, what: "the inner balloon is suspended from the chimney at the top of the detector", p: 6}
+- {subject: "kamland|detector|outer|(?<![a-z])ob(?![a-z])", object: "inner|(?<![a-z])ib(?![a-z])", family: nest, what: "the inner balloon is at the centre of the detector, inside the outer balloon", p: 4}
+- {subject: "tank|vessel|kamland|detector", object: "pmt|photomult", family: any, what: "the PMTs cover the inner surface of the detector", p: 5}
+- {subject: "cylinder", object: "corrugated|tube|section", family: any, what: "PEEK cylinders join the three sections of the corrugated tube", p: 8}
+- {subject: "belt", object: "belt|horizontal", family: any, what: "horizontal belts tie the vertical belts together near the polar harness", p: 17}

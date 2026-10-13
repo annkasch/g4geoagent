@@ -1,0 +1,76 @@
+# Facts the paper states that are missing from experiments/gold/xenonnt.yaml and experiments/gold_relations/xenonnt.yaml.
+# Cross-check by Claude, 2026-10-12, from reading sections 2 to 2.2.1 and 2.3 (pages 2 to 11, 15 to 16) of the text in
+# runs/papers20/xenonnt/step1; sections 2.2.2 to 2.2.5 and 2.4 to 4 (xenon handling plants, calibration, DAQ, performance)
+# were not read. Not merged into the hand lists. Not checked by a detector expert. p: page of the PDF.
+# detector: XENONnT
+wrong_in_the_hand_list:
+- {entry: "value 84, PMTs of the neutron veto", paper: "84 PMTs are the muon veto's, in the water tank (p. 15); the neutron veto has 120 PMTs (p. 16 and figure 10)"}
+values:
+- {value: 120, key: "neutron|veto|pmt", what: "PMTs of the neutron veto, 8 inch", p: 16}
+- {value: 84, key: "muon|tank|water|pmt", what: "PMTs of the muon veto in the water tank, 8 inch, in five rings", p: 15}
+- {value: 5, key: "ring", what: "rings of muon veto PMTs along the tank wall, equally spaced in height", p: 15}
+- {value: 3, key: "nested|detector", what: "nested detectors: TPC, neutron veto, muon veto", p: 2}
+- {value: 494, key: "pmt|photomult", what: "PMTs of the TPC in all, Hamamatsu R11410-21", p: 7}
+- {value: 128, key: "ptfe", what: "PTFE in the TPC (kg)", p: 5}
+- {value: 24, key: "panel", what: "PTFE panels fixed to the pillars; 24 more slot in between", p: 5}
+- {value: 8, key: "gate|anode|extraction|gap", what: "gate to anode distance (mm); about 7 at the design voltages", p: 5}
+- {value: 5.1, key: "liquid|level|gate|interface", what: "height of the liquid surface above the gate (mm)", p: 6}
+- {value: 36, key: "screen|top", what: "top screening electrode above the gate (mm)", p: 7}
+- {value: 1541, key: "screen|bottom", what: "bottom screening electrode below the gate (mm)", p: 7}
+- {value: 1334, key: "frame|anode|gate|screen", what: "inner diameter of the frames of top screen, anode and gate, 24-sided (mm); outer 1408", p: 7}
+- {value: 1408, key: "frame|anode|gate|screen", what: "outer diameter of the frames of top screen, anode and gate (mm)", p: 7}
+- {value: 1347, key: "cathode|frame", what: "inner diameter of the circular cathode frame (mm); outer 1395", p: 7}
+- {value: 1345, key: "screen|bottom|frame", what: "inner diameter of the circular bottom screen frame (mm); outer 1395", p: 7}
+- {value: 1395, key: "cathode|bottom|frame", what: "outer diameter of the cathode and bottom screen frames (mm)", p: 7}
+- {value: 20, key: "frame|gate|cathode", what: "frame thickness of gate and cathode (mm); anode 18, screens 15", p: 7}
+- {value: 18, key: "frame|anode", what: "frame thickness of the anode (mm)", p: 7}
+- {value: 216, key: "wire", what: "wire diameter of the grids (um); cathode 304", p: 7}
+- {value: 304, key: "wire|cathode", what: "wire diameter of the cathode (um)", p: 7}
+- {value: 5, key: "pitch|wire", what: "wire pitch of top screen, anode and gate (mm); cathode and bottom screen 7.5", p: 7}
+- {value: 7.5, key: "pitch|wire|cathode", what: "wire pitch of cathode and bottom screen (mm)", p: 7}
+- {value: 2, key: "transverse|wire|gate", what: "transverse wires on the gate; four on the anode", p: 8}
+- {value: 2, key: "cage|set|field", what: "concentric cages of field-shaping electrodes", p: 5}
+- {value: 5, key: "ring|guard|cross", what: "guard ring cross-section width, 15 mm x 5 mm (mm)", p: 9}
+- {value: 10.7, key: "guard|ring|radi", what: "by how much the guard ring radius exceeds the inner radius of the PTFE wall (mm)", p: 9}
+- {value: 33, key: "guard|ring|cathode", what: "lowest guard ring above the cathode wire plane (mm)", p: 9}
+- {value: 73, key: "guard|ring|gate", what: "topmost guard ring below the gate plane (mm)", p: 9}
+- {value: 11, key: "wire|electrode|pitch|distance", what: "spacing of the wire field electrodes where there are no guard rings (mm)", p: 9}
+- {value: 58.4, key: "wire|electrode|gate", what: "topmost connected wire field electrode below the gate (mm); the lowest is 29.5 above the cathode", p: 9}
+- {value: 1, key: "sheet|ptfe", what: "thickness of the PTFE sheet around the lower field cage (mm)", p: 5}
+- {value: 2, key: "level|tube", what: "tube-in-tube level meters alongside the TPC", p: 6}
+- {value: 2, key: "pipe|cable", what: "cable pipes from the cryostat through the water", p: 6}
+- {value: 3, key: "bracket", what: "brackets joining the heads of inner and outer vessel", p: 10}
+- {value: 6, key: "pipe|cryogenic", what: "length of the cryogenic pipe to the cooling station (m)", p: 10}
+- {value: 2, key: "pulse|ptr", what: "pulse tube refrigerators, 250 W each", p: 10}
+- {value: 8, key: "panel|side|reflector", what: "side reflector panels of the neutron veto; with two octagonal caps", p: 16}
+- {value: 1, key: "reflector|eptfe|cryostat|distance", what: "distance of the neutron veto reflectors from the cryostat, about (m)", p: 16}
+- {value: 0.48, key: "gadolinium|gd|sulfate|sulphate", what: "gadolinium sulfate loading of the water by mass (%); 3.4 t procured", p: 16}
+- {value: -98, alt: 98, key: "temperature|xenon|cryostat", what: "xenon temperature (C); all TPC sizes are given cold", p: 4, optional: true}
+materials:
+- {part: "cryostat vessels (inner and outer)", material: "stainless steel SS304, torispherical heads", p: 10}
+- {part: "TPC wall panels, pillars, PMT holder disks", material: "PTFE, diamond polished on the inside", p: 5}
+- {part: "PMT array support disks, guard rings, wire field electrodes", material: "OFHC copper", p: 5}
+- {part: "diving bell", material: "stainless steel", p: 5}
+- {part: "electrode frames", material: "SS304 stainless steel, from single slabs", p: 8}
+- {part: "electrode wires", material: "annealed SS316 stainless steel, held by OFHC copper pins", p: 8}
+- {part: "PMTs", material: "Hamamatsu R11410-21", p: 7}
+- {part: "neutron veto reflectors", material: "expanded PTFE on a light stainless steel structure", p: 16}
+- {part: "water tank lining", material: "reflective foil", p: 15}
+- {part: "shield and veto medium", material: "demineralized water, later with gadolinium sulfate octahydrate", p: 16}
+- {part: "suspension rods of the cryostat", material: "M24 stainless steel", p: 10}
+relations:
+- {subject: "muon|tank|water", object: "pmt|photomult", family: any, what: "84 PMTs line the wall of the water tank in five rings", p: 15}
+- {subject: "neutron|veto|nv", object: "pmt|photomult", family: any, what: "120 PMTs view the neutron veto volume", p: 16}
+- {subject: "neutron|veto|nv", object: "reflector|panel|eptfe|cap", family: nest, what: "the neutron veto is two octagonal caps and eight side panels on a steel structure, anchored to the cryostat support", p: 16}
+- {subject: "muon|tank|water", object: "neutron|veto|nv", family: nest, what: "the neutron veto lies inside the muon veto, in the same water", p: 15}
+- {subject: "tpc", object: "flange|vessel|inner", family: attach, what: "the TPC hangs from the top flange of the inner vessel", p: 4}
+- {subject: "pillar", object: "tpc|panel", family: any, what: "24 PTFE pillars hold the TPC together; 24 panels are fixed to them", p: 5}
+- {subject: "disk|copper", object: "array|pmt", family: any, what: "a copper disk carries each PMT array", p: 5}
+- {subject: "pillar", object: "ring|guard", family: any, what: "the guard rings sit in notches of the pillars", p: 9}
+- {subject: "panel|ptfe|reflector", object: "wire", family: any, what: "the wire field electrodes touch the outside of the panels, held in notches of each panel", p: 9}
+- {subject: "guard|ring", object: "wire", family: any, what: "the wire electrodes lie between the guard rings and the wall, staggered by half a pitch", p: 9}
+- {subject: "sheet", object: "cage|electrode|cathode", family: surrounds, what: "a PTFE sheet surrounds the lower 640 mm of the field cage and the cathode frame", p: 5}
+- {subject: "screen", object: "array|pmt|reflector", family: any, what: "a screening electrode stands in front of each PMT array", p: 5}
+- {subject: "ov|outer", object: "iv|inner", family: nest, what: "the inner vessel is inside the outer vessel, their heads joined by three brackets", p: 10}
+- {subject: "bell", object: "tube|exhaust", family: any, what: "an exhaust tube along the wall of the diving bell sets the liquid level", p: 6}
+- {subject: "cryostat|dome|head", object: "pipe", family: any, what: "a cryogenic pipe and a second cable pipe leave from the top dome of the cryostat", p: 6}
