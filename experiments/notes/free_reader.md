@@ -35,3 +35,25 @@ What is still wrong (2026-10-12):
 - The rule for construction numbers takes a year (no unit) and a wavelength in nm as construction values.
 - 6282 different sentences become 11277 claims, because a sentence is split by number and relation.
 - Not measured: what the second reading pass adds; the error rate on more than 40 statements.
+
+## Graph step reworked for the free readers (free4, code bca7dee, 2026-10-12)
+
+One claim per sentence; a sixth reason to set a claim aside (`not_arrangement`); above 220 claims on parts and
+arrangement the structure is built in portions (the tree first, then portions of 60 claims added to it in parallel);
+"outer contains inner" is passed on as stated only when both readers wrote it.
+
+| All 20 papers | free3 | free4 |
+|---|---|---|
+| Claims handed to the graph step | 11277 | 7511 |
+| Values in the graph | 432 of 441 (98%) | 430 (98%) |
+| Relations in the graph | 171 of 226 (76%) | 191 (85%) |
+| Test papers: relations in the graph | 78% | 84% |
+| Unaccounted claims | 489, on 5 papers | 456, on 11 papers; in the three development papers looked at, none is a size, count or material |
+| Parts (nodes) / edges in all graphs | 996 / 1155 | 1691 / 2713 |
+| Graphs with one root | 19 | 18 |
+| Minutes per graph, average / longest | 14.4 / 57.8 | 6.6 / 16.6 |
+| Minutes for reading and checks, average | 8.0 | 7.5 |
+
+Open: the portions add parts freely (ANTARES 47 -> 224 nodes), much of it electronics, cables and tooling. Unaccounted
+claims are mostly statements that are not geometry (location, assembly steps) which the model did not set aside.
+Table: `runs/papers20/free4_summary.txt`.
