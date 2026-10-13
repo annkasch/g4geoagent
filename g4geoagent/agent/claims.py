@@ -31,6 +31,10 @@ from g4geoagent.agent.compare import _squash
 class Claim(BaseModel):
     id: str
     kind: Literal["part", "value", "shape", "feature", "relation"]
+    # a claim from the free reader (statements.py): the fact in the reader's own words, and all parts it names
+    statement: str = ""
+    parts: list[str] = Field(default_factory=list)
+    inferred: bool = False
     subject: str = Field(description="The part the claim is about, named as the reader took it from the document")
     text: str = Field(default="", description="part: what it is. shape: the shape. feature: the descriptive words")
     # value
@@ -58,6 +62,15 @@ class Claim(BaseModel):
 
     def line(self):
         """The claim as one line of text, for a model."""
+        if self.statement:
+            note = ""
+            if self.kind == "value":
+                note = f"  [{'material' if self.quantity == 'material' else 'number'}: {self.value} {self.unit}".rstrip() + "]"
+            elif self.kind == "relation" and self.relation:
+                note = f"  [{self.subject} {self.relation} {self.object}]"
+            if self.inferred:
+                note += "  [concluded by the reader, not stated in so many words]"
+            return f"{self.id} | {self.statement}{note} | \"{' '.join(self.quote.split())[:110]}\""
         if self.kind == "part":
             body = f"part {self.subject}: {self.text}"
         elif self.kind == "shape":

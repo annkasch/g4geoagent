@@ -436,7 +436,8 @@ def _clean(graph, accepted, record):
         have = {(e.subject, e.relation, e.object) for e in graph.edges}
         record["edges_added"] = []
         for claim in accepted:
-            if claim.kind != "relation" or claim.relation in ("contains", "consists_of") or (claim.id, claim.relation) in on_edges or claim.id in aside:
+            if claim.kind != "relation" or not claim.relation or claim.relation in ("contains", "consists_of") \
+                    or (claim.id, claim.relation) in on_edges or claim.id in aside:
                 continue
             ends = [next((name_of[G.norm(x)] for x in side.split(" / ") if G.norm(x) in name_of), None)
                     for side in (claim.subject, claim.object)]

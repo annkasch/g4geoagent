@@ -1,6 +1,6 @@
 """Run the steps from the text of a paper to the detector graph on the 20 further papers, and compare with the hand lists.
 
-    python experiments/first_run.py [run name] [--papers a,b] [--workers 4] [--compare-only]
+    python experiments/first_run.py [run name] [--papers a,b] [--workers 4] [--compare-only] [--free]
 
 For every paper in experiments/papers20.yaml this runs the claim step (g4geoagent/agent/claims.py) and the graph
 step (g4geoagent/agent/detector_graph.py) as they are, on the text and figures that step 1 wrote to
@@ -39,9 +39,11 @@ sys.path.insert(0, str(ROOT / "experiments"))
 import graph_bench as B                                # noqa: E402
 from g4geoagent.agent import claims as C               # noqa: E402
 from g4geoagent.agent import detector_graph as D       # noqa: E402
+from g4geoagent.agent import statements as S           # noqa: E402
 from g4geoagent.agent.runlog import RunLog             # noqa: E402
 
 HOME = ROOT / "runs/papers20"
+READER = "free" if "--free" in sys.argv else "form"      # --free: the readers of statements.py instead of claims.py
 PAPERS = yaml.safe_load((ROOT / "experiments/papers20.yaml").read_text())
 
 
@@ -61,12 +63,18 @@ def value_matches(claim, entry):
     numbers = [float(claim.value)] if isinstance(claim.value, (int, float)) else B.numbers_in(str(claim.value))
     if not any(abs(n - w) <= 1e-9 * max(abs(w), 1) for n in numbers for w in wanted):
         return False
-    where = f"{claim.quote} {claim.subject} {claim.quantity} {claim.which} {claim.unit}".lower()
+    where = f"{claim.quote} {claim.statement} {claim.subject} {claim.quantity} {claim.which} {claim.unit}".lower()
     return re.search(entry["key"], where) is not None
 
 
 def relation_matches(claim, entry):
     allowed, either = B.FAMILIES.get(entry["family"], ({entry["family"]}, False))
+    if claim.statement and not claim.relation:
+        # a statement of the free reader about several parts, with no fixed kind of relation: it can stand for an
+        # entry that needs no containment, if one of its parts matches each end
+        names = [p.lower() for p in claim.parts]
+        return entry["family"] in ("any", "attach") and any(
+            re.search(entry["subject"], a) and re.search(entry["object"], b) for a in names for b in names if a != b)
     if allowed is not None and claim.relation not in allowed:
         return False
     s, o = claim.subject.lower(), claim.object.lower()
@@ -88,7 +96,8 @@ def run(paper, name):
                 figures.append(figure)
         started = time.time()
         try:
-            C.claim_step(folder, [step1 / f"{paper}.txt"], detector=detector, log=log, figures=(figures, step1 / "figures"))
+            step = S.claim_step if READER == "free" else C.claim_step
+            step(folder, [step1 / f"{paper}.txt"], detector=detector, log=log, figures=(figures, step1 / "figures"))
         except Exception as error:
             record["claim_step_error"] = f"{type(error).__name__}: {str(error)[:300]}"
         record["claim_step_seconds"] = round(time.time() - started)
