@@ -13,11 +13,10 @@ A variant of claims.py, kept beside it. What differs:
   - A reader marks what it concludes without the text saying it.
 
 The claims it writes are Claim objects as in claims.py, so the graph step takes them as they are:
-  a number of a statement        -> a 'value' claim (one per number), a material -> a 'value' claim with quantity 'material'
-  one part inside another        -> a 'relation' claim 'contains'
-  a statement about two parts    -> a 'relation' claim with no fixed kind; the graph step reads the sentence
-  a statement about one part     -> a 'feature' claim
-Every claim shows its statement to the model that builds the graph.
+  a statement with numbers or a material -> one 'value' claim that carries all its numbers
+  a statement about several parts        -> a 'relation' claim with no fixed kind; the graph step reads the sentence
+  a statement about one part             -> a 'feature' claim
+One statement is one claim. Every claim shows its statement to the model that builds the graph, with its receipt.
 """
 
 import json
@@ -193,6 +192,8 @@ def pool(readings, documents):
             entry = found.setdefault(key, {"s": s, "found_by": [], "checks": ["quote is in the document"], "status": "accepted", **place})
             if reader not in entry["found_by"]:
                 entry["found_by"].append(reader)
+            if s.outer and s.inner:
+                entry.setdefault("inside_by", set()).add(reader)
     return list(found.values())
 
 
@@ -275,39 +276,48 @@ def cross_check(entries, documents, detector, log=None, trusted=("B",)):
 
 
 def to_claims(entries, dropped, documents, origin="starting document"):
-    """Claim objects (claims.py) from the pooled statements and from what the quote check dropped."""
+    """Claim objects (claims.py) from the pooled statements and from what the quote check dropped: one claim per
+    statement. A statement with numbers or a material is a 'value' claim that carries all its numbers; one about
+    several parts without numbers is a 'relation' claim; one about a single part is a 'feature' claim.
+    "outer contains inner" is passed on only if both readers wrote it for this statement."""
     claims = []
 
-    def add(s, status, checks, found_by, place, only_first=False):
-        base = {"statement": s.statement, "quote": s.quote, "parts": s.parts, "inferred": s.inferred, "status": status,
-                "checks": checks, "found_by": found_by, "origin": origin, "file": place.get("file", ""),
-                "page": place.get("page"), "sentence": place.get("sentence", "")}
+    def add(s, status, checks, found_by, place, inside=True):
         main = s.parts[0] if s.parts else (s.outer or s.inner)
-        made = []
-        for n in s.numbers:
-            made.append({"kind": "value", "subject": main, "value": n.value, "unit": n.unit, "wording": "exact",
-                         "built": bool(BUILT_UNITS.match(n.unit.strip()))})
-        if s.material.strip():
-            made.append({"kind": "value", "subject": main, "quantity": "material", "value": s.material.strip(), "built": True})
-        if s.outer.strip() and s.inner.strip() and G.norm(s.outer) != G.norm(s.inner):
-            made.append({"kind": "relation", "subject": s.outer, "relation": "contains", "object": s.inner})
-        elif len({G.norm(p) for p in s.parts}) >= 2:
-            made.append({"kind": "relation", "subject": s.parts[0], "relation": "", "object": next(p for p in s.parts if G.norm(p) != G.norm(s.parts[0]))})
-        if not made:
-            made.append({"kind": "feature", "subject": main, "text": s.statement})
-        for fields in made[:1] if only_first else made:
-            claims.append(C.Claim(id=f"K{len(claims) + 1}", **base, **fields))
+        fields = {"statement": s.statement, "quote": s.quote, "parts": s.parts, "inferred": s.inferred, "status": status,
+                  "checks": checks, "found_by": found_by, "origin": origin, "file": place.get("file", ""),
+                  "page": place.get("page"), "sentence": place.get("sentence", ""), "subject": main,
+                  "material": s.material.strip()}
+        if inside and s.outer.strip() and s.inner.strip() and G.norm(s.outer) != G.norm(s.inner):
+            fields.update(outer=s.outer, inner=s.inner)
+        several = len({G.norm(p) for p in s.parts}) >= 2
+        if s.numbers:
+            one = len(s.numbers) == 1
+            fields.update(kind="value", wording="exact", built=any(BUILT_UNITS.match(n.unit.strip()) for n in s.numbers),
+                          value=s.numbers[0].value if one else ", ".join(f"{n.value:g} {n.unit}".strip() for n in s.numbers),
+                          unit=s.numbers[0].unit if one else "")
+        elif s.material.strip():
+            fields.update(kind="value", quantity="material", value=s.material.strip(), built=True)
+        elif several or "outer" in fields:
+            fields.update(kind="relation", relation="contains" if "outer" in fields else "",
+                          subject=fields.get("outer", main), object=fields.get("inner") or next(p for p in s.parts if G.norm(p) != G.norm(main)))
+        else:
+            fields.update(kind="feature", text=s.statement)
+        claims.append(C.Claim(id=f"K{len(claims) + 1}", **fields))
 
     for e in entries:
         if e["status"] == "accepted":
             if e["s"].inferred:
                 e["checks"].append("concluded by the reader, not stated in so many words")
-            add(e["s"], "accepted", e["checks"], e["found_by"], e)
+            both = len(e.get("inside_by", ())) >= 2
+            if e["s"].outer and e["s"].inner and not both:
+                e["checks"].append(f"only one reader gave '{e['s'].outer} contains {e['s'].inner}'; not passed on as a stated containment")
+            add(e["s"], "accepted", e["checks"], e["found_by"], e, inside=both)
     for e in entries:
         if e["status"] != "accepted":
-            add(e["s"], "disputed", e["checks"], e["found_by"], e, only_first=True)
+            add(e["s"], "disputed", e["checks"], e["found_by"], e)
     for d in dropped:
-        add(Statement(**{k: v for k, v in d.items() if k in Statement.model_fields}), "dropped", [d["problem"]], [d.get("reader", "")], {}, only_first=True)
+        add(Statement(**{k: v for k, v in d.items() if k in Statement.model_fields}), "dropped", [d["problem"]], [d.get("reader", "")], {})
     return claims
 
 

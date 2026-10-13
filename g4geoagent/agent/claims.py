@@ -35,6 +35,9 @@ class Claim(BaseModel):
     statement: str = ""
     parts: list[str] = Field(default_factory=list)
     inferred: bool = False
+    material: str = ""
+    outer: str = ""          # "outer contains inner", if the statement says that one part is inside another
+    inner: str = ""
     subject: str = Field(description="The part the claim is about, named as the reader took it from the document")
     text: str = Field(default="", description="part: what it is. shape: the shape. feature: the descriptive words")
     # value
@@ -63,14 +66,16 @@ class Claim(BaseModel):
     def line(self):
         """The claim as one line of text, for a model."""
         if self.statement:
-            note = ""
-            if self.kind == "value":
-                note = f"  [{'material' if self.quantity == 'material' else 'number'}: {self.value} {self.unit}".rstrip() + "]"
-            elif self.kind == "relation" and self.relation:
-                note = f"  [{self.subject} {self.relation} {self.object}]"
+            notes = []
+            if self.kind == "value" and self.quantity != "material":
+                notes.append(f"numbers: {self.value} {self.unit}".rstrip())
+            if self.material:
+                notes.append(f"material: {self.material}")
+            if self.outer and self.inner:
+                notes.append(f"{self.outer} contains {self.inner}")
             if self.inferred:
-                note += "  [concluded by the reader, not stated in so many words]"
-            return f"{self.id} | {self.statement}{note} | \"{' '.join(self.quote.split())[:110]}\""
+                notes.append("concluded by the reader, not stated in so many words")
+            return f"{self.id} | {self.statement}{''.join(f'  [{n}]' for n in notes)} | \"{' '.join(self.quote.split())[:110]}\""
         if self.kind == "part":
             body = f"part {self.subject}: {self.text}"
         elif self.kind == "shape":

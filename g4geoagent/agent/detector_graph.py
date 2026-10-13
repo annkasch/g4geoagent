@@ -31,6 +31,8 @@ from g4geoagent.agent.llm import call_llm_json
 # correctly and took a third of the time of gpt-oss-120b (experiments/notes/claims_graph.md, model test of 2026-10-12)
 MODEL, REVIEWER = "lbl/gemma-4", "lbl/gpt-oss-120b"
 REPAIRS = 3
+PORTION_ABOVE = 220        # with more claims than this on parts and arrangement, the structure is built in portions
+PORTION = 60               # claims per portion
 TIDY = False               # values once per part with the claim's wording; features and shapes taken from the cited claims
 KEEP_STATED = False        # a stated value stays in the graph even if the model derived another from it or found it contradicted
 ONE_ROOT = False           # only one node inside 'world'; "A consists of B" puts B inside A
@@ -76,8 +78,10 @@ class Edge(BaseModel):
 
 class SetAside(BaseModel):
     claim: str
-    reason: Literal["not_geometry", "other_detector", "not_a_part", "same_as", "contradicted_by"] = Field(
-        description="'not_geometry': a voltage, a rate, a performance figure. 'other_detector': about another experiment, "
+    reason: Literal["not_geometry", "other_detector", "not_a_part", "same_as", "contradicted_by", "not_arrangement"] = Field(
+        description="'not_arrangement': true and about parts of the detector, but it says neither where a part is nor what "
+                    "it is or is made of (how two parts are wired, what a part is used for, how it was assembled). "
+                    "'not_geometry': a voltage, a rate, a performance figure. 'other_detector': about another experiment, "
                     "an earlier version or a prototype. 'not_a_part': a material, a coating, software, a signal. "
                     "'same_as': says what another claim says, which is used in the graph. 'contradicted_by': another claim "
                     "says otherwise and is used in the graph")
@@ -140,6 +144,11 @@ Rules
 
 Answer with one JSON object that fits this schema and nothing else:
 {schema}"""
+
+
+def _relates(claim):
+    """Can an edge rest on this claim? A relation claim, or a statement of the free reader that names several parts."""
+    return claim.kind == "relation" or len({G.norm(x) for x in claim.parts}) >= 2
 
 
 def check(graph, claims, cover=None):
@@ -212,7 +221,7 @@ def check(graph, claims, cover=None):
                 problems.append(f"edge {e.subject} {e.relation} {e.object}: a claim states it, but {e.object} is inside "
                                 f"'{inside.get(e.object)}'. Put {e.object} inside {e.subject}, or, if {e.subject} is an open shell "
                                 f"around it, inside the same part as {e.subject} ('{inside.get(e.subject)}')")
-        if not e.inferred and not any(i in by_id and by_id[i].kind == "relation" for i in e.claims):
+        if not e.inferred and not any(i in by_id and _relates(by_id[i]) for i in e.claims):
             problems.append(f"edge {e.subject} {e.relation} {e.object}: none of its claims is a relation claim. "
                             "Name the relation claim, or mark the edge as inferred and say how it follows")
     in_graph = {i for entries in (graph.nodes, graph.properties, graph.edges) for e in entries for i in e.claims}
@@ -233,7 +242,7 @@ def check(graph, claims, cover=None):
                 and not (other and other.kind == "relation" and other.relation == claim.relation):
             problems.append(f"claim {s.claim} ({claim.subject} {claim.relation.replace('_', ' ')} {claim.object}) says more than that one part is "
                             "inside the other. Make it an edge with this relation")
-        if claim and claim.kind == "value" and claim.built and s.reason == "not_geometry" and (STRICT_TREE or claim.quantity in G.NEEDED_QUANTITIES):
+        if claim and claim.kind == "value" and claim.built and s.reason in ("not_geometry", "not_arrangement") and (STRICT_TREE or claim.quantity in G.NEEDED_QUANTITIES):
             problems.append(f"claim {s.claim} ({claim.subject}: {claim.quantity} = {claim.value} {claim.unit}) is a size, count, mass "
                             "or material and was set aside as not geometry. Make it a property")
     return problems
@@ -324,7 +333,7 @@ def _clean(graph, accepted, record):
                     record["restored"].append(f"{p.of}: {claim.quantity} = {claim.value} {claim.unit} ({i})")
     graph.properties = keep
     keep = [e for e in graph.edges if e.subject in names and e.object in names and e.claims and all(i in by_id for i in e.claims)
-            and (e.inferred and e.reasoning or any(by_id[i].kind == "relation" for i in e.claims))]
+            and (e.inferred and e.reasoning or any(_relates(by_id[i]) for i in e.claims))]
     record["removed"] += [f"edge {e.subject} {e.relation} {e.object}" for e in graph.edges if e not in keep]
     graph.edges = keep
     for n in graph.nodes:
@@ -457,6 +466,18 @@ class Structure(BaseModel):
     set_aside: list[SetAside] = Field(default_factory=list)
 
 
+class Describes(BaseModel):
+    claim: str
+    part: str
+
+
+class Arrangement(BaseModel):
+    new_nodes: list[Node] = Field(default_factory=list)
+    edges: list[Edge] = Field(default_factory=list)
+    describes: list[Describes] = Field(default_factory=list)
+    set_aside: list[SetAside] = Field(default_factory=list)
+
+
 class Values(BaseModel):
     properties: list[NodeProperty]
     set_aside: list[SetAside] = Field(default_factory=list)
@@ -497,15 +518,96 @@ def build_in_two(claims, detector, log=None, model=MODEL, batch=70, strict=False
     edges_text = PROMPT[PROMPT.index("edges: how the parts are arranged"):PROMPT.index("set_aside: every claim")]
     aside_text = PROMPT[PROMPT.index("set_aside: every claim"):PROMPT.index("Rules\n")]
     values_text = PROMPT[PROMPT.index("properties: the values of each part"):PROMPT.index("edges: how the parts are arranged")]
-    request = (head.replace("{claims}", "\n".join(c.line() for c in structure_claims))
-               + "First only the parts and how they are arranged; the values follow later.\n\n" + nodes_text + edges_text
-               + aside_text + rules + "Answer with one JSON object that fits this schema and nothing else:\n"
-               + json.dumps(Structure.model_json_schema(), separators=(",", ":")))
+    # value claims that name several parts also say how parts are arranged: the model sees them here, marked, and need
+    # not account for them here (the values stage does)
+    also = [c for c in value_claims if _relates(c) or (c.outer and c.inner)]
+    later = "  (has values, which are added later; use it here for the parts and their arrangement, or leave it)"
+    line = lambda c: c.line() + (later if c.kind == "value" else "")
     empty = lambda s: DetectorGraph(nodes=s.nodes, properties=[], edges=s.edges, set_aside=s.set_aside)
-    structure, rounds = _with_repairs(model, [{"role": "user", "content": request}], Structure,
-                                      lambda s: check(empty(s), accepted, structure_claims), log, "graph_structure")
-    record = {"rounds": rounds, "review": [], "removed": [], "unaccounted": []}
-    graph = empty(structure)
+    extra = []
+
+    def structure_from(shown, cover):
+        request = (head.replace("{claims}", "\n".join(line(c) for c in shown))
+                   + "First only the parts and how they are arranged; the values follow later.\n\n" + nodes_text + edges_text
+                   + aside_text + rules + "Answer with one JSON object that fits this schema and nothing else:\n"
+                   + json.dumps(Structure.model_json_schema(), separators=(",", ":")))
+        return _with_repairs(model, [{"role": "user", "content": request}], Structure,
+                             lambda s: check(empty(s), accepted, cover), log, "graph_structure")
+
+    if len(structure_claims) + len(also) <= PORTION_ABOVE:
+        structure, rounds = structure_from(structure_claims + also, structure_claims)
+        graph = empty(structure)
+    else:
+        # A long paper: first the parts and what is inside what, from the claims that say so; then the other claims in
+        # portions, each added to that tree: an edge, a note on a part, a part that was missing, or set aside.
+        tree = lambda c: c.kind in ("part", "shape") or c.relation == "contains" or bool(c.outer and c.inner)
+        first = [c for c in structure_claims + also if tree(c)]
+        named = {}
+        for c in structure_claims + also:
+            for x in c.parts or [c.subject]:
+                named[G.norm(x)] = named.get(G.norm(x), 0) + 1
+        often = "Parts that the other claims name, with how many claims name each (make a node for each that is a physical " \
+                "part of the detector; if no claim here says what contains it, put it inside the detector as a whole):\n  " \
+                + ", ".join(f"{k} ({v})" for k, v in sorted(named.items(), key=lambda kv: -kv[1]) if k and v >= 2)[:6000] + "\n\n"
+        head = head.replace("Build the graph:", often + "Build the graph:") if "Build the graph:" in head else head + often
+        structure, rounds = structure_from(first, [c for c in first if c.kind != "value"])
+        graph = empty(structure)
+        rest = [c for c in structure_claims + also if not tree(c)]
+        portions = [rest[i:i + PORTION] for i in range(0, len(rest), PORTION)]
+        base = set(check(graph, accepted, []))
+        listing = "\n".join(f"  {n.name}: {n.what} (also called: {', '.join(n.also_called) or '-'}; inside {n.inside})" for n in graph.nodes)
+
+        def arrange(some):
+            cover = [c for c in some if c.kind != "value"]
+            request = (f"You add to a graph of the detector {detector}. The parts of the graph so far:\n{listing}\n\n"
+                       "Claims (id | claim | source):\n" + "\n".join(line(c) for c in some) + "\n\n"
+                       "For each claim do one of these:\n"
+                       "- edges: the claim says how two parts are arranged (mounted on, attached to, next to, at the top or bottom "
+                       "of, around, outside, inside). Add the edge between two parts of the list, with the id of the claim.\n"
+                       "- describes: the claim only says what a part is, its shape or how it is made. Give the claim and the part.\n"
+                       "- new_nodes: the claim is about a physical part of the detector that is not in the list. Add it; its "
+                       "'inside' must be a part of the list or another new node, never 'world'.\n"
+                       "- set_aside: everything else, with one of the fixed reasons.\n\n" + edges_text + aside_text
+                       + "Rules\n- Use the names of the parts exactly as in the list.\n"
+                       "- Do not add parts or relations from your own knowledge of this or any other detector.\n"
+                       "- Every claim id that is not marked as having values must appear: in an edge, under describes, in a new "
+                       "node, or under set_aside.\n\nAnswer with one JSON object that fits this schema and nothing else:\n"
+                       + json.dumps(Arrangement.model_json_schema(), separators=(",", ":")))
+
+            def trial(a):
+                noted = {}
+                for d in a.describes:
+                    noted.setdefault(d.part, []).append(d.claim)
+                nodes = [n.model_copy(update={"claims": n.claims + noted.get(n.name, [])}) for n in graph.nodes]
+                have = {n.name for n in nodes}
+                return DetectorGraph(nodes=nodes + [n for n in a.new_nodes if n.name not in have], properties=[], edges=a.edges, set_aside=a.set_aside)
+
+            def problems_of(a):
+                unknown = [f"describes: '{d.part}' is not a part of the list" for d in a.describes if d.part not in {n.name for n in graph.nodes} | {n.name for n in a.new_nodes}]
+                return unknown + [q for q in check(trial(a), accepted, cover) if q not in base]
+            try:
+                return _with_repairs(model, [{"role": "user", "content": request}], Arrangement, problems_of, log, "graph_arrangement")
+            except ValueError:
+                return None, [[f"no usable answer for {len(some)} claims on the arrangement"]]
+
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(4) as pool:
+            added = list(pool.map(arrange, portions))
+        for answer, more in added:
+            extra += more
+            if not answer:
+                continue
+            have = {n.name: n for n in graph.nodes}
+            for n in answer.new_nodes:
+                if n.name not in have and (n.inside in have or n.inside in {m.name for m in answer.new_nodes}):
+                    graph.nodes.append(n)
+                    have[n.name] = n
+            for d in answer.describes:
+                if d.part in have and d.claim not in have[d.part].claims:
+                    have[d.part].claims.append(d.claim)
+            graph.edges += [e for e in answer.edges if e.subject in have and e.object in have]
+            graph.set_aside += answer.set_aside
+    record = {"rounds": rounds + extra, "review": [], "removed": [], "unaccounted": []}
     parts = "\n".join(f"  {n.name}: {n.what} (also called: {', '.join(n.also_called) or '-'}; inside {n.inside})" for n in graph.nodes)
     def values_for(some):
         request = (f"You add the values to a graph of the detector {detector}. The parts of the graph:\n{parts}\n\n"

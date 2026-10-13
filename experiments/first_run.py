@@ -69,12 +69,16 @@ def value_matches(claim, entry):
 
 def relation_matches(claim, entry):
     allowed, either = B.FAMILIES.get(entry["family"], ({entry["family"]}, False))
-    if claim.statement and not claim.relation:
-        # a statement of the free reader about several parts, with no fixed kind of relation: it can stand for an
-        # entry that needs no containment, if one of its parts matches each end
+    if claim.statement:
+        # a statement of the free reader. With "outer contains inner" it stands for a containment; and as a statement
+        # about several parts it can stand for an entry that needs no containment, if a part matches each end.
+        if claim.outer and claim.inner and (allowed is None or "contains" in allowed) and (
+                (re.search(entry["subject"], claim.outer.lower()) and re.search(entry["object"], claim.inner.lower())) or
+                (either and re.search(entry["subject"], claim.inner.lower()) and re.search(entry["object"], claim.outer.lower()))):
+            return True
         names = [p.lower() for p in claim.parts]
         return entry["family"] in ("any", "attach") and any(
-            re.search(entry["subject"], a) and re.search(entry["object"], b) for a in names for b in names if a != b)
+            re.search(entry["subject"], x) and re.search(entry["object"], y) for x in names for y in names if x != y)
     if allowed is not None and claim.relation not in allowed:
         return False
     s, o = claim.subject.lower(), claim.object.lower()
@@ -138,7 +142,8 @@ def compare(paper, name):
     for kind, entries, test in (("values", values, value_matches), ("relations", relations, relation_matches)):
         wanted = "value" if kind == "values" else "relation"
         for entry in entries:
-            hits = [c for c in accepted if c.kind == wanted and test(c, entry)]
+            fits = (lambda c: c.kind == "value") if kind == "values" else (lambda c: c.kind == "relation" or bool(c.statement and len(c.parts) >= 2))
+            hits = [c for c in accepted if fits(c) and test(c, entry)]
             if kind == "values":                    # a count that a relation carries: "module consists of bar (x192)"
                 hits += [c for c in accepted if c.kind == "relation" and c.count is not None
                          and abs(c.count - float(entry["value"])) < 1e-9
