@@ -105,6 +105,8 @@ box(C, -6.0, W, H, "graph_builder")
 arrow([(C, -6.45), (C, -7.05)], links="graph_builder>detector_graph")
 box(C, -7.5, W, H, "detector_graph")
 arrow([(C, -7.95), (C, -8.55)], links="detector_graph>coordinator")
+arrow([(3.0, -8.8), (L2, -8.8), (L2, -6.0), (3.0, -6.0)], "objection", at=(L2 - 0.12, -7.4), ha="right",
+      links="coordinator>graph_builder")
 SHIFT[0] = True
 arrow([(9.0, -5.8), (R1, -5.8), (R1, -3.0), (9.0, -3.0)], "re-check\nclaim", at=(R1 + 0.12, -4.4), links="coordinator>compare")
 for x, name in ((3.6, "Team 1"), (5.6, "Team 2"), (9.0, "Team N")):

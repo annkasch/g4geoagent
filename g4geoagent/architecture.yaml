@@ -48,7 +48,7 @@ boxes:
     subtitle: Claims into one picture of the detector
     kind: ai
     state: stub
-    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them; then a model, seeing the whole tree, marks each branch to keep, collapse into its container, or leave out of a geometry, which gives the geometry view beside the full graph. A run does not call it yet; the Coordinator still works from the claims."
+    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them; then a model, seeing the whole tree, marks each branch to keep, collapse into its container, or leave out of a geometry, which gives the geometry view beside the full graph. Answers the Coordinator's objections: a model re-checks the objected entries against their claims, changes them or keeps them with a reason, and the program's checks run again. A run does not call it yet."
     done: The run log shows the step.
   detector_graph:
     title: Detector graph
@@ -59,9 +59,9 @@ boxes:
     subtitle: Splits detector, detail levels, interfaces
     kind: ai
     state: partial
-    first: "Writes the layout plan for the whole detector: what is inside what, which parts are hollow, detail level per part, how parts are arranged, which team builds what. No interface documents or change requests yet."
-    done: A plan that names a container for every part and at least the arrangement the documents state.
-    differs: "Writes no interface document with sizes and positions for each subsystem, answers no questions from teams and decides no change requests. Does not fill gaps or re-check claims."
+    first: "Plans the build from the geometry view of the detector graph and leaves the layout as the graph has it. Three model calls, each checked by a program and sent back with what fails: the split cuts the kept tree into teams (subtrees; a single inner part is not a team), confirms repeated parts with the claim that gives the count, and objects to graph entries a claim shows wrong; the levels call sets exact, simplified or lumped for every part; the interfaces call writes, for each place where a team builds into another team's part, the envelope as sizes and positions in a length unit, each with its claim, derived with reasoning, or marked open, owned by the outer team. A program turns this into tasks, one per piece from the outside in: the slice of the graph, the level (a filling takes its vessel's), the checks, the masses held back for the Inspector, and the gaps with the research effort of the level. Objections go to the graph builder, which re-checks those entries against their claims; the coordinator then plans once more on the graph it gets back. Model gemma-4."
+    done: "Every kept part is owned by one team, no problem is left after the repairs, every interface value carries a claim or is marked open, and the plan is looked at on the development papers."
+    differs: "Keeps no memory over a run (interface versions, decision log, team summaries), answers no questions from teams and decides no change requests, since teams cannot ask yet. Sends no disputed claim back to Compare. Does not see the figures. Not yet called by a run: pipeline.py still plans with the earlier layout plan made from the claims."
   teams:
     title: Team 1 … N
     kind: ai
@@ -183,6 +183,7 @@ arrows:
   - [graph_builder, detector_graph]
   - [detector_graph, coordinator]
   - [coordinator, compare, re-check claim]
+  - [coordinator, graph_builder, objection]
   - [coordinator, teams, 'interfaces, answers']
   - [teams, coordinator, 'questions, changes']
   - [teams, build, each team runs]

@@ -55,8 +55,9 @@ Commit after each finished piece and push. Commits carry no co-author line.
 ## Where the work stands (2026-10-14)
 
 The user and I are going through the pipeline from the start. **Done for now: from the paper to the detector graph and
-its geometry view.** Next: the Coordinator, working from the geometry view. Everything after the graph (Research,
-Coordinator, Build, Look, Evaluator) exists from an earlier, rushed pass and has NOT been redone on top of the graph.
+its geometry view, and the Coordinator's build plan on top of it (first version, 2026-10-14).** Next: show the user
+the plans and settle the open questions in `experiments/notes/coordinator.md`. Everything after the Coordinator
+(Research, Build, Look, Evaluator) exists from an earlier, rushed pass and has NOT been redone on top of the graph.
 
 | Step | Code | State |
 |---|---|---|
@@ -65,11 +66,14 @@ Coordinator, Build, Look, Evaluator) exists from an earlier, rushed pass and has
 | Claim step, old form readers | `agent/claims.py` | Kept for comparison; fails on long papers |
 | Graph step | `agent/detector_graph.py` | One claim per sentence; long papers built in portions. All 20: 98% of listed values, 85% of relations in the graph, 7 min per graph |
 | Geometry view | `detector_graph.geometry_view`, `experiments/view_run.py` | A model marks each part keep / collapse / drop. 1691 parts -> 1029 kept, almost nothing listed lost |
-| Wiring into a run | `pipeline.py` | Not done: `graph_builder` is a stub there |
+| Coordinator, build plan | `agent/coordinator.py` (`coordinate`), `experiments/coordinator_run.py` | gemma-4, three calls (teams, levels, interfaces), program makes the tasks; objections answered by `detector_graph.answer_objections`. 10 rounds on the 5 development papers, same split in two seeds; all 15 test papers plan, 1 problem left. `make_plan` in the same file is the old layout plan that `pipeline.py` still uses |
+| Wiring into a run | `pipeline.py` | Not done: `graph_builder` is a stub there, the Coordinator step calls the old `make_plan` |
 
 Runs: `python experiments/first_run.py <name> --free` (all 20 papers, comparison per paper in
-`runs/papers20/<paper>/<name>/compare.txt`), then `python experiments/view_run.py <name>`. Latest: `free4`.
-Records: `experiments/notes/free_reader.md` (all rounds and numbers), `experiments/notes/first_run.md` (frozen first run),
+`runs/papers20/<paper>/<name>/compare.txt`), then `python experiments/view_run.py <name>`, then
+`python experiments/coordinator_run.py <name> <variant> --seed N` (plan in `.../<name>/coordinator/<variant>_s<N>/build_plan.txt`).
+Latest: `free4`, coordinator `v10_s1`, `v10_s2`.
+Records: `experiments/notes/free_reader.md` (all rounds and numbers), `experiments/notes/coordinator.md`, `experiments/notes/first_run.md` (frozen first run),
 `experiments/gold_changes.md` (every change to the hand lists).
 
 Known open faults, left on purpose for now: duplicate parts under several names in graphs of long papers (give each

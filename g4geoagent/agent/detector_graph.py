@@ -909,8 +909,14 @@ def geometry_view(data, detector, log=None, model=MODEL):
         given = {d.part: (d.decision.strip().lower(), d.why) for d in answer.decisions}
     except ValueError as error:
         given, rounds = {}, [[f"no usable answer: {str(error)[:200]}"]]
+    return apply_view(data, given, rounds)
+
+
+def apply_view(data, given, rounds=()):
+    """The view from the decisions `given` ({part: (decision, why)}): parts without one are kept, the outermost parts
+    are always kept, and a part inside a part that is not kept follows it."""
     inside = {n["name"]: n["inside"] for n in data["nodes"]}
-    view = {"keep": [], "collapse": {}, "drop": {}, "rounds": rounds}
+    view = {"keep": [], "collapse": {}, "drop": {}, "rounds": list(rounds)}
 
     def final(name, seen=()):
         decision, why = given.get(name, ("keep", ""))
@@ -930,6 +936,12 @@ def geometry_view(data, detector, log=None, model=MODEL):
         else:
             view[decision][name] = why
     return view
+
+
+def view_decisions(view):
+    """The decisions of a view as `apply_view` takes them."""
+    return {**{name: ("keep", "") for name in view["keep"]}, **{name: ("collapse", why) for name, why in view["collapse"].items()},
+            **{name: ("drop", why) for name, why in view["drop"].items()}}
 
 
 def view_as_text(data, view):
@@ -953,3 +965,159 @@ def view_as_text(data, view):
     walk("world", 0)
     lines += ["", "dropped: " + ", ".join(f"{k} ({v})" for k, v in view["drop"].items())]
     return "\n".join(lines)
+
+
+# ------------------------------------------------------------------ objections of the coordinator
+
+class Answer(BaseModel):
+    objection: int = Field(description="The number of the objection")
+    decision: Literal["change", "keep"]
+    why: str
+    claims: list[str] = Field(description="Ids of the claims the decision rests on")
+    change: Literal["move_part", "merge_parts", "move_value", "remove_value", "none"] = "none"
+    part: str = Field(default="", description="The part the change is about")
+    to: str = Field(default="", description="move_part: its new container. merge_parts: the part it is the same as. "
+                                             "move_value: the part the value belongs to")
+    quantity: str = Field(default="", description="move_value and remove_value: the quantity of the value")
+
+
+class Answers(BaseModel):
+    answers: list[Answer]
+
+
+ANSWER_PROMPT = """The graph of the detector {detector} below was built from claims that readers took from documents. The \
+coordinator, who plans the build of a geometry model from this graph, objects to some of its entries. Check each objection \
+against the claims and decide:
+
+- change: the claims bear the objection out. Say what changes, as one of
+    move_part     `part` is put inside `to`
+    merge_parts   `part` is the same part as `to`; it is merged into `to`
+    move_value    the value `quantity` given for `part` belongs to `to`
+    remove_value  the value `quantity` given for `part` rests on no claim about that part
+- keep: the claims do not bear the objection out, or they say otherwise. Say why.
+
+Decide from the claims only, and give the ids of the claims you decide on. One answer per objection. Use the part names \
+of the graph exactly as written.
+
+The claims (id | claim | source):
+{claims}
+
+The graph (indented = inside the part above):
+{graph}
+
+The objections:
+{objections}
+
+Answer with one JSON object that fits this schema and nothing else:
+{schema}"""
+
+
+def _answer_check(data, objections, answers, ids):
+    nodes = {n["name"]: n for n in data["nodes"]}
+    problems = []
+    given = [a.objection for a in answers.answers]
+    for number in range(1, len(objections) + 1):
+        if given.count(number) != 1:
+            problems.append(f"objection {number} needs exactly one answer, it has {given.count(number)}")
+    for a in answers.answers:
+        if not a.claims or any(i not in ids for i in a.claims):
+            problems.append(f"answer {a.objection}: give the ids of existing claims")
+        if a.decision != "change":
+            continue
+        if a.change == "none":
+            problems.append(f"answer {a.objection}: a change needs one of move_part, merge_parts, move_value, remove_value")
+        if a.part not in nodes:
+            problems.append(f"answer {a.objection}: '{a.part}' is not a part of the graph")
+        if a.change in ("move_part", "merge_parts", "move_value") and (a.to not in nodes or a.to == a.part):
+            problems.append(f"answer {a.objection}: '{a.to}' is not another part of the graph")
+        if a.change in ("move_value", "remove_value") and not any(p["of"] == a.part and p["quantity"] == a.quantity
+                                                                     for p in data["properties"]):
+            problems.append(f"answer {a.objection}: {a.part} has no value '{a.quantity}'")
+        if a.change == "move_part" and a.to in nodes:
+            up, seen = a.to, set()
+            while up in nodes and up not in seen:
+                seen.add(up)
+                if up == a.part:
+                    problems.append(f"answer {a.objection}: {a.to} is inside {a.part}; a part cannot go inside its own content")
+                    break
+                up = nodes[up]["inside"]
+    return problems
+
+
+def _apply(raw, answers):
+    """The changes of the answers, made to the graph as the model built it."""
+    nodes = {n["name"]: n for n in raw["nodes"]}
+    for a in answers:
+        if a.decision != "change" or a.part not in nodes or (a.change != "remove_value" and a.to not in nodes):
+            continue
+        if a.change == "move_part":
+            nodes[a.part]["inside"] = a.to
+            nodes[a.part]["claims"] = list(dict.fromkeys(nodes[a.part]["claims"] + a.claims))
+        elif a.change == "merge_parts":
+            gone = nodes.pop(a.part)
+            kept = nodes[a.to]
+            kept["also_called"] = list(dict.fromkeys(kept["also_called"] + [a.part] + gone["also_called"]))
+            kept["claims"] = list(dict.fromkeys(kept["claims"] + gone["claims"]))
+            raw["nodes"] = [n for n in raw["nodes"] if n["name"] != a.part]
+            for n in raw["nodes"]:
+                n["inside"] = a.to if n["inside"] == a.part else n["inside"]
+            for p in raw["properties"]:
+                p["of"] = a.to if p["of"] == a.part else p["of"]
+            for e in raw["edges"]:
+                e["subject"] = a.to if e["subject"] == a.part else e["subject"]
+                e["object"] = a.to if e["object"] == a.part else e["object"]
+            raw["edges"] = [e for e in raw["edges"] if e["subject"] != e["object"]]
+        elif a.change == "move_value":
+            for p in raw["properties"]:
+                if p["of"] == a.part and p["quantity"] == a.quantity:
+                    p["of"] = a.to
+        elif a.change == "remove_value":
+            raw["properties"] = [p for p in raw["properties"] if not (p["of"] == a.part and p["quantity"] == a.quantity)]
+    return raw
+
+
+def answer_objections(folder, detector, objections, view, log=None, model=MODEL):
+    """The graph builder's answer to the coordinator's objections ([(entry, problem)]): a model decides on each from
+    the claims, the changes are made to the graph as the model built it, and the program's finishing runs again, so a
+    change that the claims do not support is undone like any other. Returns (graph data, view, record of the answers).
+    The view keeps its decisions; a part moved into a part that is not kept follows its new container."""
+    folder = Path(folder)
+    data = json.loads((folder / "detector_graph.json").read_text())
+    accepted = [c for c in C.load(folder) if c.status == "accepted"]
+    by_id = {c.id: c for c in accepted}
+    text = " ".join(f"{e} {p}" for e, p in objections)
+    named = {n["name"] for n in data["nodes"] if re.search(rf"\b{re.escape(n['name'])}\b", text)}
+    wanted = set(re.findall(r"\b[A-Z]+\d+\b", text))
+    for entry in data["nodes"] + data["properties"] + data["relations"]:
+        if {entry.get("name"), entry.get("of"), entry.get("subject"), entry.get("object")} & named:
+            wanted |= set(entry["claims"])
+    listing = "\n".join(c.line() for c in accepted if c.id in wanted)
+    request = ANSWER_PROMPT.format(detector=detector, claims=listing, graph=as_text(data),
+                                   objections="\n".join(f"{i}. {e}: {p}" for i, (e, p) in enumerate(objections, 1)),
+                                   schema=json.dumps(Answers.model_json_schema(), separators=(",", ":")))
+    record = {"objections": [{"entry": e, "problem": p} for e, p in objections], "answers": [], "rounds": []}
+    try:
+        answers, record["rounds"] = _with_repairs(model, [{"role": "user", "content": request}], Answers,
+                                                  lambda a: _answer_check(data, objections, a, by_id), log, "graph_objections")
+    except ValueError as error:
+        record["rounds"] = [[f"no usable answer: {str(error)[:200]}"]]
+        return data, view, record
+    problems = _answer_check(data, objections, answers, by_id)
+    usable = [a for a in answers.answers if not any(p.startswith(f"answer {a.objection}:") for p in problems)]
+    raw = _apply(json.loads(json.dumps(data["checks"]["as_built_by_the_model"])), usable)
+    graph, checks = reclean(raw, accepted, strict=True, one_root=True, keep_stated=True)
+    new = to_dict(graph, accepted, detector, checks)
+    inside = {n["name"]: n["inside"] for n in new["nodes"]}
+    for a in answers.answers:
+        done = a in usable
+        if done and a.decision == "change" and a.change == "move_part":
+            done = inside.get(a.part) == a.to or inside.get(inside.get(a.part)) == a.to
+            # the finishing puts a part back where a claim says it is contained; then the change did not hold
+        if done and a.decision == "change" and a.change == "merge_parts":
+            done = a.part not in inside
+        record["answers"].append({**a.model_dump(), "made": done if a.decision == "change" else None})
+    given = view_decisions(view)
+    for a in answers.answers:          # a merged part's decision is the decision of the part it went into
+        if a in usable and a.change == "merge_parts":
+            given.pop(a.part, None)
+    return new, apply_view(new, given, view["rounds"]), record
