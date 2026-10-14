@@ -28,13 +28,20 @@ class Evidence:
         self.log = log
 
     def add_starting(self, path):
-        """Copy a starting document into the folder. The figures of a PDF are saved as pictures."""
+        """Copy a starting document into the folder. A PDF goes through step 1 (agent/documents.py). Returns the name of
+        the text file to read."""
         target = self.folder / Path(path).name
         shutil.copy(path, target)
         self._record(target.name, origin="starting document", url="")
-        if target.suffix == ".pdf":
-            self.add_figures(target.name)
-        return target.name
+        if target.suffix != ".pdf":
+            return target.name
+        # a PDF goes through step 1: its text is written beside it as <name>.txt, its figures under figures/
+        from g4geoagent.agent.documents import read_pdf
+        result = read_pdf(target, self.folder)
+        self._record(result["text"], origin="starting document", url="", made_from=target.name)
+        if self.log:
+            self.log.event("step1", "evidence", file=target.name, pages=result["pages"], figures=len(result["figures"]), tables=result["tables"])
+        return result["text"]
 
     def add_figures(self, pdf_name):
         """Save the figures of a PDF of the folder under figures/, with page and caption."""

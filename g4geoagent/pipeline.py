@@ -3,8 +3,9 @@
     python -m g4geoagent.pipeline <run folder> <starting documents: .txt and .pdf> [--name "LEGEND-200"]
                                   [--rounds N] [--searches N] [--revisions N] [--seed N] [--public-code owner/repository]
 
-Writes into the run folder: evidence/ (documents, figures, saved finds), build/ (attempts),
-pictures/, detector.gdml, evidence_report.md, log.jsonl and, with --public-code, evaluation_report.md.
+For now a run stops after the Coordinator (the boxes after it are not wired to the detector graph yet) and writes into
+the run folder: evidence/ (documents, text from step 1, figures), graph/ (claims, detector graph, geometry view),
+build_plan.json and .txt, run_report.md and log.jsonl.
 """
 
 import json
@@ -17,9 +18,13 @@ from pathlib import Path
 from pydantic import BaseModel, Field
 
 from g4geoagent import report
-from g4geoagent.agent import agree, llm, readers
+from g4geoagent.agent import claims as C
+from g4geoagent.agent import coordinator as K
+from g4geoagent.agent import detector_graph as D
+from g4geoagent.agent import graph as G
+from g4geoagent.agent import llm
+from g4geoagent.agent import statements as S
 from g4geoagent.agent.builder import build as run_builder
-from g4geoagent.agent.compare import check_quotes, match_readings
 from g4geoagent.agent.coordinator import Plan, make_plan, plan_text
 from g4geoagent.agent.coordinator import teams as plan_teams
 from g4geoagent.audit import audit_run
@@ -66,7 +71,14 @@ class State:
     confirmed: list = field(default_factory=list)
     rejected: list = field(default_factory=list)
     lost: list = field(default_factory=list)
-    # claims
+    entries: list = field(default_factory=list)       # the statements of both readers, the same fact once
+    replaced: list = field(default_factory=list)      # statements the cross-check put right, as first written
+    failed_sections: list = field(default_factory=list)
+    claim_list: list = field(default_factory=list)    # every claim (claims.Claim), accepted, disputed and dropped
+    graph: dict | None = None                         # the detector graph (detector_graph.to_dict)
+    view: dict | None = None                          # its geometry view
+    build_plan: dict | None = None                    # the Coordinator's plan (coordinator.build_plan)
+    # claims of the earlier readers, still used by the boxes after the Coordinator
     parts: dict = field(default_factory=dict)   # name: Part
     claims: dict = field(default_factory=dict)  # id (C1, C2, ...): Claim
     origin: dict = field(default_factory=dict)  # id: file the claim comes from
@@ -75,6 +87,7 @@ class State:
     # figures and plan
     figures_judged: list = field(default_factory=list)
     figures: list = field(default_factory=list)      # the ones that show how the detector is built
+    figures_read: list = field(default_factory=list)  # construction figures whose values were read into claims
     plan: Plan | None = None
     # work of the teams
     searches: list = field(default_factory=list)     # asked for in this round
@@ -105,72 +118,58 @@ class State:
 
 @step("reader_A", "reader_B")
 def read(state):
-    """Both readers read the documents that were not read yet."""
+    """Both readers read the documents that were not read yet, section by section, twice (agent/statements.py)."""
     documents = state.evidence.documents(state.unread)
-    known = list(state.parts)
-    with ThreadPoolExecutor(2) as pool:
-        a, b = pool.map(lambda name: readers.read_paper(documents, name, state.log, known_parts=known), "AB")
-    state.readings = {"A": a, "B": b}
+    jobs = [(reader, seed) for reader in "AB" for seed in (None, 2)]
+    with ThreadPoolExecutor(4) as pool:
+        answers = list(pool.map(lambda job: S.read_sections(documents, job[0], state.name, state.log, job[1]), jobs))
+    state.readings = {r: [x for (who, _), (found, _) in zip(jobs, answers) if who == r for x in found] for r in "AB"}
+    state.failed_sections += [f"reader {who}: {problem}" for (who, _), (_, problems) in zip(jobs, answers) for problem in problems]
 
 
 @step("compare")
 def compare_quotes(state):
-    """Is every quote in its document, with the value in it?"""
+    """The quote check of every statement, then the same fact of the two readers once."""
     documents = state.evidence.documents(state.unread)
-    state.failing = {name: len(check_quotes(reading, documents)) for name, reading in state.readings.items()}
-    state.log.event("check", "compare_quotes", failing=state.failing)
-
-
-@step("reader_A", "reader_B")
-def repair(state):
-    """Each reader gets one chance to repair its failing quotes. What still fails is dropped."""
-    documents = state.evidence.documents(state.unread)
-    state.lost = [claim for name, reading in state.readings.items()
-                  for claim in agree.repair_quotes(reading, documents, name, state.log)]
-
-
-@step("compare")
-def compare_pair(state):
-    """Pair up the claims of the two readers."""
-    documents = state.evidence.documents(state.unread)
-    state.pairs, only_a, only_b = match_readings(state.readings["A"], state.readings["B"], documents)
-    state.only = {"A": only_a, "B": only_b}
-    state.log.event("check", "compare_pair", pairs=len(state.pairs), only_a=len(only_a), only_b=len(only_b))
+    kept = {}
+    for reader in "AB":
+        kept[reader], out = S.check(state.readings[reader], documents)
+        state.dropped += [{"reader": reader, **d} for d in out]
+    state.entries = S.pool(kept, documents)
+    state.failing = {reader: sum(d["reader"] == reader for d in state.dropped) for reader in "AB"}
+    state.log.event("check", "compare_quotes", dropped=state.failing, statements=len(state.entries),
+                    by_one_reader=sum(len(e["found_by"]) == 1 for e in state.entries))
 
 
 @step("reader_A", "reader_B")
 def cross_check(state):
-    """A claim that only one reader has goes to the other reader."""
+    """A statement that only one reader has goes to the other reader, who may confirm, reject or put it right."""
     documents = state.evidence.documents(state.unread)
-    confirmed_a, rejected_a = agree.cross_check(state.only["A"], documents, "B", state.log)
-    confirmed_b, rejected_b = agree.cross_check(state.only["B"], documents, "A", state.log)
-    state.confirmed, state.rejected = confirmed_a + confirmed_b, rejected_a + rejected_b
+    state.replaced = S.cross_check(state.entries, documents, state.name, state.log)
 
 
 @step("compare")
 def compare_agree(state):
-    """Add what the readers agree on to the agreed claims."""
-    result = agree.assemble(state.readings["A"], state.readings["B"], state.pairs, state.confirmed,
-                            state.rejected, state.lost, state.log)
-    for part in result.reading.parts:
-        state.parts.setdefault(part.name, part)
-    for claim in result.reading.claims:
-        key = f"C{len(state.claims) + 1}"
-        state.claims[key], state.origin[key] = claim, claim.source
-    state.new_claims += len(result.reading.claims)
-    state.disputed += result.disputed
-    state.dropped += result.dropped
-    state.unread, state.confirmed, state.rejected, state.lost = [], [], [], []
+    """One claim per statement, added to the claims of the run."""
+    documents = state.evidence.documents(state.unread)
+    start = {x["file"] for x in state.evidence.sources() if x["origin"] == "starting document"}
+    origin = "starting document" if set(state.unread) <= start else "found by research"
+    new = S.to_claims(state.entries + state.replaced, state.dropped, documents, origin)
+    for c in new:
+        c.id = f"K{len(state.claim_list) + 1}"
+        state.claim_list.append(c)
+    state.new_claims += sum(c.status == "accepted" for c in new)
+    state.log.event("check", "compare_agree", accepted=sum(c.status == "accepted" for c in new),
+                    disputed=sum(c.status == "disputed" for c in new), dropped=sum(c.status == "dropped" for c in new),
+                    failed_sections=state.failed_sections)
+    state.unread, state.entries, state.replaced, state.dropped, state.readings = [], [], [], [], {}
 
 
 def read_documents(state):
-    """Evidence folder → Readers → Compare → agreed claims, with the re-read loops between the two."""
+    """Evidence folder → Readers → Compare → agreed claims, with the cross-check between the two."""
     read(state)
     compare_quotes(state)
-    if any(state.failing.values()):
-        repair(state)
-    compare_pair(state)
-    if state.only["A"] or state.only["B"]:
+    if any(len(e["found_by"]) == 1 for e in state.entries):
         cross_check(state)
     compare_agree(state)
 
@@ -204,20 +203,57 @@ def construction_figures(state):
     return state.figures
 
 
+GRAPH = "graph"             # folder of the run that holds claims.jsonl, the graph and its view
+
+
 @step("graph_builder")
 def graph_builder(state):
-    """Not called for real yet: the graph is built by g4geoagent.agent.detector_graph as a step of its own."""
-    state.log.event("stub", "graph_builder", note=BOXES["graph_builder"]["first"])
+    """The detector graph from the claims (detector_graph.graph_step), then its geometry view."""
+    folder = state.folder / GRAPH
+    C.save(state.claim_list, folder)
+    state.graph = D.graph_step(folder, state.name, state.log)
+    state.view = D.geometry_view(state.graph, state.name, state.log)
+    (folder / "geometry_view.json").write_text(json.dumps(state.view, indent=1))
+    (folder / "geometry_view.txt").write_text(D.view_as_text(state.graph, state.view) + "\n")
+    state.log.event("graph", "graph_builder", parts=len(state.graph["nodes"]), values=len(state.graph["properties"]),
+                    edges=len(state.graph["relations"]), unaccounted=len(state.graph["checks"].get("unaccounted", [])),
+                    kept=len(state.view["keep"]), collapsed=len(state.view["collapse"]), dropped=len(state.view["drop"]))
 
 
 @step("coordinator")
 def coordinator(state):
-    """Settle the layout of the whole detector: nesting, hollow parts, detail levels, arrangement, teams."""
-    notes = "\n".join(f"  {f['source']}, page {f['page']}: {f['shows']}" for f in state.figures)
-    state.plan = make_plan(state.name, state.parts, claims_text(state), notes, state.log)
-    state.log.event("plan", "coordinator", parts=len(state.plan.parts), relations=len(state.plan.relations),
-                    teams=[name for name, _ in plan_teams(state.plan)],
-                    hollow=[p.name for p in state.plan.parts if p.form == "hollow"])
+    """The build plan from the geometry view (coordinator.build_plan): teams, detail levels, interfaces, tasks."""
+    claims = [c for c in state.claim_list if c.status == "accepted"]
+    state.build_plan = K.build_plan(state.graph, state.view, claims, state.name, state.log)
+    state.log.event("plan", "coordinator", **state.build_plan["score"])
+
+
+@step("graph_builder")
+def answer_objections(state):
+    """The graph builder's answer to the Coordinator's objections: entries changed or kept, from the claims."""
+    folder = state.folder / GRAPH
+    objections = [(o["entry"], o["problem"]) for o in state.build_plan["objections"]]
+    state.graph, state.view, record = D.answer_objections(folder, state.name, objections, state.view, state.log)
+    (folder / "detector_graph.json").write_text(json.dumps(state.graph, indent=1))
+    (folder / "detector_graph.txt").write_text(D.as_text(state.graph) + "\n")
+    (folder / "geometry_view.json").write_text(json.dumps(state.view, indent=1))
+    (folder / "geometry_view.txt").write_text(D.view_as_text(state.graph, state.view) + "\n")
+    (folder / "objections_answered.json").write_text(json.dumps(record, indent=1))
+    state.log.event("graph", "answer_objections", answers=len(record.get("answers", [])))
+
+
+def plan_the_build(state):
+    """Graph builder → detector graph → Coordinator; objections go back to the graph builder once, and the plan is
+    made again on its answer. The second plan's objections are kept, not sent again."""
+    graph_builder(state)
+    coordinator(state)
+    if state.build_plan["objections"]:
+        first = state.build_plan
+        answer_objections(state)
+        coordinator(state)
+        state.build_plan["first_plan"] = {k: first[k] for k in ("teams", "objections", "score")}
+    (state.folder / "build_plan.json").write_text(json.dumps(state.build_plan, indent=1))
+    (state.folder / "build_plan.txt").write_text(K.plan_as_text(state.build_plan) + "\n")
 
 
 class Search(BaseModel):
@@ -644,8 +680,16 @@ def build_round(state):
     final_look(state)
 
 
-def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, public_code=None, max_revisions=10):
-    """Run the whole system on the starting `documents` (text files and PDFs). Returns the final state."""
+WIRED_UNTIL = "coordinator"     # the boxes after the Coordinator still read the claims of the earlier readers
+
+
+def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, public_code=None, max_revisions=10,
+        until=WIRED_UNTIL):
+    """Run the system on the starting `documents` (text files and PDFs). Returns the final state.
+    The run stops after the Coordinator's build plan: the boxes after it are not wired to the graph yet."""
+    if until != WIRED_UNTIL:
+        raise NotImplementedError("the boxes after the Coordinator (teams, build, look) still read the claims of the "
+                                  "earlier readers and are not wired to the detector graph yet")
     folder = Path(folder)
     if (folder / "log.jsonl").exists():         # an earlier run in this folder is replaced
         shutil.rmtree(folder)
@@ -660,8 +704,13 @@ def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, 
 
     read_documents(state)
     construction_figures_step(state)
-    graph_builder(state)
-    coordinator(state)
+    plan_the_build(state)
+    if until == WIRED_UNTIL:
+        state.log.box = None
+        problems = check_log(log.events())
+        (folder / "run_report.md").write_text(stop_report(state, problems))
+        log.event("output", "output", stopped=f"after the {until}", architecture_problems=problems)
+        return state
     while True:
         state.round += 1
         team(state)
@@ -689,6 +738,23 @@ def run(folder, documents, name, max_rounds=5, searches_per_round=1, seed=None, 
     return state
 
 
+def stop_report(state, problems):
+    """A short account of a run that stops after the Coordinator."""
+    accepted = [c for c in state.claim_list if c.status == "accepted"]
+    score = state.build_plan["score"] if state.build_plan else {}
+    lines = [f"# Run on {state.name}, up to the build plan", "",
+             f"- Claims: {len(accepted)} accepted ({len({c.statement for c in accepted if c.statement})} different statements), "
+             f"{sum(c.status == 'disputed' for c in state.claim_list)} disputed, {sum(c.status == 'dropped' for c in state.claim_list)} dropped; "
+             f"{sum(c.where == 'figure' for c in accepted)} from figures. Sections that failed: {len(state.failed_sections)}.",
+             f"- Graph: {len(state.graph['nodes'])} parts, {len(state.graph['properties'])} values, {len(state.graph['relations'])} edges, "
+             f"{len(state.graph['checks'].get('unaccounted', []))} claims unaccounted.",
+             f"- Geometry view: {len(state.view['keep'])} parts kept, {len(state.view['collapse'])} collapsed, {len(state.view['drop'])} dropped.",
+             f"- Build plan: {', '.join(f'{k} {v}' for k, v in score.items())}.",
+             "- Files: graph/claims.txt, graph/detector_graph.txt, graph/geometry_view.txt, build_plan.txt, log.jsonl.",
+             "", "Run against the diagram: " + ("follows the arrows." if not problems else "; ".join(problems))]
+    return "\n".join(lines) + "\n"
+
+
 def construction_figures_step(state):
     """Have the figures of the evidence folder judged before the Coordinator plans. Part of the reading."""
     if [f for f in state.evidence.figures() if f["file"] not in {j["file"] for j in state.figures_judged}]:
@@ -697,8 +763,18 @@ def construction_figures_step(state):
 
 @step("reader_A", "reader_B")
 def read_figures(state):
-    """The readers look at the new figures and say which ones show how the detector is built."""
+    """The readers look at the new figures and say which ones show how the detector is built; the values of up to
+    three such figures per document are read into claims, by one model."""
     construction_figures(state)
+    documents = state.evidence.documents()
+    for source in {f["source"] for f in state.figures}:
+        todo = [f for f in state.figures if f["source"] == source and f["file"] not in state.figures_read][:3]
+        for figure in todo:
+            state.figures_read.append(figure["file"])
+            seen = G.read_figure(figure, state.evidence.folder / "figures", state.name, state.log)
+            for c in C.ledger({f"figure:{figure['file']}": seen}, [], [], documents) if seen else []:
+                c.id = f"K{len(state.claim_list) + 1}"
+                state.claim_list.append(c)
     compare_figures(state)
 
 
@@ -724,4 +800,4 @@ if __name__ == "__main__":
     folder, documents = Path(args[0]), [Path(a) for a in args[1:]]
     final = run(folder, documents, name or documents[0].stem, rounds, searches, None if seed is None else int(seed), code,
                 revisions)
-    print((folder / "evidence_report.md").read_text()[:3000])
+    print((folder / "run_report.md").read_text())

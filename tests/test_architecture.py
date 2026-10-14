@@ -41,8 +41,9 @@ def test_pipeline_calls_only_steps():
     import re
     called = set(re.findall(r"(?<![.\w])([a-z_]+)\(state[,)]", body)) - {"build_round", "run"}
     steps = {f.__name__ for functions in FUNCTIONS.values() for f in functions}
-    helpers = {"read_documents", "build_round", "construction_figures_step", "pieces", "look_loop"}     # they only chain boxes
-    assert called <= steps | helpers, f"not a box: {sorted(called - steps - helpers)}"
+    helpers = {"read_documents", "build_round", "construction_figures_step", "pieces", "look_loop", "plan_the_build"}  # they only chain boxes
+    reports = {"stop_report"}                                                                     # they only write a report
+    assert called <= steps | helpers | reports, f"not a box: {sorted(called - steps - helpers - reports)}"
 
 
 def test_drawing_matches():

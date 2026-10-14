@@ -21,14 +21,14 @@ boxes:
     title: Reader A
     kind: ai
     state: partial
-    first: Reads text documents into claims with quotes. Says which figures show how the detector is built; does not read values from figures.
-    done: Claims of the LEGEND paper are extracted with no failing quote.
-    differs: "Reads no values from figures (dimension labels, counts); it only says which figures show the construction. The proposal has figures read into claims."
+    first: "Reads the text section by section, twice, and writes every construction fact as a plain sentence with a receipt: quote, numbers with units, parts, material, which part is inside which (agent/statements.py, model lbl/gpt-oss-120b). Checks the other reader's statements and may put them right. Says which figures show how the detector is built and reads values from up to three of them."
+    done: "On the 20 papers of experiments/papers20.yaml, 99% of the hand-listed values are among the claims and no section fails (run free4)."
+    differs: "Values are read from at most three figures per document, by one model only (lbl/gemma-4), and those claims are not cross-checked."
   reader_B:
     title: Reader B
     kind: ai
     state: partial
-    first: As Reader A, with another model and another way through the text.
+    first: As Reader A, with another model (lbl/gemma-4) and another way through the text. Its statements are not taken out on Reader A's word alone.
     done: As Reader A.
     differs: "As Reader A. For figures only one model is asked, so there is no second independent reading."
   compare:
@@ -36,9 +36,9 @@ boxes:
     subtitle: Match claims, coverage check
     kind: program
     state: partial
-    first: Checks every quote, pairs the claims of the two readers, sends unpaired claims to the other reader.
+    first: "Checks every quote and that each number of a statement is in its quote; joins the statements of the two readers that rest on the same sentence with the same numbers; sends the statements that only one reader has to the other reader; writes one claim per statement."
     done: The agreed list holds only claims with a verified quote.
-    differs: "Figures are not compared between two readers. For text, a disagreement gets one cross-check, not the two re-read rounds of the proposal."
+    differs: "Figures are not compared between two readers. For text, a disagreement gets one cross-check, not the two re-read rounds of the proposal. 'Inside' is passed on as stated only when both readers wrote it."
   agreed_claims:
     title: Agreed claims
     subtitle: Each with source and uncertainty
@@ -47,9 +47,10 @@ boxes:
     title: Graph builder
     subtitle: Claims into one picture of the detector
     kind: ai
-    state: stub
-    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them; then a model, seeing the whole tree, marks each branch to keep, collapse into its container, or leave out of a geometry, which gives the geometry view beside the full graph. Answers the Coordinator's objections: a model re-checks the objected entries against their claims, changes them or keeps them with a reason, and the program's checks run again. A run does not call it yet."
-    done: The run log shows the step.
+    state: partial
+    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them; then a model, seeing the whole tree, marks each branch to keep, collapse into its container, or leave out of a geometry, which gives the geometry view beside the full graph. Answers the Coordinator's objections: a model re-checks the objected entries against their claims, changes them or keeps them with a reason, and the program's checks run again. A run calls it after the claims and again when the Coordinator objects."
+    done: "A run on a paper writes the graph and its geometry view, and the run log shows the step."
+    differs: "Claims found later by Research are not yet added to the graph. Parts can appear twice under different names in the graphs of long papers."
   detector_graph:
     title: Detector graph
     subtitle: Parts, relations, unknowns, each with its claims; and the geometry view
