@@ -57,3 +57,17 @@ arrangement the structure is built in portions (the tree first, then portions of
 Open: the portions add parts freely (ANTARES 47 -> 224 nodes), much of it electronics, cables and tooling. Unaccounted
 claims are mostly statements that are not geometry (location, assembly steps) which the model did not set aside.
 Table: `runs/papers20/free4_summary.txt`.
+
+## Geometry view (detector_graph.geometry_view, experiments/view_run.py), 2026-10-14
+
+A model sees the whole finished tree and marks each part keep, collapse (content of its container) or drop; a program
+checks that every part is decided, the outermost part is kept, and nothing is kept inside a part that is not. The full
+graph stays; the view is written beside it (geometry_view.json, .txt).
+
+On the 20 graphs of free4: 1691 parts -> 1029 kept, 482 collapsed, 180 dropped. Listed values in the view 428 of 441
+(graph 430); listed relations 182 (graph 191). Lost by the view on development papers: one relation (ANTARES, "the readout
+electronics is housed in a titanium container": the electronics were collapsed into the container, which is what the
+view should do). Test papers: 2 values and 8 relations lost (totals only).
+
+Seen in the ANTARES view (113 parts): duplicates remain (anchor / bss / bottom_string_socket / bss_structure, ti_rod /
+titanium_rod), the 41 km cable to shore is kept, and some values carry a unit glued to a material ("material=Tim").

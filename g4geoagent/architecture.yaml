@@ -48,11 +48,11 @@ boxes:
     subtitle: Claims into one picture of the detector
     kind: ai
     state: stub
-    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them. A run does not call it yet; the Coordinator still works from the claims."
+    first: "Exists as a step of its own (python -m g4geoagent.agent.detector_graph): a model builds the graph from the claims and a program checks every entry against them; then a model, seeing the whole tree, marks each branch to keep, collapse into its container, or leave out of a geometry, which gives the geometry view beside the full graph. A run does not call it yet; the Coordinator still works from the claims."
     done: The run log shows the step.
   detector_graph:
     title: Detector graph
-    subtitle: Parts, relations, unknowns, each with its claims
+    subtitle: Parts, relations, unknowns, each with its claims; and the geometry view
     kind: data
   coordinator:
     title: Coordinator

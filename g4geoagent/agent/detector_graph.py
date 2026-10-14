@@ -811,3 +811,145 @@ if __name__ == "__main__":
     args = sys.argv[1:]
     name = args[args.index("--name") + 1] if "--name" in args else "detector"
     print(as_text(graph_step(args[0], name)))
+
+
+# ------------------------------------------------------------------ the geometry view
+
+class Decision(BaseModel):
+    part: str
+    decision: str = Field(description="keep, collapse or drop")
+    why: str = Field(default="", description="For collapse and drop: one short reason")
+
+
+class Decisions(BaseModel):
+    decisions: list[Decision]
+
+
+VIEW_PROMPT = """Below is the graph of the detector {detector}, built from a paper: every part the paper names, as a tree \
+(indented = inside the part above). A Geant4 geometry model of the detector will be built from it. Decide for every \
+part what it is in that geometry:
+
+- keep: a volume of its own in the geometry. The parts that give the detector its shape, mass and active material: \
+vessels, shells, shields, frames and supports that carry weight, the sensitive volumes, the detector elements and \
+light sensors, the fillings (liquids, gases), and anything whose size or place the paper gives because it matters for \
+the detector.
+- collapse: not a volume of its own; it is counted as part of the content of the part it is inside. Typically small \
+components inside a container or a module: electronics boards and chips, connectors, small sensors, screws, cabling \
+inside a housing.
+- drop: not part of the detector's geometry at all: buildings, rooms, shore stations, tools and assembly jigs, \
+deployment and calibration equipment that is not in place during operation, software, signals, organisations.
+
+Rules
+- Decide for every part in the tree, using its name exactly as given.
+- The outermost part is always kept.
+- A part can only be kept if the part it is inside is kept. If you collapse or drop a part, everything inside it goes \
+with it, so check its contents first.
+- Judge from what the paper gives: a part with sizes, a material or a stated place is more likely to matter.
+- For collapse and drop give one short reason.
+
+The tree (name [mark the graph builder gave it] what it is | what the paper gives for it):
+{tree}
+
+Answer with one JSON object that fits this schema and nothing else:
+{schema}"""
+
+
+def _tree_text(data):
+    """The graph as an indented tree, one line per part, with a short summary of what the paper gives for it."""
+    nodes = data["nodes"]
+    values, places = {}, {}
+    for p in data["properties"]:
+        values.setdefault(p["of"], []).append(p["quantity"] or "value")
+    for r in data["relations"]:
+        for end in (r["subject"], r["object"]):
+            places[end] = places.get(end, 0) + 1
+    children = {}
+    for n in nodes:
+        children.setdefault(n["inside"], []).append(n)
+    lines = []
+
+    def walk(parent, depth):
+        for n in sorted(children.get(parent, []), key=lambda m: m["name"]):
+            given = ", ".join(sorted(set(values.get(n["name"], []))))[:90]
+            lines.append(f"{'  ' * depth}{n['name']} [{n['detail']}] {n['what'][:90]} | "
+                         f"{('values: ' + given) if given else 'no values'}; {places.get(n['name'], 0)} relations")
+            walk(n["name"], depth + 1)
+    walk("world", 0)
+    return "\n".join(lines)
+
+
+def view_check(data, decisions):
+    """What is wrong with a set of decisions, as sentences for the model."""
+    names = {n["name"] for n in data["nodes"]}
+    inside = {n["name"]: n["inside"] for n in data["nodes"]}
+    given = {d.part: d.decision.strip().lower() for d in decisions.decisions}
+    problems = [f"'{p}' is not a part of the tree" for p in given if p not in names]
+    problems += [f"part {p}: the decision must be keep, collapse or drop, not '{d}'" for p, d in given.items()
+                 if p in names and d not in ("keep", "collapse", "drop")]
+    missing = sorted(names - set(given))
+    if missing:
+        problems.append("no decision for: " + ", ".join(missing[:80]))
+    for n in data["nodes"]:
+        if n["inside"] == "world" and given.get(n["name"], "keep") != "keep":
+            problems.append(f"part {n['name']} is the outermost part and must be kept")
+        if given.get(n["name"]) == "keep" and inside.get(n["name"]) in names and given.get(inside[n["name"]], "keep") != "keep":
+            problems.append(f"part {n['name']} is kept, but the part it is inside ({inside[n['name']]}) is not")
+    return problems
+
+
+def geometry_view(data, detector, log=None, model=MODEL):
+    """The geometry view of a finished graph: for each part keep, collapse into its container, or drop.
+    Returns {"keep": [...], "collapse": {part: reason}, "drop": {part: reason}, "rounds": [...]}. Parts without a decision
+    after the repairs are kept, and parts inside a part that is not kept follow it."""
+    request = VIEW_PROMPT.format(detector=detector, tree=_tree_text(data),
+                                 schema=json.dumps(Decisions.model_json_schema(), separators=(",", ":")))
+    try:
+        answer, rounds = _with_repairs(model, [{"role": "user", "content": request}], Decisions,
+                                       lambda d: view_check(data, d), log, "geometry_view")
+        given = {d.part: (d.decision.strip().lower(), d.why) for d in answer.decisions}
+    except ValueError as error:
+        given, rounds = {}, [[f"no usable answer: {str(error)[:200]}"]]
+    inside = {n["name"]: n["inside"] for n in data["nodes"]}
+    view = {"keep": [], "collapse": {}, "drop": {}, "rounds": rounds}
+
+    def final(name, seen=()):
+        decision, why = given.get(name, ("keep", ""))
+        decision = decision if decision in ("keep", "collapse", "drop") else "keep"
+        parent = inside.get(name)
+        if parent in inside and parent not in seen:
+            up, up_why = final(parent, seen + (name,))
+            if up != "keep":
+                return up, f"inside {parent}, which is not kept" if up == "drop" else f"collapsed with {parent}"
+        if inside.get(name) == "world":
+            return "keep", ""
+        return decision, why
+    for name in inside:
+        decision, why = final(name)
+        if decision == "keep":
+            view["keep"].append(name)
+        else:
+            view[decision][name] = why
+    return view
+
+
+def view_as_text(data, view):
+    """The geometry view as an indented tree with the values of each kept part."""
+    keep = set(view["keep"])
+    children = {}
+    for n in data["nodes"]:
+        children.setdefault(n["inside"], []).append(n)
+    values = {}
+    for p in data["properties"]:
+        values.setdefault(p["of"], []).append(f"{p['quantity']}={p['value']}{p['unit']}")
+    lines = [f"geometry view: {len(keep)} of {len(data['nodes'])} parts kept, {len(view['collapse'])} collapsed, {len(view['drop'])} dropped", ""]
+
+    def walk(parent, depth):
+        for n in sorted(children.get(parent, []), key=lambda m: m["name"]):
+            if n["name"] in keep:
+                inner = [m["name"] for m in children.get(n["name"], []) if m["name"] in view["collapse"]]
+                lines.append(f"{'  ' * depth}{n['name']} [{n['shape']}, {n['form']}] " + "; ".join(values.get(n["name"], []))[:150]
+                             + (f"   (contains, collapsed: {', '.join(inner)})" if inner else ""))
+                walk(n["name"], depth + 1)
+    walk("world", 0)
+    lines += ["", "dropped: " + ", ".join(f"{k} ({v})" for k, v in view["drop"].items())]
+    return "\n".join(lines)
