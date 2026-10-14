@@ -153,6 +153,7 @@ ax.plot([L2, L2], [-16.1, -13.3], color=GREY, linewidth=1.3, zorder=1)
 arrow([(L2, -13.3), (L2, -7.7), (2.75, -7.7)], "subsystem\nerror:\nowning team", at=(L2 - 0.12, -11.0), ha="right",
       links="check_whole_detector>teams final_look>teams")
 arrow([(L2, -14.7), (L1, -14.7), (L1, -6.0), (3.0, -6.0)], "interface\nor claim", at=(L1 - 0.1, -8.6), ha="right", links="run_geant4>coordinator")
+arrow([(3.0, -11.9), (L1, -11.9), (L1, -6.0), (3.0, -6.0)], "parts do\nnot fit", at=(L1 - 0.1, -12.45), ha="right", links="integrate>coordinator")
 arrow([(9.0, -17.6), (R1, -17.6), (R1, -7.7), (9.85, -7.7)], "yes:\nnext round", at=(R1 + 0.12, -12.6), links="round_rule>teams")
 box(C, -19.1, W, H, "output")
 arrow([(C, -18.05), (C, -18.65)], "no: stop", links="round_rule>output")

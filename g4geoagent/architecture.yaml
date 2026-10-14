@@ -53,23 +53,23 @@ boxes:
     differs: "Claims found later by Research are not yet added to the graph. Parts can appear twice under different names in the graphs of long papers."
   detector_graph:
     title: Detector graph
-    subtitle: Parts, relations, unknowns, each with its claims; and the geometry view
+    subtitle: Parts and relations with their claims; geometry view
     kind: data
   coordinator:
     title: Coordinator
-    subtitle: Splits detector, detail levels, interfaces
+    subtitle: Splits, keeps interfaces, mediates, schedules
     kind: ai
     state: partial
-    first: "Plans the build from the geometry view of the detector graph and leaves the layout as the graph has it. Three model calls, each checked by a program and sent back with what fails: the split cuts the kept tree into teams (subtrees; a single inner part is not a team), confirms repeated parts with the claim that gives the count, and objects to graph entries a claim shows wrong; the levels call sets exact, simplified or lumped for every part; the interfaces call writes, for each place where a team builds into another team's part, the envelope as sizes and positions in a length unit, each with its claim, derived with reasoning, or marked open, owned by the outer team. A program turns this into tasks, one per piece from the outside in: the slice of the graph, the level (a filling takes its vessel's), the checks, the masses held back for the Inspector, and the gaps with the research effort of the level. Objections go to the graph builder, which re-checks those entries against their claims; the coordinator then plans once more on the graph it gets back. Model gemma-4."
+    first: "Plans the build from the geometry view of the detector graph and leaves the layout as the graph has it. Model calls, each checked by a program and sent back with what fails: the split cuts the kept tree into teams (subtrees; a single inner part is not a team), confirms repeated parts with the claim that gives the count, and objects to graph entries a claim shows wrong; the interfaces call writes, for each place where a team builds into another team's part, the envelope as sizes and positions, each value with its claim or marked open. A levels call still sets exact, simplified or lumped for every part (to move to the teams, see differs)."
     done: "Every kept part is owned by one team, no problem is left after the repairs, every interface value carries a claim or is marked open, and the plan is looked at on the development papers."
-    differs: "Keeps no memory over a run (interface versions, decision log, team summaries), answers no questions from teams and decides no change requests, since teams cannot ask yet. Sends no disputed claim back to Compare. Does not see the figures. Not yet called by a run: pipeline.py still plans with the earlier layout plan made from the claims."
+    differs: "Role agreed with the user 2026-10-14, not built yet: (1) the shared memory of interface values, in versions, with the source of each and which teams depend on it, updated and passed on when a team changes one; (2) mediating: questions between teams go through it and are answered from memory or passed to the owning team; (3) conflicts decided on evidence: a stated value beats an estimate, the starting paper beats a later find, the owning team keeps its value unless the other brings a better source, judgement only when that does not settle it, too little evidence means research by the owning team; every decision logged; (4) the order: teams whose interfaces are known start in parallel, a team that depends on an open value waits or gets a provisional envelope. Today it still sets the detail levels (they move to the teams), sends no disputed claim back to Compare and does not see the figures."
   teams:
     title: Team 1 … N
     kind: ai
     state: partial
     first: Name the missing values worth a search, then build their parts one after the other from the outside in, extending one common script. Not in parallel.
     done: Every team's parts are built or listed as left out.
-    differs: "Not in parallel - the teams build one after the other on one shared script. A team cannot ask the Coordinator or another team. Research is decided once per round for all teams, not by the team that has the gap at the moment it has it."
+    differs: "Agreed with the user 2026-10-14, not built yet: each team sets the detail level of its own parts, with a reason, after seeing what the papers and its research give; it builds its subsystem in its own coordinates to the envelope the Coordinator holds, in parallel with the other teams whose interfaces are known; it asks the Coordinator, not other teams. Today the teams build one after the other on one shared script, cannot ask, and research is decided once per round for all teams."
   build:
     title: Build
     subtitle: Code
@@ -109,7 +109,7 @@ boxes:
     state: partial
     first: Checks on the joined geometry that the parts of different teams sit in each other as the plan says. The teams share one script, so nothing has to be placed.
     done: The statements of the plan between teams are reported as met or not met.
-    differs: "Places nothing - the teams share one script. It only checks the plan's statements between teams on the joined geometry."
+    differs: "Places nothing - the teams share one script. It only checks the plan's statements between teams on the joined geometry. To come: place each team's part into its container at the interface position and send a part that does not fit back to the Coordinator."
   check_whole_detector:
     title: Check whole detector
     subtitle: Overlaps, mass, counts
@@ -205,6 +205,7 @@ arrows:
   - [check_whole_detector, teams, 'subsystem error: owning team']
   - [final_look, teams, 'subsystem error: owning team']
   - [run_geant4, coordinator, interface or claim]
+  - [integrate, coordinator, parts do not fit]
   - [round_rule, teams, 'yes: next round']
   - [round_rule, output, 'no: stop']
   - [output, evaluator]
