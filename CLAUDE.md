@@ -52,48 +52,37 @@ Decide details yourself and report them. Stop and ask only before: using a paid 
 something new, deleting the user's files, or changing what a box of the diagram is for.
 Commit after each finished piece and push. Commits carry no co-author line.
 
-## Where the work stands (2026-10-12)
+## Where the work stands (2026-10-14)
 
-The user and I restarted from the beginning of the pipeline and are working forward. Current position: **from the
-paper to the detector graph**. Everything after the graph (Research, Coordinator, Build, Look, Evaluator) exists
-from an earlier, rushed pass and has NOT been redone on top of the graph.
-
-Drawn: `diagrams/claims_to_graph.png` (paper to graph, every model call, program step and tool; drawn by hand
-from the code, not tested against it) and `diagrams/architecture.png` (the whole system, generated).
+The user and I are going through the pipeline from the start. **Done for now: from the paper to the detector graph and
+its geometry view.** Next: the Coordinator, working from the geometry view. Everything after the graph (Research,
+Coordinator, Build, Look, Evaluator) exists from an earlier, rushed pass and has NOT been redone on top of the graph.
 
 | Step | Code | State |
 |---|---|---|
-| Claim step: one claim per fact, with quote, sentence, page, checks | `agent/claims.py` (uses the readers and checks in `agent/graph.py`) | Works. Holds 61 of 64 hand-listed values and 43 of 45 relations |
-| Graph step: a model builds the graph, a program checks it | `agent/detector_graph.py` | 12 rounds, variant chosen (`notes/claims_graph.md`). Passes on everything the claims hold |
-| Wiring into a run | `pipeline.py` | Not done: `graph_builder` is a stub there, the Coordinator still uses the old flat claims |
+| Step 1: PDF to text and figures | `agent/documents.py` | Works. Open: running page headers and words hyphenated at line ends are left in |
+| Claim step, free readers (in use) | `agent/statements.py` | Each fact a plain sentence with a receipt (quote, numbers, parts, material, outer/inner); read in sections; cross-check may correct. All 20 papers: 99% of listed values, no paper fails |
+| Claim step, old form readers | `agent/claims.py` | Kept for comparison; fails on long papers |
+| Graph step | `agent/detector_graph.py` | One claim per sentence; long papers built in portions. All 20: 98% of listed values, 85% of relations in the graph, 7 min per graph |
+| Geometry view | `detector_graph.geometry_view`, `experiments/view_run.py` | A model marks each part keep / collapse / drop. 1691 parts -> 1029 kept, almost nothing listed lost |
+| Wiring into a run | `pipeline.py` | Not done: `graph_builder` is a stub there |
 
-Graph step, round 12 (all five papers): 60 of 64 hand-listed values, 44 of 45 relations, one root per detector, no claim
-unaccounted. Everything still missing is missing from the claims, so the claim step is what limits it now. The graph as
-the model built it is kept in each `detector_graph.json` under `checks.as_built_by_the_model`; `detector_graph.reclean()`
-re-applies the program's tidying without a model call. Do not pass `--fresh` to the benchmark with an old variant on
-the line: it rebuilds that variant too.
+Runs: `python experiments/first_run.py <name> --free` (all 20 papers, comparison per paper in
+`runs/papers20/<paper>/<name>/compare.txt`), then `python experiments/view_run.py <name>`. Latest: `free4`.
+Records: `experiments/notes/free_reader.md` (all rounds and numbers), `experiments/notes/first_run.md` (frozen first run),
+`experiments/gold_changes.md` (every change to the hand lists).
 
-Known faults of the graphs: LEGEND has "about 6 t" of argon on the whole argon and on the inner volume; the
-fibre shrouds are beside the strings in the tree instead of around them; three values and two relations never
-reach the claims; the cross-check wrongly rejected Super-K's two hatches; results move by one or two relations
-between runs; a graph takes 8 to 10 minutes of model time per paper.
-
-Tried and not kept: a program that merges records into the graph (the user's experience and the tests agree: a
-model builds better structure); a second look for parts without a place; a model moving values between parts.
-
-Records of every round: `experiments/notes/{graph,claims_graph,research,build}.md`.
-Hand lists used as scores (written by Claude, not checked by an expert): `experiments/gold/` (64 values) and
-`experiments/gold_relations/` (45 relations). Outputs to look at: `runs/claims_graph/claims_v3/<paper>/claims.txt`
-and `runs/claims_graph/<variant>/<paper>/detector_graph.txt`.
+Known open faults, left on purpose for now: duplicate parts under several names in graphs of long papers (give each
+portion the other names of existing parts); untidy values (a unit glued to a material); about a quarter of the
+statements are true but not geometry; the error rate of statements is measured only on 40 (1 wrong, about 4 wrong
+receipts); results move by one or two facts between runs; the test papers' hand lists are uncorrected.
 
 Open decisions waiting for the user:
 - Look: the user set 10 revisions per piece; implemented, never run to the end.
 - Teams still build one after the other on one shared script; parallel teams with a real Integrate were announced,
   not built.
-- Which public repository the Evaluator grades against per detector (LEGEND: `legend-exp/legend-pygeom-l200`, read
-  as source text only; the user does not trust a GDML generated from it).
-- The user's CBorg key shows $243.34 total spend that this project does not explain (its only paid calls were
-  $0.066 in the smoke test of 2026-10-08).
+- Which public repository the Evaluator grades against per detector.
+- The user's CBorg key shows $243.34 total spend that this project does not explain.
 
 Earlier results to treat with care: the Build rounds (`notes/build.md`) chose variants by "claims met", which did
 not see that the geometry was arranged wrongly. 3D pictures: `python -m g4geoagent.inspector.render3d`.
