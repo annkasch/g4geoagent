@@ -1,0 +1,7 @@
+detector: "LEGEND-200 (no labels, one cutaway)"
+parts:
+  - {id: tank, names: "tank|water|outer", shape: vessel, hollow: true, inside: none}
+  - {id: pmt, names: "pmt|photomult|sensor|round|device", shape: array, hollow: false, inside: tank}
+  - {id: cryostat, names: "cryostat|vessel|inner", shape: vessel, hollow: true, inside: tank}
+  - {id: panels, names: "panel|curtain|shroud|ring|copper|red|brown", shape: tube, hollow: true, inside: cryostat}
+  - {id: array, names: "array|string|cluster|green|detector", shape: array, hollow: false, inside: cryostat}

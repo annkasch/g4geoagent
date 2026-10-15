@@ -1,0 +1,8 @@
+detector: "DUNE horizontal-drift module (labelled cutaway, view along its length)"
+parts:
+  - {id: structure, names: "structure|steel|green", shape: box, hollow: true, inside: none}
+  - {id: insulation, names: "insulation", shape: box, hollow: true, inside: structure}
+  - {id: apa, names: "apa|anode", shape: plate, hollow: false, inside: insulation}
+  - {id: cpa, names: "cpa|cathode", shape: plate, hollow: false, inside: insulation}
+  - {id: field_cage, names: "field cage|ground plane", shape: other, hollow: false, inside: insulation}
+  - {id: dss, names: "dss|support", shape: other, hollow: false, inside: insulation}

@@ -1,0 +1,5 @@
+detector: "DUNE far detector module (labelled, outside view)"
+parts:
+  - {id: module, names: "module|cryostat|detector|red|steel|frame", shape: box, hollow: true, inside: none}
+  - {id: electronics, names: "electronics", shape: other, hollow: false, inside: none}
+  - {id: cryogenics, names: "cryogenic", shape: other, hollow: false, inside: none}

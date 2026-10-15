@@ -1,0 +1,9 @@
+detector: "LZ (labelled cutaway)"
+parts:
+  - {id: tank, names: "water|tank", shape: vessel, hollow: true, inside: none}
+  - {id: od_pmt, names: "outer detector|120|od", shape: array, hollow: false, inside: tank}
+  - {id: gdls, names: "gadolinium|scintillator|gdls|green", shape: tube, hollow: true, inside: tank}
+  - {id: cryostat, names: "cryostat|vessel|time-projection|tpc|xenon", shape: vessel, hollow: true, inside: tank}
+  - {id: tpc, names: "tpc|time-projection|xenon|chamber", shape: cylinder, hollow: true, inside: cryostat}
+  - {id: tpc_pmt, names: "494|photomultiplier tubes|pmts", shape: array, hollow: false, inside: tpc}
+  - {id: heat_exchanger, names: "heat exchanger", shape: cylinder, hollow: true, inside: none}

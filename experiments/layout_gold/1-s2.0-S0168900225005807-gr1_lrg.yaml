@@ -1,0 +1,11 @@
+detector: "LEGEND-200 (labelled, three panels: cutaway, detector array, one detector)"
+parts:
+  - {id: tank, names: "water|tank", shape: vessel, hollow: true, inside: none}
+  - {id: pmt, names: "pmt|photomult", shape: array, hollow: false, inside: tank}
+  - {id: cryostat, names: "cryostat|lar", shape: vessel, hollow: true, inside: tank}
+  - {id: wlsr, names: "wlsr|reflector", shape: tube, hollow: true, inside: cryostat}
+  - {id: array, names: "array|string|germanium|hpge|green", shape: array, hollow: false, inside: wlsr}
+  - {id: llama, names: "llama", shape: other, hollow: false, inside: cryostat}
+  - {id: shroud, names: "shroud|fib", shape: tube, hollow: true, inside: cryostat}
+  - {id: hpge, names: "hpge|detector", shape: cylinder, hollow: false, inside: array}
+  - {id: pen, names: "pen", shape: plate, hollow: false, inside: array}

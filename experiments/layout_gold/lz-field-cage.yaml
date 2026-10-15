@@ -1,0 +1,6 @@
+detector: "LZ TPC (no labels)"
+parts:
+  - {id: tpc, names: "tpc|cylinder|field cage|chamber|cage", shape: cylinder, hollow: true, inside: none}
+  - {id: top_array, names: "top|upper", shape: plate, hollow: false, inside: tpc}
+  - {id: bottom_array, names: "bottom|lower", shape: plate, hollow: false, inside: tpc}
+  - {id: wall, names: "wall|ring|cage|side", shape: tube, hollow: true, inside: tpc}

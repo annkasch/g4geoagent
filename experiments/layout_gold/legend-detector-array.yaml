@@ -1,0 +1,5 @@
+detector: "LEGEND-200 detector array (no labels)"
+parts:
+  - {id: top, names: "top|copper|plate|head|support", shape: plate, hollow: false, inside: none}
+  - {id: central, names: "central|inner|green|shroud|fib|tube", shape: tube, hollow: true, inside: none}
+  - {id: strings, names: "string|column|stack|white|cylinder|detector", shape: array, hollow: false, inside: none}

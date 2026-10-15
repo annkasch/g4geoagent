@@ -1,0 +1,6 @@
+detector: "DUNE vertical-drift module (labelled cutaway)"
+parts:
+  - {id: cryostat, names: "cryostat|box|vessel", shape: box, hollow: true, inside: none}
+  - {id: anode_top, names: "anode|top", shape: plate, hollow: false, inside: cryostat}
+  - {id: cathode, names: "cathode", shape: plate, hollow: false, inside: cryostat}
+  - {id: anode_bottom, names: "anode|bottom", shape: plate, hollow: false, inside: cryostat}

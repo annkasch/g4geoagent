@@ -1,0 +1,10 @@
+detector: "DARWIN (labelled cutaway)"
+parts:
+  - {id: cryostat, names: "cryostat", shape: vessel, hollow: true, inside: none}
+  - {id: tpc, names: "tpc|target", shape: cylinder, hollow: true, inside: cryostat}
+  - {id: top_array, names: "top photosensor", shape: plate, hollow: false, inside: [tpc, reflector]}
+  - {id: bottom_array, names: "bottom photosensor", shape: plate, hollow: false, inside: [tpc, reflector]}
+  - {id: reflector, names: "ptfe|reflector", shape: tube, hollow: true, inside: tpc}
+  - {id: anode, names: "anode", shape: plate, hollow: false, inside: [tpc, reflector]}
+  - {id: cathode, names: "cathode", shape: plate, hollow: false, inside: [tpc, reflector]}
+  - {id: feedthrough, names: "feedthrough|high-voltage", shape: tube, hollow: false, inside: none}
