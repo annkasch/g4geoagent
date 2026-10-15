@@ -259,3 +259,265 @@ if __name__ == "__main__":
         (out / f"{Path(figure).stem}.json").write_text(layout.model_dump_json(indent=1))
         (out / f"{Path(figure).stem}.txt").write_text(as_text(layout) + "\n")
         print(f"== {Path(figure).name} (problems per round: {[len(r) for r in rounds]})\n{as_text(layout)}\n")
+
+
+# ------------------------------------------------------------------ names from the text, and sizes from one stated size
+
+class Match(BaseModel):
+    figure_part: str
+    paper_part: str = Field(description="the paper's name for it, from the list, or 'not in the paper'")
+    confidence: Literal["high", "medium", "low"]
+    why: str
+
+
+class Matches(BaseModel):
+    matches: list[Match]
+
+
+MATCH_PROMPT = """A figure of the detector {detector} has been described part by part, without the paper. Match each \
+figure part to the part of the paper that it shows, using the paper's statements below: what the part is, what it is \
+inside, its sizes and its proportions. The figure parts have no reliable names; judge by place, shape, nesting and \
+size. Sizes help: the box of a figure part is given as fractions of the image (left, right, top, bottom; the image is \
+{w} x {h} pixels), so the ratio of two widths in the figure should be close to the ratio of the stated diameters. If \
+no part of the paper fits, say 'not in the paper'. Two figure parts never match the same paper part.
+
+FIGURE PARTS:
+{figure}
+
+THE PAPER'S PARTS AND WHAT IT STATES ABOUT THEM:
+{paper}
+
+Answer with one JSON object that fits this schema and nothing else:
+{schema}"""
+
+
+def paper_parts(claims):
+    """{part name: [statements]} of the accepted claims, by the parts each claim names."""
+    out = {}
+    for c in claims:
+        if c.status != "accepted" or not c.statement:
+            continue
+        for name in c.parts or [c.subject]:
+            out.setdefault(name, []).append(c.statement)
+    return out
+
+
+def match_names(layout, claims, detector, image_size, log=None, model="lbl/gpt-oss-120b"):
+    parts = paper_parts(claims)
+    figure = "\n".join(f"  {p.id}: {p.description}; {p.shape}{', hollow' if p.hollow else ''}; inside {p.inside}"
+                       f"{', at ' + p.where if p.where else ''}; profile: {p.profile or '-'}; box {[round(x, 2) for x in p.box]}"
+                       for p in layout.parts)
+    paper = "\n".join(f"  {name}: " + " | ".join(s[:160] for s in said[:6]) for name, said in parts.items())
+    request = MATCH_PROMPT.format(detector=detector, w=image_size[0], h=image_size[1], figure=figure, paper=paper,
+                                  schema=json.dumps(Matches.model_json_schema(), separators=(",", ":")))
+
+    def problems(a):
+        out = [f"'{m.paper_part}' is not one of the paper's parts" for m in a.matches
+               if m.paper_part != "not in the paper" and m.paper_part not in parts]
+        named = [m.paper_part for m in a.matches if m.paper_part != "not in the paper"]
+        out += [f"'{n}' is matched twice" for n in sorted({n for n in named if named.count(n) > 1})]
+        out += [f"no match for figure part {p.id}" for p in layout.parts if p.id not in {m.figure_part for m in a.matches}]
+        return out
+    return D._with_repairs(model, [{"role": "user", "content": request}], Matches, problems, log, "figure_match")
+
+
+def stated_sizes(claims, part):
+    """Widths (diameters) and heights in mm that accepted claims state for a part: {'width': [...], 'height': [...]}."""
+    import re
+    unit = {"mm": 1, "cm": 10, "m": 1000}
+    out = {"width": [], "height": []}
+    for c in claims:
+        if c.status != "accepted" or c.kind != "value" or part not in (c.parts or [c.subject]):
+            continue
+        text = c.statement.lower()
+        for number, u, what in re.findall(r"(\d+(?:\.\d+)?)\s*(mm|cm|m)\b[\s-]*(diameter|height|high|wide|tall)?", text):
+            mm = float(number) * unit[u]
+            if what in ("diameter", "wide") or (not what and "diameter" in text and "height" not in text):
+                out["width"].append(mm)
+            elif what in ("height", "high", "tall"):
+                out["height"].append(mm)
+    return out
+
+
+def scaled(layout, matches, claims, image_size):
+    """Every figure part's width, height and centre height in metres, scaled by the largest matched part (high
+    confidence) whose width the paper states. Returns (reference, [rows])."""
+    w, h = image_size
+    by = {m.figure_part: m for m in matches}
+    candidates = []
+    for p in layout.parts:
+        m = by.get(p.id)
+        if m and m.confidence == "high" and m.paper_part != "not in the paper" and len(p.box) == 4:
+            sizes = stated_sizes(claims, m.paper_part)
+            if sizes["width"]:
+                candidates.append(((p.box[1] - p.box[0]) * w, p, m.paper_part, max(sizes["width"])))
+    if not candidates:
+        return None, []
+    px, ref, name, mm = max(candidates, key=lambda c: c[0])
+    per_px = mm / px
+    rows = []
+    for p in layout.parts:
+        if len(p.box) != 4:
+            continue
+        m = by.get(p.id)
+        paper = m.paper_part if m else ""
+        sizes = stated_sizes(claims, paper) if paper and paper != "not in the paper" else {"width": [], "height": []}
+        rows.append({"part": p.id, "paper": paper, "confidence": m.confidence if m else "",
+                     "width_m": round((p.box[1] - p.box[0]) * w * per_px / 1000, 2),
+                     "height_m": round((p.box[3] - p.box[2]) * h * per_px / 1000, 2),
+                     "centre_x_m": round(((p.box[0] + p.box[1]) / 2 - (ref.box[0] + ref.box[1]) / 2) * w * per_px / 1000, 2),
+                     "centre_z_m": round(((ref.box[2] + ref.box[3]) / 2 - (p.box[2] + p.box[3]) / 2) * h * per_px / 1000, 2),
+                     "stated_width_m": [round(x / 1000, 3) for x in sizes["width"]],
+                     "stated_height_m": [round(x / 1000, 3) for x in sizes["height"]]})
+    return {"part": ref.id, "paper": name, "width_m": mm / 1000}, rows
+
+
+def coarse_picture(rows, figure, path, title=""):
+    """The scaled layout as nested rectangles in metres (a cut through the axis), next to the figure."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
+    from PIL import Image
+    fig, (a, b) = plt.subplots(1, 2, figsize=(13, 6))
+    colours = ["#d62728", "#1f77b4", "#2ca02c", "#9467bd", "#ff7f0e", "#17becf", "#8c564b", "#e377c2"]
+    for i, r in enumerate(sorted(rows, key=lambda r: -r["width_m"] * r["height_m"])):
+        c = colours[i % len(colours)]
+        x0, z0 = r["centre_x_m"] - r["width_m"] / 2, r["centre_z_m"] - r["height_m"] / 2
+        a.add_patch(Rectangle((x0, z0), r["width_m"], r["height_m"], fill=False, ec=c, lw=2))
+        a.text(x0 + 0.05, z0 + r["height_m"] - 0.3, f"{r['part']} {r['paper'] or ''}\n{r['width_m']} x {r['height_m']} m", color=c, fontsize=8)
+    a.autoscale_view(); a.set_aspect("equal"); a.set_xlabel("x (m)"); a.set_ylabel("z (m)"); a.set_title(title or "Coarse layout, scaled", fontsize=10)
+    b.imshow(Image.open(figure)); b.axis("off"); b.set_title("The figure", fontsize=10)
+    fig.tight_layout(); fig.savefig(path, dpi=90); plt.close(fig)
+
+
+# ------------------------------------------------------------------ the figure's description corrected by the text
+
+class Field_(BaseModel):
+    value: str
+    source: Literal["figure", "text", "both"]
+
+
+class Reconciled(BaseModel):
+    figure_part: str = Field(description="the figure part's id, or 'text only' for a part the text names that the figure does not show")
+    paper_part: str = Field(description="the paper's name, or 'not in the paper'")
+    what: Field_ = Field(description="what the part is (from the text where it says)")
+    shape: Field_ = Field(description="outer form and outline: ends, neck, flange, steps")
+    inside: str = Field(description="the paper's name (or figure id) of the part it is directly inside, or 'none'")
+    inside_source: Literal["figure", "text", "both"]
+    arrangement: str = Field(default="", description="where in that part, and for arrays how the items are arranged")
+    material: Field_ | None = None
+
+
+class Reconciliation(BaseModel):
+    parts: list[Reconciled]
+    conflicts: list[str] = Field(default_factory=list, description="where figure and text disagree, and what was taken")
+
+
+RECONCILE_PROMPT = """A figure of the detector {detector} was described part by part without the paper. Correct that \
+description with the paper's statements. The text has more weight than the figure:
+- match each figure part to the paper's part it shows; judge by place, nesting and shape, not by the figure reader's \
+words, which can be wrong (it may call a water tank a vacuum vessel);
+- names, what a part is, materials, and what is inside what come from the text wherever it states them;
+- shapes, outlines (ends, neck, flange) and arrangements stay as the figure shows them, unless the text says otherwise;
+- for each field say where it comes from: figure, text, or both (they agree);
+- parts the text names that the figure does not show: add them with figure_part 'text only' when they are main parts;
+- list every disagreement under conflicts, with what you took.
+
+FIGURE DESCRIPTION:
+{figure}
+
+WHAT IS INSIDE WHAT, AS THE PAPER STATES IT:
+{containment}
+
+THE PAPER'S PARTS AND ITS STATEMENTS ABOUT THEM:
+{paper}
+
+Answer with one JSON object that fits this schema and nothing else:
+{schema}"""
+
+
+def stated_containment(claims):
+    """(outer, inner, statement) for every accepted claim that states one part inside another."""
+    out = []
+    for c in claims:
+        if c.status == "accepted" and c.relation == "contains" and c.subject and c.object:
+            out.append((c.subject, c.object, c.statement or c.line()))
+        elif c.status == "accepted" and getattr(c, "outer", "") and getattr(c, "inner", ""):
+            out.append((c.outer, c.inner, c.statement))
+    return out
+
+
+def reconcile_check(answer, layout, claims):
+    problems = []
+    names = paper_parts(claims)
+    figure_ids = {p.id for p in layout.parts}
+    mapped = [r.figure_part for r in answer.parts if r.figure_part != "text only"]
+    problems += [f"figure part {p} is not in the result" for p in sorted(figure_ids - set(mapped))]
+    problems += [f"figure part {p} appears twice" for p in sorted({p for p in mapped if mapped.count(p) > 1})]
+    paper = [r.paper_part for r in answer.parts if r.paper_part != "not in the paper"]
+    problems += [f"'{p}' is not one of the paper's parts" for p in sorted(set(paper) - set(names))]
+    problems += [f"paper part '{p}' appears twice" for p in sorted({p for p in paper if paper.count(p) > 1})]
+    inside = {r.paper_part: r.inside for r in answer.parts if r.paper_part != "not in the paper"}
+    figure_of = {r.paper_part: r.figure_part for r in answer.parts}
+
+    def within(a, b):
+        seen, at = set(), inside.get(a)
+        while at and at != "none" and at not in seen:
+            if at == b:
+                return True
+            seen.add(at)
+            at = inside.get(at)
+        return False
+    # the figure's own nesting is kept unless the text states otherwise
+    key = {r.figure_part: (r.paper_part if r.paper_part != "not in the paper" else r.figure_part) for r in answer.parts}
+    inside.update({r.figure_part: r.inside for r in answer.parts if r.paper_part == "not in the paper"})
+    stated = {(o, i) for o, i, _ in stated_containment(claims)}
+    for part in layout.parts:
+        if part.inside in key and part.id in key:
+            child, parent = key[part.id], key[part.inside]
+            if not within(child, parent) and not any(i == child for _, i in stated):
+                problems.append(f"the figure shows {part.id} ({child}) inside {part.inside} ({parent}), and the text does not say "
+                                f"otherwise, but the result does not put {child} inside {parent}")
+    for outer, inner, statement in stated_containment(claims):
+        if outer in inside and inner in inside and not within(inner, outer):
+            problems.append(f"the paper states that {inner} is inside {outer} (\"{statement[:120]}\"), but the result does not put it there")
+        elif inner in inside and outer not in inside:
+            problems.append(f"the paper states that {inner} is inside {outer} (\"{statement[:120]}\"), but {outer} is not in the result; "
+                            f"match it to the figure part around {figure_of.get(inner, inner)}, or add it as 'text only'")
+    return problems
+
+
+def reconcile(layout, claims, detector, log=None, model="lbl/gpt-oss-120b"):
+    figure = as_text(layout)
+    containment = "\n".join(f"  {o} contains {i}: \"{s[:140]}\"" for o, i, s in stated_containment(claims)) or "  (none stated)"
+    paper = "\n".join(f"  {name}: " + " | ".join(s[:160] for s in said[:6]) for name, said in paper_parts(claims).items())
+    request = RECONCILE_PROMPT.format(detector=detector, figure=figure, containment=containment, paper=paper,
+                                      schema=json.dumps(Reconciliation.model_json_schema(), separators=(",", ":")))
+    return D._with_repairs(model, [{"role": "user", "content": request}], Reconciliation,
+                           lambda a: reconcile_check(a, layout, claims), log, "figure_reconcile")
+
+
+def reconciled_text(answer):
+    lines = []
+    children = {}
+    for r in answer.parts:
+        children.setdefault(r.inside, []).append(r)
+    names = {r.paper_part for r in answer.parts}
+
+    def walk(parent, depth, seen):
+        for r in children.get(parent, []):
+            key = r.paper_part if r.paper_part != "not in the paper" else r.figure_part
+            if key in seen:
+                continue
+            mat = f"; material {r.material.value} [{r.material.source}]" if r.material else ""
+            lines.append(f"{'  ' * depth}{r.paper_part} ({r.figure_part}): {r.what.value} [{r.what.source}]; "
+                         f"shape: {r.shape.value} [{r.shape.source}]; inside [{r.inside_source}]"
+                         f"{'; ' + r.arrangement if r.arrangement else ''}{mat}")
+            walk(key, depth + 1, seen | {key})
+    roots = [r for r in answer.parts if r.inside == "none" or r.inside not in names | {r2.figure_part for r2 in answer.parts}]
+    for r in roots:
+        children.setdefault("__root__", []).append(r)
+    walk("__root__", 0, set())
+    lines += [f"CONFLICT: {c}" for c in answer.conflicts]
+    return "\n".join(lines)
