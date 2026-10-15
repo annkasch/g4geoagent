@@ -26,8 +26,12 @@ ORIGINS = ("stated", "written_in_figure", "derived", "researched", "measured_fro
 CITED = ("stated", "written_in_figure", "researched")
 LENGTH = {"mm": 1.0, "cm": 10.0, "m": 1000.0, "um": 1e-3, "μm": 1e-3, "in": 25.4, "inch": 25.4}
 ANGLE = {"deg": math.pi / 180, "rad": 1.0}
-KINDS = ("tube", "cone", "box", "sphere", "torus", "polycone", "polyhedra", "extrusion", "union", "subtraction", "intersection")
+BLOCKS = ("cylinder", "hollow_cylinder", "cup")      # building blocks, expanded by the program into profiles
+KINDS = ("cylinder", "hollow_cylinder", "cup", "tube", "cone", "box", "sphere", "torus", "polycone", "polyhedra", "extrusion", "union", "subtraction", "intersection")
 PARAMS = {   # what each kind needs; lengths are full lengths, angles default to a full turn
+    "cylinder": ("radius", "height"),                       # a solid cylinder or disk
+    "hollow_cylinder": ("outer_radius", "wall", "height"),  # a tube or ring, open at both ends
+    "cup": ("outer_radius", "wall", "bottom", "height"),    # a hollow cylinder closed at one end (param 'open': top or bottom)
     "tube": ("rmin", "rmax", "length"),
     "cone": ("rmin1", "rmax1", "rmin2", "rmax2", "length"),
     "box": ("x", "y", "z"),
@@ -60,8 +64,9 @@ class Corner(BaseModel):
 
 class Solid(BaseModel):
     name: str
-    kind: Literal["tube", "cone", "box", "sphere", "torus", "polycone", "polyhedra", "extrusion",
-                  "union", "subtraction", "intersection"]
+    kind: Literal["cylinder", "hollow_cylinder", "cup", "tube", "cone", "box", "sphere", "torus", "polycone", "polyhedra",
+                  "extrusion", "union", "subtraction", "intersection"]
+    open: Literal["top", "bottom"] = Field(default="top", description="cup: the open end")
     params: dict[str, Num] = Field(default_factory=dict, description="the numbers the kind needs, see the list")
     points: list[Point] = Field(default_factory=list, description="polycone, polyhedra: the profile from bottom to top")
     corners: list[Corner] = Field(default_factory=list, description="extrusion: the outline in the x-y plane")
@@ -83,12 +88,19 @@ class Volume(BaseModel):
     rotation: list[Num] = Field(default_factory=list, description="rotation about x, y, z")
 
 
+class MaterialDef(BaseModel):
+    name: str
+    density: Num = Field(description="in g/cm3")
+    formula: dict[str, int] = Field(description="atoms per molecule, by element symbol: {'H': 3, 'B': 1, 'O': 3}")
+
+
 class LeftOut(BaseModel):
     part: str
     why: str
 
 
 class TeamSpec(BaseModel):
+    materials: list[MaterialDef] = Field(default_factory=list, description="materials not known by name: density and formula")
     solids: list[Solid]
     volumes: list[Volume]
     left_out: list[LeftOut] = Field(default_factory=list, description="parts of the brief not built, with the reason")
@@ -112,6 +124,8 @@ def _numbers(spec):
     for v in spec.volumes:
         for i, n in enumerate(v.position + v.rotation):
             yield f"volume {v.name}: placement {i}", n
+    for m in spec.materials:
+        yield f"material {m.name}: density", m.density
 
 
 def _in_mm(n):
@@ -143,9 +157,13 @@ def check(spec, brief, claims, known_material):
             if key not in s.params:
                 problems.append(f"solid {s.name}: a {s.kind} needs '{key}'")
         p = {k: _in_mm(v) for k, v in s.params.items()}
+        if s.kind in ("hollow_cylinder", "cup") and "wall" in p and "outer_radius" in p and p["wall"] >= p["outer_radius"]:
+            problems.append(f"solid {s.name}: the wall is as thick as the outer radius; use a cylinder for a solid part")
+        if s.kind == "cup" and {"bottom", "height"} <= set(p) and p["bottom"] >= p["height"]:
+            problems.append(f"solid {s.name}: the bottom is as thick as the cup is high; use a cylinder for a solid part")
         if s.kind in ("tube", "sphere") and p.get("rmin", 0) >= p.get("rmax", 1):
             problems.append(f"solid {s.name}: rmin must be below rmax")
-        if any(v <= 0 for k, v in p.items() if k in ("length", "x", "y", "z", "rmax", "thickness")):
+        if any(v <= 0 for k, v in p.items() if k in ("length", "x", "y", "z", "rmax", "thickness", "radius", "outer_radius", "wall", "height", "bottom")):
             problems.append(f"solid {s.name}: a length is zero or negative")
     for where, n in _numbers(spec):
         if n.origin in CITED or (n.origin == "derived" and not n.why):
@@ -169,8 +187,9 @@ def check(spec, brief, claims, known_material):
             problems.append(f"volume {v.name}: its solid '{v.solid}' is not in the specification")
         if v.inside != "team" and v.inside not in volumes:
             problems.append(f"volume {v.name}: it is inside '{v.inside}', which is not a volume of the specification")
-        if not known_material(v.material):
-            problems.append(f"volume {v.name}: material '{v.material}' is not known; use a common name or a Geant4 name")
+        if v.material not in {m.name for m in spec.materials} and not known_material(v.material):
+            problems.append(f"volume {v.name}: material '{v.material}' is not known; use a common name or a Geant4 name, "
+                            "or define it under materials with its density and formula")
         if v.material_origin in CITED and not v.material_claims:
             problems.append(f"volume {v.name}: material is '{v.material_origin}' but names no claim")
     parts = {t["part"] for t in brief["tasks"]}
@@ -187,6 +206,51 @@ def _claim_numbers(claim):
     if isinstance(claim.value, (int, float)):
         return [float(claim.value)]
     return [float(x) for x in numbers_in(f"{claim.value} {claim.statement}")]
+
+
+def profile(spec, name):
+    """The (z, rmin, rmax) profile in mm of a solid that is round about its axis, bottom to top, centred as Geant4
+    centres it; None for other solids."""
+    s = next(x for x in spec.solids if x.name == name)
+    p = {k: _in_mm(v) for k, v in s.params.items()}
+    if s.kind == "cylinder":
+        h = p["height"] / 2
+        return [(-h, 0.0, p["radius"]), (h, 0.0, p["radius"])]
+    if s.kind == "hollow_cylinder":
+        h = p["height"] / 2
+        return [(-h, p["outer_radius"] - p["wall"], p["outer_radius"]), (h, p["outer_radius"] - p["wall"], p["outer_radius"])]
+    if s.kind == "cup":
+        h, r, inner, b = p["height"] / 2, p["outer_radius"], p["outer_radius"] - p["wall"], p["bottom"]
+        prof = [(-h, 0.0, r), (-h + b, 0.0, r), (-h + b, inner, r), (h, inner, r)]
+        return prof if s.open == "top" else [(-z, a, c) for z, a, c in reversed([(-h, 0.0, r), (-h + b, 0.0, r), (-h + b, inner, r), (h, inner, r)])]
+    if s.kind in ("polycone", "polyhedra"):
+        prof = [(_in_mm(x.z), _in_mm(x.rmin), _in_mm(x.rmax)) for x in s.points]
+        middle = (prof[0][0] + prof[-1][0]) / 2 if prof else 0.0
+        return [(z - middle, a, b) for z, a, b in prof]       # every solid is centred on its origin
+    if s.kind == "tube":
+        h = p["length"] / 2
+        return [(-h, p["rmin"], p["rmax"]), (h, p["rmin"], p["rmax"])]
+    if s.kind == "cone":
+        h = p["length"] / 2
+        return [(-h, p["rmin1"], p["rmax1"]), (h, p["rmin2"], p["rmax2"])]
+    return None
+
+
+def extents(spec):
+    """Where each volume ends up in the team's frame: {volume: (zlow, zhigh, rmax) in mm} for round solids,
+    taking the chain of mothers into account."""
+    by_name = {v.name: v for v in spec.volumes}
+
+    def offset(v):
+        z = _in_mm(v.position[2]) if len(v.position) == 3 else 0.0
+        return z + (offset(by_name[v.inside]) if v.inside in by_name else 0.0)
+    out = {}
+    for v in spec.volumes:
+        prof = profile(spec, v.solid)
+        if prof:
+            dz = offset(v)
+            out[v.name] = (prof[0][0] + dz, prof[-1][0] + dz, max(b for _, _, b in prof))
+    return out
 
 
 def to_gdml(spec, path):
@@ -211,7 +275,11 @@ def to_gdml(spec, path):
         s = next(x for x in spec.solids if x.name == name)
         p = s.params
         full = 2 * math.pi
-        if s.kind == "tube":
+        if s.kind in BLOCKS:
+            prof = profile(spec, s.name)
+            out = g4.solid.Polycone(s.name, 0, full, [z for z, _, _ in prof], [a for _, a, _ in prof], [c for _, _, c in prof],
+                                    reg, "mm", "rad")
+        elif s.kind == "tube":
             out = g4.solid.Tubs(s.name, mm(p["rmin"]), mm(p["rmax"]), mm(p["length"]),
                                 ang(p["sphi"]) if "sphi" in p else 0, ang(p["dphi"]) if "dphi" in p else full, reg, "mm", "rad")
         elif s.kind == "cone":
@@ -226,11 +294,13 @@ def to_gdml(spec, path):
         elif s.kind == "torus":
             out = g4.solid.Torus(s.name, mm(p["rmin"]), mm(p["rmax"]), mm(p["rtor"]), 0, full, reg, "mm", "rad")
         elif s.kind == "polycone":
-            out = g4.solid.Polycone(s.name, 0, full, [mm(x.z) for x in s.points], [mm(x.rmin) for x in s.points],
-                                    [mm(x.rmax) for x in s.points], reg, "mm", "rad")
+            prof = profile(spec, s.name)
+            out = g4.solid.Polycone(s.name, 0, full, [z for z, _, _ in prof], [a for _, a, _ in prof], [c for _, _, c in prof],
+                                    reg, "mm", "rad")
         elif s.kind == "polyhedra":
-            out = g4.solid.Polyhedra(s.name, 0, full, int(p["sides"].value), len(s.points), [mm(x.z) for x in s.points],
-                                     [mm(x.rmin) for x in s.points], [mm(x.rmax) for x in s.points], reg, "mm", "rad")
+            prof = profile(spec, s.name)
+            out = g4.solid.Polyhedra(s.name, 0, full, int(p["sides"].value), len(prof), [z for z, _, _ in prof],
+                                     [a for _, a, _ in prof], [c for _, _, c in prof], reg, "mm", "rad")
         elif s.kind == "extrusion":
             half = mm(p["thickness"]) / 2
             out = g4.solid.ExtrudedSolid(s.name, [[mm(c.x), mm(c.y)] for c in s.corners],
@@ -243,9 +313,16 @@ def to_gdml(spec, path):
         made[name] = out
         return out
 
+    defined = {m.name: m for m in spec.materials}
+
+    def stuff(name):
+        if name in defined:
+            return material(reg, name, density=defined[name].density.value, formula=defined[name].formula)
+        return material(reg, name)
+
     logical = {}
     for v in spec.volumes:
-        logical[v.name] = g4.LogicalVolume(solid(v.solid), material(reg, v.material), f"{v.name}_lv", reg)
+        logical[v.name] = g4.LogicalVolume(solid(v.solid), stuff(v.material), f"{v.name}_lv", reg)
     extent = max([mm(n) for _, n in _numbers(spec) if n.unit.strip().lower() in LENGTH] + [1000.0])
     world = g4.LogicalVolume(g4.solid.Box("world", 8 * extent, 8 * extent, 8 * extent, reg, "mm"),
                              material(reg, "vacuum"), "world_lv", reg)

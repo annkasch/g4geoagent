@@ -109,5 +109,23 @@ if __name__ == "__main__":
             render(OUT / "team.gdml", OUT / "pictures", f"{brief['detector']}: team {brief['team']}")
         print(GS.as_text(spec)); print(json.dumps({k: v for k, v in report.items() if k != "rounds"}, indent=1))
         print("problems per repair round:", [len(r) for r in rounds], "\nlast:", rounds[-1][:8])
+    elif step == "revise":
+        # the builder with its revisions; the last attempt is copied to the output folder for the judge
+        import shutil
+        from g4geoagent.agent import team_builder as TB
+        from g4geoagent.agent.runlog import RunLog
+        brief = json.loads((OUT / "team_input.json").read_text())
+        graph = json.loads((RUN / "graph" / "detector_graph.json").read_text())
+        claims = {c.id: c for c in C.load(RUN / "graph")}
+        figures = [(f, (f.with_suffix(".txt").read_text().strip() if f.with_suffix(".txt").exists() else f.stem))
+                   for f in sorted(OUT.parent.glob("figure_*.png"))]
+        documents = {p.name: p.read_text() for p in (RUN / "evidence").glob("*.txt")}
+        TB.CONTEXT = "--context" in sys.argv
+        attempts = TB.build_with_revisions(brief, input_text(brief), graph, claims, figures, OUT, RunLog(OUT / "log.jsonl"),
+                                           revisions=int(option("--revisions", 10)), documents=documents)
+        last = [a for a in attempts if "folder" in a][-1]
+        for name in ("spec.json", "spec.txt", "build.json", "section.png"):
+            shutil.copy(Path(last["folder"]) / name, OUT / name)
+        print(f"{len(attempts)} attempts; last in {last['folder']}")
     else:
         raise SystemExit(f"unknown step {step!r}")
