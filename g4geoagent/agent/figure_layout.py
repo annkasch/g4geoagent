@@ -68,10 +68,7 @@ the part it is a zoom of;
    - where in that part it sits (top, bottom, centre, around the wall);
    - count, for an array, if the figure shows or says it;
    - profile: its outline, as a builder needs it: the shape of its top and bottom ends (flat, domed, conical, open), a \
-neck, a flange, steps in its width;
-   - box: the rectangle it occupies in the image, [left, right, top, bottom] as fractions of the image width and \
-height (0 = left or top edge, 1 = right or bottom edge). Be careful: the boxes of parts inside another part lie \
-within its box, and the proportions between parts matter.
+neck, a flange, steps in its width. Leave box empty.
 3. axis: the main axis and the symmetry. order: outside to inside, or top to bottom.
 
 Answer with one JSON object that fits this schema and nothing else:
@@ -409,9 +406,15 @@ class Reconciled(BaseModel):
     material: Field_ | None = None
 
 
+class Question(BaseModel):
+    about: str = Field(description="the figure part id (or paper part) the question is about")
+    question: str = Field(description="what to look at in the figure, asked so that the picture can answer it")
+
+
 class Reconciliation(BaseModel):
     parts: list[Reconciled]
     conflicts: list[str] = Field(default_factory=list, description="where figure and text disagree, and what was taken")
+    questions: list[Question] = Field(default_factory=list, description="for the figure reader: doubts the picture can settle")
 
 
 RECONCILE_PROMPT = """A figure of the detector {detector} was described part by part without the paper. Correct that \
@@ -422,8 +425,14 @@ words, which can be wrong (it may call a water tank a vacuum vessel);
 - shapes, outlines (ends, neck, flange) and arrangements stay as the figure shows them, unless the text says otherwise;
 - for each field say where it comes from: figure, text, or both (they agree);
 - parts the text names that the figure does not show: add them with figure_part 'text only' when they are main parts;
-- list every disagreement under conflicts, with what you took.
-
+- list every disagreement under conflicts, with what you took;
+- shape is the outline only (ends, neck, flange, panels, steps), never sizes from the text;
+- questions: whenever a match or a shape is uncertain, or figure and text disagree in a way the picture could settle, \
+ask the figure reader about what can be SEEN: is it one piece or several? is there another part between these two? \
+what does this neck connect to? are there small devices on this wall, how many, how arranged? does this part touch \
+that one? The figure reader has not read the paper: never ask what a part is or which paper part it is (it cannot \
+tell); work that out yourself from its answers. Ask nothing you can settle from the text.
+{dialogue}
 FIGURE DESCRIPTION:
 {figure}
 
@@ -451,6 +460,13 @@ def stated_containment(claims):
 def reconcile_check(answer, layout, claims):
     problems = []
     names = paper_parts(claims)
+    import re as _re
+    for q in answer.questions:
+        text = q.question.lower()
+        named = [n for n in names if len(n) > 3 and n.replace("_", " ") in text.replace("_", " ")]
+        if named or _re.search(r"\b(represent|correspond|is it the|is this the|which (part|component)|identify)\b", text):
+            problems.append(f"question about {q.about} asks what a part is ('{q.question[:90]}'); the figure reader has not read "
+                            "the paper: ask about what can be seen instead")
     figure_ids = {p.id for p in layout.parts}
     mapped = [r.figure_part for r in answer.parts if r.figure_part != "text only"]
     problems += [f"figure part {p} is not in the result" for p in sorted(figure_ids - set(mapped))]
@@ -488,11 +504,11 @@ def reconcile_check(answer, layout, claims):
     return problems
 
 
-def reconcile(layout, claims, detector, log=None, model="lbl/gpt-oss-120b"):
+def reconcile(layout, claims, detector, log=None, model="lbl/gpt-oss-120b", dialogue=""):
     figure = as_text(layout)
     containment = "\n".join(f"  {o} contains {i}: \"{s[:140]}\"" for o, i, s in stated_containment(claims)) or "  (none stated)"
     paper = "\n".join(f"  {name}: " + " | ".join(s[:160] for s in said[:6]) for name, said in paper_parts(claims).items())
-    request = RECONCILE_PROMPT.format(detector=detector, figure=figure, containment=containment, paper=paper,
+    request = RECONCILE_PROMPT.format(detector=detector, figure=figure, containment=containment, paper=paper, dialogue=dialogue,
                                       schema=json.dumps(Reconciliation.model_json_schema(), separators=(",", ":")))
     return D._with_repairs(model, [{"role": "user", "content": request}], Reconciliation,
                            lambda a: reconcile_check(a, layout, claims), log, "figure_reconcile")
@@ -501,9 +517,11 @@ def reconcile(layout, claims, detector, log=None, model="lbl/gpt-oss-120b"):
 def reconciled_text(answer):
     lines = []
     children = {}
-    for r in answer.parts:
-        children.setdefault(r.inside, []).append(r)
-    names = {r.paper_part for r in answer.parts}
+    key = {r.figure_part: (r.paper_part if r.paper_part != "not in the paper" else r.figure_part) for r in answer.parts
+           if r.figure_part != "text only"}
+    for r in answer.parts:                       # 'inside' may name a figure id or a paper part: use one key
+        children.setdefault(key.get(r.inside, r.inside), []).append(r)
+    names = {r.paper_part for r in answer.parts} | set(key)
 
     def walk(parent, depth, seen):
         for r in children.get(parent, []):
@@ -515,9 +533,84 @@ def reconciled_text(answer):
                          f"shape: {r.shape.value} [{r.shape.source}]; inside [{r.inside_source}]"
                          f"{'; ' + r.arrangement if r.arrangement else ''}{mat}")
             walk(key, depth + 1, seen | {key})
-    roots = [r for r in answer.parts if r.inside == "none" or r.inside not in names | {r2.figure_part for r2 in answer.parts}]
+    roots = [r for r in answer.parts if r.inside == "none" or r.inside not in names]
+    children.pop("none", None)
     for r in roots:
         children.setdefault("__root__", []).append(r)
     walk("__root__", 0, set())
     lines += [f"CONFLICT: {c}" for c in answer.conflicts]
     return "\n".join(lines)
+
+
+# ------------------------------------------------------------------ the figure reader answers; the step as a whole
+
+class Answer(BaseModel):
+    question: int = Field(description="the number of the question")
+    answer: str = Field(description="what the figure shows, as seen; 'cannot tell' if the picture does not show it")
+
+
+class Answers(BaseModel):
+    answers: list[Answer]
+    corrected_parts: list[Part] = Field(default_factory=list, description="parts of your layout you correct, with the same id")
+    new_parts: list[Part] = Field(default_factory=list, description="parts you missed, with new ids")
+
+
+ANSWER_PROMPT = """You described this figure of a particle detector earlier:
+{layout}
+
+Someone who has read the paper asks you about the figure. Look at the figure again, carefully, at the places the \
+questions point to, and answer each from what you see, not from what the paper might say. Then correct the parts of \
+your description that were wrong (same id) and add parts you missed (new ids). Leave box empty.
+
+Questions:
+{questions}
+
+Answer with one JSON object that fits this schema and nothing else:
+{schema}"""
+
+
+def answer_questions(figure, layout, questions, log=None, model=MODEL):
+    """The figure reader looks again and answers. Returns (Answers, the layout with its corrections)."""
+    listing = "\n".join(f"  {i + 1}. ({q.about}) {q.question}" for i, q in enumerate(questions))
+    request = ANSWER_PROMPT.format(layout=as_text(layout), questions=listing,
+                                   schema=json.dumps(Answers.model_json_schema(), separators=(",", ":")))
+    content = [{"type": "text", "text": request}, _image(_larger(figure))]
+
+    def updated(a):
+        parts = {p.id: p for p in layout.parts}
+        parts.update({p.id: p for p in a.corrected_parts})
+        parts.update({p.id: p for p in a.new_parts})
+        return layout.model_copy(update={"parts": list(parts.values())})
+    answers, _ = D._with_repairs(model, [{"role": "user", "content": content}], Answers, lambda a: check(updated(a)), log,
+                                 "figure_answers")
+    return answers, updated(answers)
+
+
+def layout_step(figure, claims, detector, out, log=None, rounds=3, caption=""):
+    """The layout of a detector from a figure, corrected by the text, with up to `rounds` rounds of questions from the
+    text side to the figure reader. Writes into `out`: figure_layout.json (the figure alone), layout.json and
+    layout.txt (the result), dialogue.json. Returns the Reconciliation. `claims`: the agreed claims (claims.Claim)."""
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    layout, _ = read_layout(figure, caption, log)
+    (out / "figure_layout.json").write_text(layout.model_dump_json(indent=1))
+    history, asked = [], set()
+    for number in range(rounds + 1):
+        dialogue = ""
+        if history:
+            dialogue = "\nEARLIER QUESTIONS TO THE FIGURE READER AND ITS ANSWERS (the description above includes its corrections):\n" + \
+                "\n".join(f"  Q: {h['question']}\n  A: {h['answer']}" for h in history) + "\n"
+        result, _ = reconcile(layout, claims, detector, log, dialogue=dialogue)
+        new = [q for q in result.questions if q.question.strip().lower() not in asked]
+        if not new or number == rounds:
+            break
+        answers, layout = answer_questions(figure, layout, new, log)
+        for i, q in enumerate(new):
+            asked.add(q.question.strip().lower())
+            a = next((x.answer for x in answers.answers if x.question == i + 1), "no answer")
+            history.append({"round": number + 1, "about": q.about, "question": q.question, "answer": a})
+    (out / "layout.json").write_text(result.model_dump_json(indent=1))
+    (out / "layout.txt").write_text(reconciled_text(result) + "\n")
+    (out / "dialogue.json").write_text(json.dumps(history, indent=1))
+    (out / "figure_layout_final.json").write_text(layout.model_dump_json(indent=1))
+    return result

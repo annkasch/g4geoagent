@@ -18,8 +18,8 @@ Script: experiments/ceiling/string_pictures.py. Answers: runs/ceiling/string_pic
 | A7 LMFE and clamps | close-up: "copper tabs/clamps", not recognised as front end | miss |
 | A8 cables | string photo: "suspension cable" | miss |
 | A9 hanger/tristar at top | string photo: "translucent top cap" | partial |
-| A10 nylon minishroud | array render: white cylinders called "detector units" | wrong, serious |
+| A10 nylon minishroud | not mentioned (white cylinders in the render read as detector units; whether the render shows shrouds is unclear) | miss |
 | A11 HV and CC4 boards | not mentioned | miss |
 
-About 2 right, 4 partial, 5 wrong or missed. No absolute size anywhere: pictures give ratios only.
+About 2 right, 4 partial, 5 wrong or missed. The array render may show a design version, not as-built (string count differs). No absolute size anywhere: pictures give ratios only.
 Single run, single seed; numbers move between runs.
