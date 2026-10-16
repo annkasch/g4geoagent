@@ -15,6 +15,22 @@ import requests
 # Documents-only mode: scientific literature, no code hosts. First version: INSPIRE and arXiv.
 ALLOWED_HOSTS = {"inspirehep.net", "arxiv.org", "export.arxiv.org"}
 TEXT_SUFFIXES = {".md", ".txt"}
+# Never allowed, also after the list above is widened: code hosts and pages built from code. Public geometry code is
+# used only by the Evaluator, after a run, to grade it (see tests/test_leak.py).
+BANNED_HOSTS = ("github.com", "githubusercontent.com", "github.io", "gitlab", "bitbucket.org", "sourceforge.net",
+                "readthedocs.io", "readthedocs.org", "pypi.org", "huggingface.co", "codeberg.org", "softwareheritage.org")
+CODE_SUFFIXES = (".py", ".cc", ".hh", ".cpp", ".h", ".gdml", ".mac", ".stl", ".ipynb", ".json", ".yaml")
+
+
+def is_allowed(url):
+    """True only for an allowed host that is not a code host and not a code file."""
+    parsed = urlparse(url)
+    host = parsed.hostname or ""
+    if any(host == banned or host.endswith("." + banned) or banned in host.split(".") for banned in BANNED_HOSTS):
+        return False
+    if parsed.path.lower().endswith(CODE_SUFFIXES):
+        return False
+    return host in ALLOWED_HOSTS
 
 
 class NotAllowed(Exception):
@@ -74,14 +90,17 @@ class Evidence:
 
     def fetch(self, url, **parameters):
         """GET `url` from an allowed source. Every attempt is written to the run log."""
-        host = urlparse(url).hostname or ""
-        allowed = host in ALLOWED_HOSTS
+        allowed = is_allowed(url)
         if self.log:
             self.log.event("fetch", "research", url=url, parameters=parameters, allowed=allowed)
         if not allowed:
-            raise NotAllowed(f"{host} is not an allowed source")
+            raise NotAllowed(f"{url} is not an allowed source")
         response = requests.get(url, params=parameters, timeout=120,
                                 headers={"User-Agent": "g4geoagent (research prototype)"})
+        # a redirect must not lead out of the allowed sources
+        for hop in [*response.history, response]:
+            if not is_allowed(hop.url):
+                raise NotAllowed(f"{url} redirected to {hop.url}, not an allowed source")
         response.raise_for_status()
         return response
 
